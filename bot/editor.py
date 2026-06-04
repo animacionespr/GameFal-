@@ -6,9 +6,15 @@ import random
 
 try:
     import edge_tts
-    HAS_TTS = True
+    HAS_EDGE_TTS = True
 except ImportError:
-    HAS_TTS = False
+    HAS_EDGE_TTS = False
+
+try:
+    from elevenlabs.client import ElevenLabs
+    HAS_ELEVENLABS = True
+except ImportError:
+    HAS_ELEVENLABS = False
 
 try:
     import imageio_ffmpeg
@@ -88,17 +94,39 @@ def generate_script(topic_title, subreddit=""):
     return random.choice(templates)
 
 
-async def _tts_async(text, output_path, voice):
+async def _edge_tts_async(text, output_path, voice):
     communicate = edge_tts.Communicate(text, voice)
     await communicate.save(output_path)
 
 
-def text_to_speech(text, output_path, voice="es-PR-KarinaNeural"):
-    if not HAS_TTS:
-        print("  [!] edge-tts no disponible — sin narración")
+def text_to_speech(text, output_path, voice="es-MX-JorgeNeural",
+                   elevenlabs_key="", elevenlabs_voice_id=""):
+    """Usa ElevenLabs si está configurado, si no usa edge-tts gratis."""
+
+    # Intentar ElevenLabs primero
+    if HAS_ELEVENLABS and elevenlabs_key and elevenlabs_key != "YOUR_ELEVENLABS_API_KEY" and elevenlabs_voice_id:
+        try:
+            print("     🎙️ Generando voz con ElevenLabs...")
+            client = ElevenLabs(api_key=elevenlabs_key)
+            audio = client.text_to_speech.convert(
+                voice_id=elevenlabs_voice_id,
+                text=text,
+                model_id="eleven_multilingual_v2",
+            )
+            with open(output_path, "wb") as f:
+                for chunk in audio:
+                    f.write(chunk)
+            return output_path
+        except Exception as e:
+            print(f"  [!] ElevenLabs error: {e} — usando edge-tts como respaldo")
+
+    # Respaldo: edge-tts gratis
+    if not HAS_EDGE_TTS:
+        print("  [!] Sin TTS disponible — video sin narración")
         return None
     try:
-        asyncio.run(_tts_async(text, output_path, voice))
+        print("     🎙️ Generando voz con edge-tts...")
+        asyncio.run(_edge_tts_async(text, output_path, voice))
         return output_path if os.path.exists(output_path) else None
     except Exception as e:
         print(f"  [!] TTS error: {e}")
@@ -117,7 +145,8 @@ def _escape_ffmpeg_text(text):
             .replace("]", "\\]"))
 
 
-def edit_video(input_path, output_path, title, script, voice, duration=45, watermark=""):
+def edit_video(input_path, output_path, title, script, voice, duration=45, watermark="",
+               elevenlabs_key="", elevenlabs_voice_id=""):
     """
     Edita el video con ffmpeg puro:
     1. Recorta a portrait 9:16
@@ -129,7 +158,9 @@ def edit_video(input_path, output_path, title, script, voice, duration=45, water
     narr_path = output_path.replace(".mp4", "_narr.mp3")
 
     # Generar narración
-    narr_available = text_to_speech(script, narr_path, voice)
+    narr_available = text_to_speech(script, narr_path, voice,
+                                    elevenlabs_key=elevenlabs_key,
+                                    elevenlabs_voice_id=elevenlabs_voice_id)
 
     # Construir filtros de video
     title_short = title[:50] + ("..." if len(title) > 50 else "")

@@ -13,18 +13,24 @@ YOUTUBE_CLIENT_SECRETS = "client_secrets.json"
 UPLOAD_TO_YOUTUBE = False   # Requiere client_secrets.json
 UPLOAD_TO_TIKTOK = False   # (requiere cuenta TikTok Business)
 
-# Voz para la narración (edge-tts, 100% gratis)
-# Opciones: es-PR-KarinaNeural, es-MX-DaliaNeural, es-ES-ElviraNeural
-TTS_VOICE = "es-PR-KarinaNeural"
+# --- Voz con ElevenLabs (gratis: 10,000 caracteres/mes en elevenlabs.io) ---
+# Obtén tu API key en: https://elevenlabs.io/app/settings/api-keys
+ELEVENLABS_API_KEY = "YOUR_ELEVENLABS_API_KEY"
+
+# ID de la voz que quieres usar (corre find_voice.py para buscar "Enrique Nieto")
+ELEVENLABS_VOICE_ID = ""
+
+# Voz de respaldo si ElevenLabs no está configurado (edge-tts, 100% gratis)
+TTS_VOICE = "es-MX-JorgeNeural"  # voz masculina en español
 
 # Cuántos videos crear por ejecución
 VIDEOS_PER_RUN = 1
 
 # Duración del video en segundos (30-60s = ideal para Shorts)
-VIDEO_DURATION = 45
+VIDEO_DURATION = 30  # mínimo 17s, 30s ideal para Shorts
 
 # ¿Qué tipo de videos quieres crear?
-VIDEO_TOPICS = ["gaming setup", "video game", "esports", "gaming", "controller", "streamer", "pc gaming", "console gaming"]
+VIDEO_TOPICS = ["gameplay", "video game gameplay", "esports highlights", "gaming moments", "game streaming", "pc gameplay", "console gameplay"]
 
 # Reddit (opcional, si funciona en tu red)
 REDDIT_SUBREDDITS = ["popular", "videos", "nextfuckinglevel", "interestingasfuck", "mildlyinteresting"]

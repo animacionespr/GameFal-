@@ -107,7 +107,9 @@ def run():
                 script=script,
                 voice=config.TTS_VOICE,
                 duration=config.VIDEO_DURATION,
-                watermark="@TuCanal",  # Cambia esto por tu canal
+                watermark="@TuCanal",
+                elevenlabs_key=config.ELEVENLABS_API_KEY,
+                elevenlabs_voice_id=config.ELEVENLABS_VOICE_ID,
             )
         except Exception as e:
             print(f"  ❌ Error editando: {e}")
