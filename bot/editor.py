@@ -84,56 +84,79 @@ def edit_video(input_path, output_path, title, script, voice, duration=45, water
     title_escaped = _escape_ffmpeg_text(title_short)
 
     video_filter = (
-        # Crop portrait 9:16 desde el centro
         "crop=ih*9/16:ih:(iw-ih*9/16)/2:0,"
-        # Resize a 1080x1920 (Full HD vertical)
         "scale=1080:1920,"
-        # Título arriba
         f"drawtext=text='{title_escaped}'"
         ":fontsize=48:fontcolor=white:x=(w-text_w)/2:y=80"
-        ":borderw=3:bordercolor=black@0.8"
-        ":line_spacing=10"
+        ":borderw=3:bordercolor=black"
     )
 
     if watermark:
         wm_escaped = _escape_ffmpeg_text(watermark)
         video_filter += (
             f",drawtext=text='{wm_escaped}'"
-            ":fontsize=32:fontcolor=white@0.8:x=(w-text_w)/2:y=h-80"
-            ":borderw=2:bordercolor=black@0.6"
+            ":fontsize=32:fontcolor=white:x=(w-text_w)/2:y=h-80"
+            ":borderw=2:bordercolor=black"
         )
 
+    # Detectar si el video tiene audio
+    probe = subprocess.run(
+        [FFMPEG, "-i", input_path],
+        capture_output=True, text=True
+    )
+    has_audio = "Audio:" in probe.stderr
+
     if narr_available and os.path.exists(narr_path):
-        # Mezclar audio original (bajo volumen) con narración
-        cmd = [
-            FFMPEG, "-y",
-            "-i", input_path,
-            "-i", narr_path,
-            "-t", str(duration),
-            "-filter_complex",
-            f"[0:v]{video_filter}[vout];"
-            "[0:a]volume=0.05[orig];"
-            "[1:a]volume=1.0[narr];"
-            "[orig][narr]amix=inputs=2:duration=shortest[aout]",
-            "-map", "[vout]",
-            "-map", "[aout]",
-            "-c:v", "libx264",
-            "-c:a", "aac",
-            "-preset", "fast",
-            "-crf", "23",
-            "-r", "30",
-            "-shortest",
-            output_path
-        ]
+        if has_audio:
+            audio_filter = (
+                f"[0:v]{video_filter}[vout];"
+                "[0:a]volume=0.05[orig];"
+                "[1:a]volume=1.0[narr];"
+                "[orig][narr]amix=inputs=2:duration=shortest[aout]"
+            )
+            cmd = [
+                FFMPEG, "-y",
+                "-i", input_path,
+                "-i", narr_path,
+                "-t", str(duration),
+                "-filter_complex", audio_filter,
+                "-map", "[vout]",
+                "-map", "[aout]",
+                "-c:v", "libx264",
+                "-c:a", "aac",
+                "-preset", "fast",
+                "-crf", "23",
+                "-r", "30",
+                "-shortest",
+                output_path
+            ]
+        else:
+            # Video sin audio — usar solo narración
+            cmd = [
+                FFMPEG, "-y",
+                "-i", input_path,
+                "-i", narr_path,
+                "-t", str(duration),
+                "-filter_complex", f"[0:v]{video_filter}[vout]",
+                "-map", "[vout]",
+                "-map", "1:a",
+                "-c:v", "libx264",
+                "-c:a", "aac",
+                "-preset", "fast",
+                "-crf", "23",
+                "-r", "30",
+                "-shortest",
+                output_path
+            ]
     else:
         # Sin narración — solo video con filtro
         cmd = [
             FFMPEG, "-y",
             "-i", input_path,
             "-t", str(duration),
-            "-vf", video_filter,
+            "-filter_complex", f"[0:v]{video_filter}[vout]",
+            "-map", "[vout]",
             "-c:v", "libx264",
-            "-c:a", "aac",
             "-preset", "fast",
             "-crf", "23",
             "-r", "30",
