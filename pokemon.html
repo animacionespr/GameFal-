@@ -3,204 +3,251 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>PokéCatch</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;background:#111;overflow:hidden;font-family:'Courier New',monospace;user-select:none;-webkit-user-select:none}
+html,body{width:100%;height:100%;background:#0d1117;overflow:hidden;
+  font-family:'Courier New',monospace;user-select:none;-webkit-user-select:none;
+  touch-action:manipulation}
 
-/* ── SCREENS ── */
-#s-menu,#s-game,#s-casino,#s-col{
-  position:absolute;inset:0;
-  display:none;flex-direction:column;align-items:center;
-}
-.vis{display:flex!important}
+/* ── SCREENS: all hidden, JS controls display ── */
+.scr{position:absolute;inset:0;display:none;flex-direction:column;align-items:center}
 
 /* ── MENU ── */
 #s-menu{
-  background:linear-gradient(160deg,#cc0000 0%,#880000 40%,#111 100%);
-  justify-content:center;gap:22px;padding:30px;
+  background:linear-gradient(170deg,#1a0000 0%,#cc0000 35%,#660000 65%,#0d0d0d 100%);
+  justify-content:center;gap:20px;padding:20px;
 }
 .pball{
-  width:100px;height:100px;border-radius:50%;
-  background:linear-gradient(180deg,#cc0000 48%,#222 48%,#222 52%,#fff 52%);
-  border:7px solid #222;box-shadow:0 8px 30px #0009;position:relative;
+  width:96px;height:96px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(180deg,#cc0000 47%,#222 47%,#222 53%,#f0f0f0 53%);
+  border:7px solid #111;box-shadow:0 10px 30px rgba(0,0,0,.7);position:relative;
 }
-.pball::after{content:'';position:absolute;width:24px;height:24px;border-radius:50%;
-  background:#eee;border:5px solid #222;top:50%;left:50%;transform:translate(-50%,-50%)}
-#m-title{font-size:52px;font-weight:900;color:#fff;text-shadow:3px 3px 0 #000}
-#m-sub{color:rgba(255,255,255,.75);font-size:14px;text-align:center}
+.pball::after{content:'';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);width:22px;height:22px;
+  border-radius:50%;background:#e8e8e8;border:5px solid #111}
+#m-title{font-size:54px;font-weight:900;color:#fff;
+  text-shadow:0 0 20px rgba(255,80,80,.6),3px 3px 0 #000;letter-spacing:1px}
+#m-sub{color:rgba(255,255,255,.7);font-size:13px;text-align:center;line-height:1.5}
 #m-play{
   background:#ffcb05;color:#111;border:4px solid #111;border-radius:60px;
-  padding:16px 56px;font-size:24px;font-weight:900;cursor:pointer;font-family:inherit;
-  box-shadow:0 6px 0 #a07800;
+  padding:16px 56px;font-size:24px;font-weight:900;cursor:pointer;
+  font-family:inherit;box-shadow:0 6px 0 #9a7a00;
+  -webkit-appearance:none;appearance:none;
 }
-#m-play:active{transform:translateY(5px);box-shadow:0 1px 0 #a07800}
-#m-colbtn{background:none;color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:40px;
-  padding:8px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-#m-saved{color:rgba(255,255,255,.6);font-size:13px}
+#m-play:active{transform:translateY(5px);box-shadow:0 1px 0 #9a7a00}
+#m-colbtn{
+  background:rgba(255,255,255,.12);color:#fff;
+  border:2px solid rgba(255,255,255,.3);border-radius:40px;
+  padding:9px 26px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;-webkit-appearance:none;
+}
+#m-saved{color:rgba(255,255,255,.55);font-size:12px}
+#m-mute{
+  background:none;border:none;color:rgba(255,255,255,.5);
+  font-size:20px;cursor:pointer;font-family:inherit;
+}
 
 /* ── GAME ── */
-#s-game{background:#1a3a1a}
+#s-game{background:#162016}
 
 #hud{
   width:100%;background:#cc0000;
-  padding:8px 14px;display:flex;justify-content:space-between;align-items:center;
-  flex-shrink:0;
+  padding:8px 14px;display:flex;justify-content:space-between;
+  align-items:center;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
 }
-#hud-lv{color:#ffcb05;font-size:15px;font-weight:900}
+#hud-lv{color:#ffcb05;font-size:14px;font-weight:900}
 #hud-t{display:flex;flex-direction:column;align-items:center;gap:2px}
 #hud-tnum{color:#fff;font-size:32px;font-weight:900;line-height:1}
-#tbar{width:80px;height:5px;background:rgba(255,255,255,.3);border-radius:3px}
-#tfill{height:100%;background:#ffcb05;border-radius:3px;transition:width 1s linear,background .5s}
-#hud-cbtn{background:#ffcb05;color:#111;border:2px solid #111;border-radius:6px;
-  padding:5px 10px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit}
-
-#tbar-targets{
-  width:100%;background:#111;
-  display:flex;justify-content:space-around;padding:6px 4px;flex-shrink:0;
+#hud-tbar{width:80px;height:5px;background:rgba(255,255,255,.25);border-radius:3px}
+#hud-tfill{height:100%;border-radius:3px;background:#ffcb05;transition:width 1s linear,background .4s}
+#hud-cbtn{
+  background:#ffcb05;color:#111;border:2px solid #111;
+  border-radius:6px;padding:5px 10px;font-size:12px;font-weight:900;
+  cursor:pointer;font-family:inherit;-webkit-appearance:none;
 }
-.tslot{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 8px;
-  border-radius:8px;border:1px solid rgba(255,203,5,.2)}
-.tslot-img{width:48px;height:48px;position:relative}
-.tslot-img img{width:48px;height:48px;image-rendering:pixelated}
+
+#trow{
+  width:100%;background:#111;
+  display:flex;justify-content:space-around;
+  padding:6px 2px;flex-shrink:0;
+}
+.tslot{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:3px 8px;border-radius:8px;min-width:90px;
+  border:1px solid rgba(255,203,5,.15);
+}
+.tslot img{width:50px;height:50px;image-rendering:pixelated}
 .tname{color:#ffcb05;font-size:9px;font-weight:900;text-align:center}
-.tpips{display:flex;gap:4px}
-.pip{width:12px;height:12px;border-radius:50%;border:2px solid #ffcb05;background:transparent}
+.tpips{display:flex;gap:4px;margin-top:1px}
+.pip{width:12px;height:12px;border-radius:50%;border:2px solid #ffcb05}
 .pip.on{background:#ffcb05}
 
 #field{
   flex:1;position:relative;overflow:hidden;
-  background:linear-gradient(160deg,#2d5a27,#1a3a1a);
+  background:radial-gradient(ellipse at 50% 30%,#1e3a1e,#0d1a0d);
 }
 
-/* Pokémon on field */
+/* Pokémon sprite on field */
 .mon{
-  position:absolute;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;
-  z-index:5;
+  position:absolute;display:flex;flex-direction:column;
+  align-items:center;cursor:pointer;z-index:5;
+  /* CRITICAL for iOS tap detection */
+  -webkit-tap-highlight-color:transparent;
 }
-.mon-body{
+.mon-wrap{
   width:72px;height:72px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  border:3px solid rgba(255,255,255,.3);
-  position:relative;
+  position:relative;border:2px solid rgba(255,255,255,.2);
 }
-.mon-body img{width:64px;height:64px;image-rendering:pixelated;position:absolute}
-.mon-label{
+.mon-wrap img{
+  width:64px;height:64px;image-rendering:pixelated;
+  pointer-events:none;position:absolute;
+}
+.mon-name{
   color:#fff;font-size:9px;font-weight:900;
-  background:rgba(0,0,0,.65);border-radius:4px;padding:1px 4px;
-  margin-top:1px;white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis;
+  background:rgba(0,0,0,.7);border-radius:4px;
+  padding:1px 5px;margin-top:2px;white-space:nowrap;pointer-events:none;
 }
-.mon:active .mon-body{transform:scale(.82)}
 
-/* flash */
-.bling{position:absolute;pointer-events:none;z-index:20;animation:bling .4s forwards}
-@keyframes bling{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.5);opacity:0}}
-.bling-ring{width:60px;height:60px;border-radius:50%;border:4px solid #ffcb05;background:rgba(255,203,5,.2)}
-.miss{position:absolute;pointer-events:none;z-index:20;animation:miss .35s forwards;font-size:22px;font-weight:900;color:#ff4444}
-@keyframes miss{0%{opacity:1}100%{opacity:0;transform:translateY(-25px)}}
+/* catch/miss fx */
+.bling{
+  position:absolute;pointer-events:none;z-index:20;
+  width:60px;height:60px;border-radius:50%;
+  border:4px solid #ffcb05;background:rgba(255,203,5,.2);
+  animation:bling .4s ease-out forwards;
+}
+@keyframes bling{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.8);opacity:0}}
+.miss-x{
+  position:absolute;pointer-events:none;z-index:20;
+  font-size:24px;font-weight:900;color:#ff4444;
+  animation:missfly .35s ease-out forwards;
+}
+@keyframes missfly{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-28px)}}
 
 /* countdown */
-#countdown{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  z-index:50;pointer-events:none;
+#cdown{
+  position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;z-index:60;pointer-events:none;
 }
-#countdown-num{font-size:120px;font-weight:900;color:#ffcb05;text-shadow:4px 4px 0 #000;
-  animation:cdpop .9s ease-in-out}
-@keyframes cdpop{0%{transform:scale(.3);opacity:1}70%{transform:scale(1.1);opacity:1}100%{transform:scale(.8);opacity:0}}
+#cdown-n{
+  font-size:130px;font-weight:900;color:#ffcb05;
+  text-shadow:5px 5px 0 #000,0 0 40px rgba(255,203,5,.5);
+}
 
 #timeup{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.7);z-index:40;pointer-events:none;opacity:0;transition:opacity .3s;
+  position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;background:rgba(0,0,0,.72);
+  z-index:50;pointer-events:none;opacity:0;transition:opacity .35s;
 }
 #timeup.show{opacity:1}
-#timeup-txt{color:#ff4444;font-size:56px;font-weight:900;text-shadow:3px 3px 0 #000}
+#timeup span{color:#ff4444;font-size:58px;font-weight:900;text-shadow:4px 4px 0 #000}
 
 /* ── CASINO ── */
 #s-casino{
-  background:radial-gradient(ellipse at 50% -10%,#3a1a6e,#0a0a1a);
+  background:radial-gradient(ellipse at 50% -5%,#2e1060,#080818);
   padding:20px 14px;gap:14px;justify-content:flex-start;
 }
-#cas-title{color:#ffcb05;font-size:28px;font-weight:900;text-align:center}
-#cas-sub{color:rgba(255,255,255,.6);font-size:13px;text-align:center}
+#cas-h{color:#ffcb05;font-size:30px;font-weight:900;text-align:center;
+  text-shadow:0 0 20px rgba(255,203,5,.5)}
+#cas-sub{color:rgba(255,255,255,.55);font-size:12px;text-align:center}
 #cas-reels{display:flex;gap:10px;justify-content:center;width:100%}
-.rwrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;max-width:100px}
-.rlbl{color:#ffcb05;font-size:10px;font-weight:900;text-align:center}
-.rwin{width:82px;height:82px;border:4px solid #ffcb05;border-radius:12px;overflow:hidden;
-  position:relative;background:#0a0a1a;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 16px rgba(255,203,5,.3)}
-.rwin.off{border-color:#333;box-shadow:none}
-.rwin img{width:66px;height:66px;image-rendering:pixelated}
-.rwin .rx{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:36px;color:#333;font-weight:900;background:rgba(0,0,0,.5)}
-.rscore{color:rgba(255,255,255,.65);font-size:11px}
-.rwin.spin img{animation:rspin .12s linear infinite}
-@keyframes rspin{0%{transform:scaleY(1)}50%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+.rw{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;max-width:105px}
+.rl{color:#ffcb05;font-size:10px;font-weight:900;text-align:center}
+.rv{
+  width:84px;height:84px;border:4px solid #ffcb05;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:#060612;position:relative;
+  box-shadow:0 0 16px rgba(255,203,5,.3);overflow:hidden;
+}
+.rv.off{border-color:#333;box-shadow:none;opacity:.6}
+.rv img{width:66px;height:66px;image-rendering:pixelated}
+.rv .rx{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:36px;color:#444;font-weight:900;background:rgba(0,0,0,.5);
+}
+.rv.spin img{animation:spin .12s linear infinite}
+@keyframes spin{0%{transform:scaleY(1)}50%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+.rscore{color:rgba(255,255,255,.6);font-size:11px}
 
-#cas-result{text-align:center;min-height:110px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:6px}
+#cas-res{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:8px;min-height:110px;width:100%;
+}
 #cas-img{width:90px;height:90px;image-rendering:pixelated;display:none}
-#cas-txt{font-size:17px;font-weight:900;color:#fff}
-#cas-name{font-size:28px;font-weight:900;color:#ffcb05}
+#cas-txt{font-size:17px;font-weight:900;color:#fff;text-align:center}
+#cas-name{font-size:28px;font-weight:900;color:#ffcb05;text-align:center}
 
 #cas-btn{
   background:#ffcb05;color:#111;border:4px solid #111;border-radius:50px;
-  padding:14px 44px;font-size:20px;font-weight:900;cursor:pointer;font-family:inherit;
-  box-shadow:0 6px 0 #a07800;display:none;margin-top:auto;margin-bottom:12px;
+  padding:14px 44px;font-size:20px;font-weight:900;cursor:pointer;
+  font-family:inherit;box-shadow:0 6px 0 #9a7a00;display:none;
+  margin-top:auto;margin-bottom:12px;-webkit-appearance:none;
 }
-#cas-btn:active{transform:translateY(5px);box-shadow:0 1px 0 #a07800}
+#cas-btn:active{transform:translateY(5px);box-shadow:0 1px 0 #9a7a00}
 
 /* ── COLLECTION ── */
-#s-col{background:#0e0e2e;padding:14px;gap:12px}
+#s-col{background:#0a0a22;padding:14px;gap:12px}
 #col-top{display:flex;width:100%;align-items:center;justify-content:space-between}
 #col-h{color:#ffcb05;font-size:22px;font-weight:900}
-#col-cnt{color:rgba(255,255,255,.55);font-size:12px}
-#col-x{background:#cc0000;color:#fff;border:none;border-radius:8px;padding:7px 16px;
-  font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
-#col-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-  width:100%;overflow-y:auto;flex:1}
-.cell{background:rgba(255,255,255,.05);border-radius:8px;display:flex;flex-direction:column;
-  align-items:center;padding:8px 4px;border:1px solid rgba(255,203,5,.12)}
-.cell img{width:50px;height:50px;image-rendering:pixelated}
-.cell-n{color:#ffcb05;font-size:9px;font-weight:900;text-align:center;margin-top:3px}
-.cell-new{color:#cc0000;font-size:9px;font-weight:900}
+#col-cnt{color:rgba(255,255,255,.5);font-size:12px}
+#col-x{
+  background:#cc0000;color:#fff;border:none;border-radius:8px;
+  padding:7px 16px;font-size:13px;font-weight:900;cursor:pointer;
+  font-family:inherit;-webkit-appearance:none;
+}
+#col-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
+  width:100%;overflow-y:auto;flex:1;padding-bottom:8px;
+}
+.cel{
+  background:rgba(255,255,255,.04);border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;
+  padding:7px 3px;border:1px solid rgba(255,203,5,.1);
+}
+.cel img{width:50px;height:50px;image-rendering:pixelated}
+.cel-n{color:#ffcb05;font-size:9px;font-weight:900;text-align:center;margin-top:3px}
+.cel-new{color:#ff4455;font-size:9px;font-weight:900}
 </style>
 </head>
 <body>
 
 <!-- MENU -->
-<div id="s-menu" class="vis">
+<div id="s-menu" class="scr">
   <div class="pball"></div>
   <div id="m-title">PokéCatch</div>
-  <div id="m-sub">Atrapa 3 de cada objetivo antes del tiempo</div>
+  <div id="m-sub">Atrapa 3 de cada objetivo<br>antes de que acabe el tiempo</div>
   <button id="m-play">▶ JUGAR</button>
   <button id="m-colbtn">📖 Mi Colección</button>
   <div id="m-saved"></div>
+  <button id="m-mute">🔊</button>
 </div>
 
 <!-- GAME -->
-<div id="s-game">
+<div id="s-game" class="scr">
   <div id="hud">
     <div id="hud-lv">LVL 1</div>
     <div id="hud-t">
       <div id="hud-tnum">60</div>
-      <div id="tbar"><div id="tfill" style="width:100%"></div></div>
+      <div id="hud-tbar"><div id="hud-tfill" style="width:100%"></div></div>
     </div>
-    <button id="hud-cbtn">📖 Col.</button>
+    <button id="hud-cbtn">📖 Col</button>
   </div>
-  <div id="tbar-targets"></div>
+  <div id="trow"></div>
   <div id="field">
-    <div id="countdown"><div id="countdown-num"></div></div>
-    <div id="timeup"><div id="timeup-txt">¡TIEMPO!</div></div>
+    <div id="cdown"><div id="cdown-n"></div></div>
+    <div id="timeup"><span>¡TIEMPO!</span></div>
   </div>
 </div>
 
 <!-- CASINO -->
-<div id="s-casino">
-  <div id="cas-title">🎰 RULETA</div>
-  <div id="cas-sub">Solo los objetivos completados (3/3) pueden ganar</div>
+<div id="s-casino" class="scr">
+  <div id="cas-h">🎰 RULETA</div>
+  <div id="cas-sub">Los completos (3/3) entran al sorteo</div>
   <div id="cas-reels"></div>
-  <div id="cas-result">
+  <div id="cas-res">
     <img id="cas-img" alt="">
     <div id="cas-txt"></div>
     <div id="cas-name"></div>
@@ -209,12 +256,9 @@ html,body{width:100%;height:100%;background:#111;overflow:hidden;font-family:'Co
 </div>
 
 <!-- COLLECTION -->
-<div id="s-col">
+<div id="s-col" class="scr">
   <div id="col-top">
-    <div>
-      <div id="col-h">📖 Colección</div>
-      <div id="col-cnt"></div>
-    </div>
+    <div><div id="col-h">📖 Colección</div><div id="col-cnt"></div></div>
     <button id="col-x">✕ Cerrar</button>
   </div>
   <div id="col-grid"></div>
@@ -223,472 +267,485 @@ html,body{width:100%;height:100%;background:#111;overflow:hidden;font-family:'Co
 <script>
 'use strict';
 
-/* ── DATA ──────────────────────────────────────────────── */
+/* ─────────────────── DATA ─────────────────── */
 const POOL = [
-  {id:1,  name:'Bulbasaur', c:'#78c850'},
-  {id:4,  name:'Charmander',c:'#f08030'},
-  {id:7,  name:'Squirtle',  c:'#6890f0'},
-  {id:25, name:'Pikachu',   c:'#f8d030'},
-  {id:39, name:'Jigglypuff',c:'#f4bdc9'},
-  {id:52, name:'Meowth',    c:'#f8d030'},
-  {id:54, name:'Psyduck',   c:'#f8d030'},
-  {id:79, name:'Slowpoke',  c:'#f4bdc9'},
-  {id:94, name:'Gengar',    c:'#705898'},
-  {id:113,name:'Chansey',   c:'#f4bdc9'},
-  {id:129,name:'Magikarp',  c:'#f08030'},
-  {id:133,name:'Eevee',     c:'#c08860'},
-  {id:143,name:'Snorlax',   c:'#708090'},
-  {id:150,name:'Mewtwo',    c:'#9880c8'},
-  {id:151,name:'Mew',       c:'#f8a0c0'},
-  {id:152,name:'Chikorita', c:'#78c850'},
-  {id:155,name:'Cyndaquil', c:'#f08030'},
-  {id:158,name:'Totodile',  c:'#6890f0'},
-  {id:172,name:'Pichu',     c:'#f8d030'},
-  {id:175,name:'Togepi',    c:'#f0f0f0'},
-  {id:196,name:'Espeon',    c:'#9880c8'},
-  {id:197,name:'Umbreon',   c:'#f8d030'},
-  {id:216,name:'Teddiursa', c:'#c08860'},
-  {id:249,name:'Lugia',     c:'#6890f0'},
-  {id:252,name:'Treecko',   c:'#78c850'},
-  {id:255,name:'Torchic',   c:'#f08030'},
-  {id:258,name:'Mudkip',    c:'#6890f0'},
-  {id:385,name:'Jirachi',   c:'#f8d030'},
-  {id:393,name:'Piplup',    c:'#6890f0'},
-  {id:448,name:'Lucario',   c:'#4878c8'},
-  {id:58, name:'Growlithe', c:'#f08030'},
-  {id:147,name:'Dratini',   c:'#6890f0'},
-  {id:183,name:'Marill',    c:'#6890f0'},
-  {id:280,name:'Ralts',     c:'#f8a0c0'},
+  {id:1,  n:'Bulbasaur', c:'#78c850'},{id:4,  n:'Charmander',c:'#f08030'},
+  {id:7,  n:'Squirtle',  c:'#6890f0'},{id:25, n:'Pikachu',   c:'#f8d030'},
+  {id:39, n:'Jigglypuff',c:'#f4bdc9'},{id:52, n:'Meowth',    c:'#c8a850'},
+  {id:54, n:'Psyduck',   c:'#f8d848'},{id:79, n:'Slowpoke',  c:'#f4bdc9'},
+  {id:94, n:'Gengar',    c:'#705898'},{id:113,n:'Chansey',   c:'#f4bdc9'},
+  {id:129,n:'Magikarp',  c:'#f85888'},{id:133,n:'Eevee',     c:'#c8a058'},
+  {id:143,n:'Snorlax',   c:'#708070'},{id:150,n:'Mewtwo',    c:'#9880c8'},
+  {id:151,n:'Mew',       c:'#f8a0c0'},{id:152,n:'Chikorita', c:'#78c850'},
+  {id:155,n:'Cyndaquil', c:'#f85030'},{id:158,n:'Totodile',  c:'#6890f0'},
+  {id:172,n:'Pichu',     c:'#f8d030'},{id:175,n:'Togepi',    c:'#e8e8e8'},
+  {id:196,n:'Espeon',    c:'#9880c8'},{id:197,n:'Umbreon',   c:'#f8c000'},
+  {id:216,n:'Teddiursa', c:'#c09858'},{id:249,n:'Lugia',     c:'#8888c8'},
+  {id:252,n:'Treecko',   c:'#78c850'},{id:255,n:'Torchic',   c:'#f87030'},
+  {id:258,n:'Mudkip',    c:'#6890f0'},{id:385,n:'Jirachi',   c:'#f8d030'},
+  {id:393,n:'Piplup',    c:'#6890f0'},{id:448,n:'Lucario',   c:'#3868b8'},
+  {id:58, n:'Growlithe', c:'#f87030'},{id:147,n:'Dratini',   c:'#98a8d0'},
+  {id:183,n:'Marill',    c:'#6898f0'},{id:280,n:'Ralts',     c:'#f0a0b8'},
 ];
 
-const GIF = id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
-const PNG = id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-const CRY = id => `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
+const G  = id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
+const P  = id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+const CR = id=>`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
 
-/* ── STATE ─────────────────────────────────────────────── */
-let G = {
-  level: 1,
-  targets: [],
-  decoys: [],
-  mons: [],
-  timer: 60,
-  running: false,
-  tInt: null,
-  sInt: null,
-  raf: null,
-  col: safeLoad(),
-  newCatch: null,
-  fromScreen: null,
+/* ─────────────────── STATE ─────────────────── */
+const S = {
+  level:1, targets:[], decoys:[], mons:[],
+  timer:60, running:false,
+  tInt:null, sInt:null, raf:null,
+  col: (()=>{try{return JSON.parse(localStorage.getItem('pkc4')||'[]')}catch{return []}})(),
+  newCatch:null, back:null,
 };
 
-function safeLoad() {
-  try { return JSON.parse(localStorage.getItem('pkc3') || '[]'); } catch(e) { return []; }
-}
-function saveCol() {
-  try { localStorage.setItem('pkc3', JSON.stringify(G.col)); } catch(e) {}
-}
-
-function shuffle(a) {
-  const b = [...a];
-  for (let i = b.length - 1; i > 0; i--) {
-    const j = Math.random() * (i + 1) | 0;
-    [b[i], b[j]] = [b[j], b[i]];
-  }
+function saveCol(){try{localStorage.setItem('pkc4',JSON.stringify(S.col))}catch{}}
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[b[i],b[j]]=[b[j],b[i]]}
   return b;
 }
 
-/* ── SCREENS ────────────────────────────────────────────── */
-const SCR = {
-  menu:   document.getElementById('s-menu'),
-  game:   document.getElementById('s-game'),
-  casino: document.getElementById('s-casino'),
-  col:    document.getElementById('s-col'),
-};
-
-function goTo(name) {
-  Object.values(SCR).forEach(el => el.style.display = 'none');
-  SCR[name].style.display = 'flex';
+/* ─────────────────── SCREENS ─────────────────── */
+// Direct display management — no CSS classes, no !important conflicts
+function show(id){
+  ['s-menu','s-game','s-casino','s-col'].forEach(s=>{
+    document.getElementById(s).style.display='none';
+  });
+  document.getElementById(id).style.display='flex';
 }
 
-/* ── SOUND ──────────────────────────────────────────────── */
-const snd = {};
-function playCry(id) {
-  try {
-    if (!snd[id]) snd[id] = new Audio(CRY(id));
-    const a = snd[id].cloneNode();
-    a.volume = 0.6;
-    a.play().catch(() => {});
-  } catch (e) {}
+/* ─────────────────── MUSIC ─────────────────── */
+let ac=null, muted=false, schedTimer=null, nextBeat=0, beatIdx=0;
+
+// C-major pentatonic cozy melody
+const MELODY=[261.63,329.63,392,440,523.25,392,329.63,261.63,
+              293.66,349.23,392,440,523.25,440,349.23,293.66];
+const BASS  =[130.81,0,196,0,130.81,0,196,0,
+              146.83,0,196,0,146.83,0,196,0];
+const BPS=0.42; // seconds per beat (≈71 BPM)
+
+function initAudio(){
+  if(ac)return;
+  ac=new(window.AudioContext||window.webkitAudioContext)();
 }
 
-/* ── MENU ───────────────────────────────────────────────── */
-function refreshMenu() {
-  document.getElementById('m-saved').textContent =
-    G.col.length ? `📦 ${G.col.length} Pokémon capturados` : '';
+function tone(freq,when,dur,vol,type='triangle'){
+  const o=ac.createOscillator(),g=ac.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,when);
+  g.gain.linearRampToValueAtTime(vol,when+0.04);
+  g.gain.exponentialRampToValueAtTime(0.0001,when+dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(when); o.stop(when+dur+0.06);
 }
 
-document.getElementById('m-play').onclick = () => startLevel();
-document.getElementById('m-colbtn').onclick = () => openCol('menu');
-document.getElementById('hud-cbtn').onclick = () => openCol('game');
-document.getElementById('col-x').onclick = () => goTo(G.fromScreen);
-document.getElementById('cas-btn').onclick = () => { G.level++; startLevel(); };
+function musicTick(){
+  if(muted||!ac)return;
+  const AHEAD=0.35;
+  while(nextBeat<ac.currentTime+AHEAD){
+    const i=beatIdx%MELODY.length;
+    tone(MELODY[i],nextBeat,BPS*1.6,0.06);
+    if(BASS[i]) tone(BASS[i],nextBeat,BPS*3.2,0.045,'sine');
+    nextBeat+=BPS; beatIdx++;
+  }
+  schedTimer=setTimeout(musicTick,120);
+}
 
-/* ── COLLECTION ─────────────────────────────────────────── */
-function openCol(from) {
-  G.fromScreen = from;
-  const grid = document.getElementById('col-grid');
-  grid.innerHTML = '';
-  document.getElementById('col-cnt').textContent = `${G.col.length} capturados`;
+function startMusic(){
+  if(muted)return;
+  initAudio();
+  if(ac.state==='suspended')ac.resume();
+  clearTimeout(schedTimer);
+  nextBeat=ac.currentTime+0.15;
+  beatIdx=0;
+  musicTick();
+}
 
-  if (!G.col.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;color:rgba(255,255,255,.4);text-align:center;padding:30px;font-size:13px">¡Aún no has capturado nada!</div>';
-  } else {
-    G.col.forEach(id => {
-      const pk = POOL.find(p => p.id === id) || { name: '???' };
-      const d = document.createElement('div');
-      d.className = 'cell';
-      d.style.borderColor = pk.c || '#ffcb05';
-      d.innerHTML = `<img src="${GIF(id)}" onerror="this.src='${PNG(id)}'" alt="${pk.name}">
-        <div class="cell-n">${pk.name}</div>
-        ${G.newCatch === id ? '<div class="cell-new">¡NUEVO!</div>' : ''}`;
+function stopMusic(){clearTimeout(schedTimer);}
+
+/* ─────────────────── SOUND FX ─────────────────── */
+const sndCache={};
+function playCry(id){
+  try{
+    if(!sndCache[id])sndCache[id]=new Audio(CR(id));
+    const a=sndCache[id].cloneNode();
+    a.volume=0.6; a.play().catch(()=>{});
+  }catch(e){}
+}
+
+/* ─────────────────── TAP HELPER (iOS fix) ─────────────────── */
+// Prevents ghost click after touchstart
+function bindTap(el, fn){
+  let touched=false;
+  el.addEventListener('touchstart',e=>{
+    e.preventDefault(); touched=true; fn(e);
+  },{passive:false});
+  el.addEventListener('click',e=>{
+    if(touched){touched=false;return;}
+    fn(e);
+  });
+}
+
+/* ─────────────────── MENU ─────────────────── */
+function refreshMenu(){
+  document.getElementById('m-saved').textContent=
+    S.col.length?`📦 ${S.col.length} Pokémon capturados`:'';
+}
+
+bindTap(document.getElementById('m-play'),  ()=>beginLevel());
+bindTap(document.getElementById('m-colbtn'),()=>openCol('s-menu'));
+bindTap(document.getElementById('hud-cbtn'),()=>openCol('s-game'));
+bindTap(document.getElementById('col-x'),   ()=>show(S.back));
+bindTap(document.getElementById('cas-btn'), ()=>{S.level++;beginLevel();});
+
+document.getElementById('m-mute').addEventListener('click',()=>{
+  muted=!muted;
+  document.getElementById('m-mute').textContent=muted?'🔇':'🔊';
+  if(muted)stopMusic(); else startMusic();
+});
+
+/* ─────────────────── COLLECTION ─────────────────── */
+function openCol(from){
+  S.back=from;
+  const grid=document.getElementById('col-grid');
+  grid.innerHTML='';
+  document.getElementById('col-cnt').textContent=`${S.col.length} capturados`;
+  if(!S.col.length){
+    grid.innerHTML='<div style="grid-column:1/-1;color:rgba(255,255,255,.35);text-align:center;padding:30px;font-size:13px">¡Atrapa tu primer Pokémon!</div>';
+  }else{
+    S.col.forEach(id=>{
+      const pk=POOL.find(p=>p.id===id)||{n:'???',c:'#888'};
+      const d=document.createElement('div');
+      d.className='cel';
+      d.style.borderColor=pk.c+'44';
+      d.innerHTML=`<img src="${G(id)}" onerror="this.src='${P(id)}'" alt="${pk.n}">
+        <div class="cel-n">${pk.n}</div>
+        ${S.newCatch===id?'<div class="cel-new">¡NUEVO!</div>':''}`;
       grid.appendChild(d);
     });
   }
-  goTo('col');
+  show('s-col');
 }
 
-/* ── LEVEL START ────────────────────────────────────────── */
-function startLevel() {
+/* ─────────────────── LEVEL START ─────────────────── */
+function beginLevel(){
   stopGame();
-  G.newCatch = null;
+  startMusic();
+  S.newCatch=null;
+  const pool=shuffle(POOL);
+  S.targets=pool.slice(0,3).map(p=>({...p,count:0}));
+  S.decoys=pool.slice(3,18);
+  S.mons=[];
+  S.timer=60;
 
-  const pool = shuffle(POOL);
-  G.targets = pool.slice(0, 3).map(p => ({ ...p, count: 0 }));
-  G.decoys  = pool.slice(3, 18);
-  G.mons    = [];
-  G.timer   = 60;
-
-  goTo('game');
-  document.getElementById('hud-lv').textContent = `LVL ${G.level}`;
-  renderTargets();
+  show('s-game');
+  document.getElementById('hud-lv').textContent=`LVL ${S.level}`;
+  buildTargetRow();
   updateTimer();
+  document.getElementById('timeup').classList.remove('show');
 
-  // 3-2-1 countdown then start
-  runCountdown(3, () => beginSpawning());
+  countdown(3,()=>beginSpawning());
 }
 
-function runCountdown(n, cb) {
-  const el = document.getElementById('countdown-num');
-  const wrap = document.getElementById('countdown');
-  wrap.style.pointerEvents = 'all';
+function buildTargetRow(){
+  const row=document.getElementById('trow');
+  row.innerHTML='';
+  S.targets.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.className='tslot'; d.id=`ts${i}`;
+    let pips='';
+    for(let j=0;j<3;j++)pips+=`<div class="pip" id="p${i}${j}"></div>`;
+    d.innerHTML=`<img src="${G(t.id)}" onerror="this.src='${P(t.id)}'" alt="${t.n}"
+        style="background:${t.c}22;border-radius:50%;padding:2px">
+      <div class="tname">${t.n}</div>
+      <div class="tpips">${pips}</div>`;
+    row.appendChild(d);
+  });
+}
 
-  function tick(n) {
-    el.textContent = n;
-    // restart animation
-    el.style.animation = 'none';
-    el.offsetHeight; // reflow
-    el.style.animation = 'cdpop .9s ease-in-out forwards';
-    if (n > 0) {
-      setTimeout(() => tick(n - 1), 900);
-    } else {
-      el.textContent = '¡YA!';
-      el.style.animation = 'none';
-      el.offsetHeight;
-      el.style.animation = 'cdpop .6s ease-in-out forwards';
-      setTimeout(() => {
-        wrap.style.pointerEvents = 'none';
-        el.textContent = '';
-        cb();
-      }, 600);
-    }
+/* ─────────────────── COUNTDOWN ─────────────────── */
+function countdown(n,cb){
+  const box=document.getElementById('cdown');
+  const el=document.getElementById('cdown-n');
+  box.style.pointerEvents='all';
+
+  function tick(v){
+    el.textContent=v>0?v:'¡YA!';
+    el.style.animation='none';
+    void el.offsetWidth; // reflow to restart
+    el.style.animation=`cdpop ${v>0?.85:.5}s ease-out forwards`;
+    if(v>0) setTimeout(()=>tick(v-1),900);
+    else setTimeout(()=>{
+      box.style.pointerEvents='none';
+      el.textContent='';
+      cb();
+    },500);
+  }
+
+  // inject anim keyframe once
+  if(!document.getElementById('kf-cd')){
+    const s=document.createElement('style');
+    s.id='kf-cd';
+    s.textContent='@keyframes cdpop{0%{transform:scale(.2);opacity:1}60%{transform:scale(1.15)}100%{transform:scale(.7);opacity:0}}';
+    document.head.appendChild(s);
   }
   tick(n);
 }
 
-function renderTargets() {
-  const bar = document.getElementById('tbar-targets');
-  bar.innerHTML = '';
-  G.targets.forEach((t, i) => {
-    const d = document.createElement('div');
-    d.className = 'tslot';
-    d.id = `ts${i}`;
-    let pips = '';
-    for (let j = 0; j < 3; j++) pips += `<div class="pip" id="p${i}${j}"></div>`;
-    d.innerHTML = `
-      <div class="tslot-img">
-        <img src="${GIF(t.id)}" onerror="this.src='${PNG(t.id)}'" alt="${t.name}" style="background:${t.c}20;border-radius:50%">
-      </div>
-      <div class="tname">${t.name}</div>
-      <div class="tpips">${pips}</div>`;
-    bar.appendChild(d);
-  });
-}
-
-/* ── GAME ───────────────────────────────────────────────── */
-function beginSpawning() {
-  G.running = true;
-  document.getElementById('timeup').classList.remove('show');
-
-  G.tInt = setInterval(() => {
-    G.timer--;
+/* ─────────────────── GAMEPLAY ─────────────────── */
+function beginSpawning(){
+  S.running=true;
+  S.tInt=setInterval(()=>{
+    S.timer--;
     updateTimer();
-    if (G.timer <= 0) {
-      clearInterval(G.tInt);
+    if(S.timer<=0){
+      clearInterval(S.tInt);
       document.getElementById('timeup').classList.add('show');
-      setTimeout(() => endLevel(), 1400);
+      setTimeout(endLevel,1400);
     }
-  }, 1000);
-
-  spawnBurst();
-  G.sInt = setInterval(spawnBurst, 2000);
-  G.raf = requestAnimationFrame(loop);
+  },1000);
+  burst();
+  S.sInt=setInterval(burst,2000);
+  S.raf=requestAnimationFrame(gameLoop);
 }
 
-function stopGame() {
-  G.running = false;
-  clearInterval(G.tInt);
-  clearInterval(G.sInt);
-  cancelAnimationFrame(G.raf);
-  G.tInt = G.sInt = G.raf = null;
-  // remove mon elements
-  G.mons.forEach(m => m.el && m.el.remove());
-  G.mons = [];
+function stopGame(){
+  S.running=false;
+  clearInterval(S.tInt); clearInterval(S.sInt);
+  cancelAnimationFrame(S.raf);
+  S.tInt=S.sInt=S.raf=null;
+  S.mons.forEach(m=>m.el&&m.el.remove());
+  S.mons=[];
 }
 
-function updateTimer() {
-  document.getElementById('hud-tnum').textContent = G.timer;
-  const pct = G.timer / 60 * 100;
-  const f = document.getElementById('tfill');
-  f.style.width = pct + '%';
-  f.style.background = G.timer > 15 ? '#ffcb05' : '#ff4444';
+function updateTimer(){
+  document.getElementById('hud-tnum').textContent=S.timer;
+  const pct=S.timer/60*100;
+  const f=document.getElementById('hud-tfill');
+  f.style.width=pct+'%';
+  f.style.background=S.timer>15?'#ffcb05':'#ff4444';
 }
 
-/* ── SPAWN ──────────────────────────────────────────────── */
-function spawnBurst() {
-  if (!G.running) return;
-  const n = 3 + (Math.random() * 3 | 0);
-  for (let i = 0; i < n; i++) setTimeout(spawnOne, i * 220);
+/* ─────────────────── SPAWN ─────────────────── */
+function burst(){
+  if(!S.running)return;
+  const n=3+(Math.random()*3|0);
+  for(let i=0;i<n;i++)setTimeout(spawnOne,i*200);
 }
 
-function spawnOne() {
-  if (!G.running) return;
-  if (G.mons.length >= 20) return;
+function spawnOne(){
+  if(!S.running||S.mons.length>=22)return;
+  const field=document.getElementById('field');
+  const fw=field.offsetWidth||360, fh=field.offsetHeight||480;
 
-  const field = document.getElementById('field');
-  const fw = field.offsetWidth  || 360;
-  const fh = field.offsetHeight || 500;
-
-  // pick: 30% target, 70% decoy
+  // 30% chance of target, 70% decoy
   let pk;
-  if (Math.random() < 0.30) {
-    const inc = G.targets.filter(t => t.count < 3);
-    if (!inc.length) return;
-    pk = inc[Math.random() * inc.length | 0];
-  } else {
-    pk = G.decoys[Math.random() * G.decoys.length | 0];
+  if(Math.random()<0.30){
+    const inc=S.targets.filter(t=>t.count<3);
+    if(!inc.length)return;
+    pk=inc[Math.random()*inc.length|0];
+  }else{
+    pk=S.decoys[Math.random()*S.decoys.length|0];
   }
 
-  const types = ['float', 'fall', 'pop'];
-  const mv = types[Math.random() * 3 | 0];
+  const isTarget=S.targets.some(t=>t.id===pk.id);
+  const mvTypes=['float','fall','pop'];
+  const mv=mvTypes[Math.random()*3|0];
 
-  const m = { id: pk.id, name: pk.name, isTarget: G.targets.some(t => t.id === pk.id),
-    mv, alive: true, x: 0, y: 0, vx: 0, vy: 0, born: 0, life: 0, el: null };
+  const m={id:pk.id,n:pk.n,isTarget,mv,alive:true,
+    x:0,y:0,vx:0,vy:0,born:0,life:0,el:null};
 
-  if (mv === 'float') {
-    m.x = 20 + Math.random() * (fw - 90);
-    m.y = 20 + Math.random() * (fh - 90);
-    const spd = 1.3 + Math.random() * 1.8, ang = Math.random() * Math.PI * 2;
-    m.vx = Math.cos(ang) * spd; m.vy = Math.sin(ang) * spd;
-  } else if (mv === 'fall') {
-    m.x = 10 + Math.random() * (fw - 80); m.y = -80;
-    m.vx = (Math.random() - .5) * 1.5; m.vy = 2.2 + Math.random() * 1.5;
-  } else {
-    m.x = 20 + Math.random() * (fw - 90);
-    m.y = 20 + Math.random() * (fh - 80);
-    m.born = Date.now(); m.life = 2000 + Math.random() * 2000;
+  if(mv==='float'){
+    m.x=20+Math.random()*(fw-92); m.y=10+Math.random()*(fh-92);
+    const sp=1.2+Math.random()*1.8, ang=Math.random()*Math.PI*2;
+    m.vx=Math.cos(ang)*sp; m.vy=Math.sin(ang)*sp;
+  }else if(mv==='fall'){
+    m.x=10+Math.random()*(fw-80); m.y=-80;
+    m.vx=(Math.random()-.5)*1.4; m.vy=2+Math.random()*1.6;
+  }else{
+    m.x=20+Math.random()*(fw-92); m.y=10+Math.random()*(fh-90);
+    m.born=Date.now(); m.life=1800+Math.random()*2200;
   }
 
-  const div = document.createElement('div');
-  div.className = 'mon';
-  div.style.left = m.x + 'px';
-  div.style.top  = m.y + 'px';
-  div.innerHTML = `
-    <div class="mon-body" style="background:${pk.c}33">
-      <img src="${GIF(pk.id)}" onerror="this.src='${PNG(pk.id)}'" alt="${pk.name}">
+  const div=document.createElement('div');
+  div.className='mon';
+  div.style.cssText=`left:${m.x}px;top:${m.y}px`;
+  div.innerHTML=`
+    <div class="mon-wrap" style="background:${pk.c}28">
+      <img src="${G(pk.id)}" onerror="this.src='${P(pk.id)}'" alt="${pk.n}">
     </div>
-    <div class="mon-label">${pk.name}</div>`;
+    <div class="mon-name">${pk.n}</div>`;
 
-  div.addEventListener('click', () => tap(m));
+  // iOS-compatible tap: touchstart fires immediately, prevents ghost click
+  let tapped=false;
+  div.addEventListener('touchstart',e=>{
+    e.preventDefault(); tapped=true; handleTap(m);
+  },{passive:false});
+  div.addEventListener('click',()=>{
+    if(tapped){tapped=false;return;}
+    handleTap(m);
+  });
+
   field.appendChild(div);
-  m.el = div;
-  G.mons.push(m);
+  m.el=div;
+  S.mons.push(m);
 }
 
-/* ── LOOP ───────────────────────────────────────────────── */
-function loop() {
-  if (!G.running) return;
+/* ─────────────────── GAME LOOP ─────────────────── */
+function gameLoop(){
+  if(!S.running)return;
+  const field=document.getElementById('field');
+  const fw=field.offsetWidth||360, fh=field.offsetHeight||480;
 
-  const field = document.getElementById('field');
-  const fw = field.offsetWidth  || 360;
-  const fh = field.offsetHeight || 500;
-
-  for (const m of G.mons) {
-    if (!m.alive || !m.el) continue;
-    if (m.mv === 'float') {
-      m.x += m.vx; m.y += m.vy;
-      if (m.x < 0)      { m.x = 0;      m.vx =  Math.abs(m.vx); }
-      if (m.x > fw - 76){ m.x = fw - 76; m.vx = -Math.abs(m.vx); }
-      if (m.y < 0)      { m.y = 0;      m.vy =  Math.abs(m.vy); }
-      if (m.y > fh - 88){ m.y = fh - 88; m.vy = -Math.abs(m.vy); }
-      m.el.style.left = m.x + 'px'; m.el.style.top = m.y + 'px';
-    } else if (m.mv === 'fall') {
-      m.x += m.vx; m.y += m.vy;
-      if (m.x < 0)       { m.x = 0;       m.vx =  Math.abs(m.vx); }
-      if (m.x > fw - 76) { m.x = fw - 76;  m.vx = -Math.abs(m.vx); }
-      m.el.style.left = m.x + 'px'; m.el.style.top = m.y + 'px';
-      if (m.y > fh + 10) kill(m);
-    } else {
-      const age = Date.now() - m.born;
-      if (age > m.life) { kill(m); continue; }
-      if (age > m.life - 500) m.el.style.opacity = ((m.life - age) / 500).toFixed(2);
+  for(const m of [...S.mons]){
+    if(!m.alive||!m.el)continue;
+    if(m.mv==='float'){
+      m.x+=m.vx; m.y+=m.vy;
+      if(m.x<0){m.x=0;m.vx=Math.abs(m.vx)}
+      if(m.x>fw-76){m.x=fw-76;m.vx=-Math.abs(m.vx)}
+      if(m.y<0){m.y=0;m.vy=Math.abs(m.vy)}
+      if(m.y>fh-92){m.y=fh-92;m.vy=-Math.abs(m.vy)}
+      m.el.style.left=m.x+'px'; m.el.style.top=m.y+'px';
+    }else if(m.mv==='fall'){
+      m.x+=m.vx; m.y+=m.vy;
+      if(m.x<0){m.x=0;m.vx=Math.abs(m.vx)}
+      if(m.x>fw-76){m.x=fw-76;m.vx=-Math.abs(m.vx)}
+      m.el.style.left=m.x+'px'; m.el.style.top=m.y+'px';
+      if(m.y>fh+10)killMon(m);
+    }else{
+      const age=Date.now()-m.born;
+      if(age>m.life){killMon(m);continue}
+      if(age>m.life-500)m.el.style.opacity=((m.life-age)/500).toFixed(2);
     }
   }
-  G.raf = requestAnimationFrame(loop);
+  S.raf=requestAnimationFrame(gameLoop);
 }
 
-function kill(m) {
-  m.alive = false;
-  m.el && m.el.remove();
-  G.mons = G.mons.filter(x => x !== m);
+function killMon(m){
+  m.alive=false;
+  m.el&&m.el.remove();
+  S.mons=S.mons.filter(x=>x!==m);
 }
 
-/* ── TAP ────────────────────────────────────────────────── */
-function tap(m) {
-  if (!m.alive || !G.running) return;
+/* ─────────────────── TAP ─────────────────── */
+function handleTap(m){
+  if(!m.alive||!S.running)return;
   playCry(m.id);
 
-  const field = document.getElementById('field');
+  const field=document.getElementById('field');
 
-  if (m.isTarget) {
-    const t = G.targets.find(t => t.id === m.id);
-    if (t && t.count < 3) {
+  if(m.isTarget){
+    const t=S.targets.find(t=>t.id===m.id);
+    if(t&&t.count<3){
       t.count++;
-      flash(field, m.x + 36, m.y + 36, true);
+      addBling(field,m.x+36,m.y+36);
       updatePips(t);
-      kill(m);
-      if (G.targets.every(t => t.count >= 3)) setTimeout(endLevel, 300);
+      killMon(m);
+      if(S.targets.every(t=>t.count>=3))setTimeout(endLevel,300);
     }
-  } else {
-    flash(field, m.x + 36, m.y + 36, false);
-    kill(m);
+  }else{
+    addMiss(field,m.x+36,m.y+10);
+    killMon(m);
   }
 }
 
-function flash(field, x, y, ok) {
-  const d = document.createElement('div');
-  if (ok) {
-    d.className = 'bling';
-    d.style.left = (x - 30) + 'px'; d.style.top = (y - 30) + 'px';
-    d.innerHTML = '<div class="bling-ring"></div>';
-  } else {
-    d.className = 'miss';
-    d.style.left = x + 'px'; d.style.top = y + 'px';
-    d.textContent = '✗';
-  }
+function addBling(field,x,y){
+  const d=document.createElement('div');
+  d.className='bling';
+  d.style.left=(x-30)+'px'; d.style.top=(y-30)+'px';
   field.appendChild(d);
-  setTimeout(() => d.remove(), 500);
+  setTimeout(()=>d.remove(),450);
+}
+function addMiss(field,x,y){
+  const d=document.createElement('div');
+  d.className='miss-x'; d.textContent='✗';
+  d.style.left=x+'px'; d.style.top=y+'px';
+  field.appendChild(d);
+  setTimeout(()=>d.remove(),400);
 }
 
-function updatePips(t) {
-  const i = G.targets.indexOf(t);
-  for (let j = 0; j < 3; j++) {
-    const el = document.getElementById(`p${i}${j}`);
-    if (el) el.className = 'pip' + (j < t.count ? ' on' : '');
+function updatePips(t){
+  const i=S.targets.indexOf(t);
+  for(let j=0;j<3;j++){
+    const el=document.getElementById(`p${i}${j}`);
+    if(el)el.className='pip'+(j<t.count?' on':'');
   }
 }
 
-/* ── END LEVEL ──────────────────────────────────────────── */
-function endLevel() {
-  stopGame();
-  showCasino();
-}
+/* ─────────────────── CASINO ─────────────────── */
+function endLevel(){stopGame();showCasino();}
 
-/* ── CASINO ─────────────────────────────────────────────── */
-function showCasino() {
-  goTo('casino');
+function showCasino(){
+  show('s-casino');
+  const reelsEl=document.getElementById('cas-reels');
+  reelsEl.innerHTML='';
+  const ci=document.getElementById('cas-img');
+  const ct=document.getElementById('cas-txt');
+  const cn=document.getElementById('cas-name');
+  ci.style.display='none'; ct.textContent=''; cn.textContent='';
+  document.getElementById('cas-btn').style.display='none';
 
-  const reelsEl = document.getElementById('cas-reels');
-  reelsEl.innerHTML = '';
-  document.getElementById('cas-img').style.display = 'none';
-  document.getElementById('cas-txt').textContent = '';
-  document.getElementById('cas-name').textContent = '';
-  document.getElementById('cas-btn').style.display = 'none';
-
-  const active = [];
-
-  G.targets.forEach((t, i) => {
-    const on = t.count >= 3;
-    const wrap = document.createElement('div');
-    wrap.className = 'rwrap';
-    wrap.innerHTML = `
-      <div class="rlbl">${t.name}</div>
-      <div class="rwin${on ? '' : ' off'}" id="rw${i}">
-        <img src="${GIF(t.id)}" onerror="this.src='${PNG(t.id)}'" alt="${t.name}">
-        ${on ? '' : '<div class="rx">✗</div>'}
+  const active=[];
+  S.targets.forEach((t,i)=>{
+    const on=t.count>=3;
+    const w=document.createElement('div');
+    w.className='rw';
+    w.innerHTML=`<div class="rl">${t.n}</div>
+      <div class="rv${on?'':' off'}" id="rv${i}">
+        <img src="${G(t.id)}" onerror="this.src='${P(t.id)}'" alt="${t.n}">
+        ${on?'':'<div class="rx">✗</div>'}
       </div>
       <div class="rscore">${t.count}/3</div>`;
-    reelsEl.appendChild(wrap);
-    if (on) active.push({ el: document.getElementById(`rw${i}`), t });
+    reelsEl.appendChild(w);
+    if(on)active.push({el:document.getElementById(`rv${i}`),t});
   });
 
-  const txt  = document.getElementById('cas-txt');
-  const name = document.getElementById('cas-name');
-  const img  = document.getElementById('cas-img');
-
-  setTimeout(() => {
-    if (!active.length) {
-      txt.textContent = '¡No completaste ninguno!';
-      txt.style.color = '#ff4444';
-      name.textContent = 'Inténtalo de nuevo';
-      name.style.color = 'rgba(255,255,255,.4)';
-      document.getElementById('cas-btn').style.display = 'block';
+  setTimeout(()=>{
+    if(!active.length){
+      ct.textContent='¡No completaste ninguno!';
+      ct.style.color='#ff4444';
+      cn.textContent='Intenta de nuevo';
+      cn.style.color='rgba(255,255,255,.4)';
+      document.getElementById('cas-btn').style.display='block';
       return;
     }
 
-    active.forEach(r => r.el.classList.add('spin'));
+    active.forEach(r=>r.el.classList.add('spin'));
+    const winner=active[Math.random()*active.length|0].t;
 
-    const winner = active[Math.random() * active.length | 0].t;
-
-    setTimeout(() => {
-      active.forEach(r => {
+    setTimeout(()=>{
+      active.forEach(r=>{
         r.el.classList.remove('spin');
-        if (r.t.id !== winner.id) r.el.style.opacity = '.3';
-        else r.el.style.boxShadow = '0 0 30px #ffcb05';
+        if(r.t.id!==winner.id) r.el.style.opacity='.25';
+        else r.el.style.boxShadow='0 0 28px #ffcb05,0 0 8px #ffcb05';
       });
 
       playCry(winner.id);
-      img.src = GIF(winner.id);
-      img.onerror = () => { img.src = PNG(winner.id); };
-      img.style.display = 'block';
+      ci.src=G(winner.id);
+      ci.onerror=()=>{ci.src=P(winner.id)};
+      ci.style.display='block';
 
-      const isNew = !G.col.includes(winner.id);
-      txt.textContent  = isNew ? '¡Nuevo Pokémon!' : '¡Capturaste a...';
-      txt.style.color  = isNew ? '#ffcb05' : '#fff';
-      name.textContent = winner.name.toUpperCase() + '!';
-      name.style.color = '#ffcb05';
+      const isNew=!S.col.includes(winner.id);
+      ct.textContent=isNew?'¡Nuevo Pokémon!':'¡Capturaste a...';
+      ct.style.color=isNew?'#ffcb05':'#fff';
+      cn.textContent=winner.n.toUpperCase()+'!';
+      cn.style.color='#ffcb05';
 
-      if (isNew) {
-        G.col.push(winner.id);
-        G.newCatch = winner.id;
+      if(isNew){
+        S.col.push(winner.id);
+        S.newCatch=winner.id;
         saveCol();
       }
-      document.getElementById('cas-btn').style.display = 'block';
-    }, 3000);
-  }, 500);
+      document.getElementById('cas-btn').style.display='block';
+    },3200);
+  },500);
 }
 
-/* ── INIT ───────────────────────────────────────────────── */
-goTo('menu');
+/* ─────────────────── INIT ─────────────────── */
+show('s-menu');
 refreshMenu();
 </script>
 </body>
