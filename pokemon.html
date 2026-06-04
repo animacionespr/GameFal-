@@ -41,7 +41,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   font-size:22px;cursor:pointer}
 
 /* ── GAME ── */
-#sg{background:#0d1a0d}
+#sg{background:#0d1a0d;align-items:stretch}
 #hud{width:100%;background:#cc0000;padding:8px 14px;flex-shrink:0;
   display:flex;justify-content:space-between;align-items:center;
   box-shadow:0 2px 8px rgba(0,0,0,.5)}
@@ -55,7 +55,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   padding:5px 10px;font-size:12px;font-weight:900;cursor:pointer;
   font-family:inherit;-webkit-appearance:none}
 
-#trow{width:100%;background:#111;display:flex;justify-content:space-around;
+#trow{background:#111;display:flex;justify-content:space-around;
   padding:6px 2px;flex-shrink:0}
 .tslot{display:flex;flex-direction:column;align-items:center;gap:2px;
   padding:3px 8px;border-radius:8px;min-width:88px;
@@ -66,19 +66,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 .pip{width:12px;height:12px;border-radius:50%;border:2px solid #ffcb05;background:transparent}
 .pip.on{background:#ffcb05}
 
-#field{flex:1;position:relative;overflow:hidden;
+#field{flex:1;width:100%;align-self:stretch;position:relative;overflow:hidden;
+  min-height:200px;
   background:radial-gradient(ellipse at 50% 30%,#1a3a1a,#0a180a)}
 
 /* Pokémon on field */
 .mon{position:absolute;display:flex;flex-direction:column;
-  align-items:center;cursor:pointer;z-index:5}
-.mon-img{width:72px;height:72px;border-radius:50%;
+  align-items:center;cursor:pointer;z-index:5;
+  -webkit-animation:popin .25s cubic-bezier(.17,.67,.34,1.3) both;
+  animation:popin .25s cubic-bezier(.17,.67,.34,1.3) both}
+@-webkit-keyframes popin{0%{-webkit-transform:scale(0);opacity:0}100%{-webkit-transform:scale(1);opacity:1}}
+@keyframes popin{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.mon-img{width:82px;height:82px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  border:2px solid rgba(255,255,255,.2);position:relative}
-.mon-img img{width:64px;height:64px;image-rendering:pixelated;pointer-events:none}
-.mon-lbl{color:#fff;font-size:9px;font-weight:900;background:rgba(0,0,0,.7);
-  border-radius:4px;padding:1px 5px;margin-top:2px;
-  white-space:nowrap;pointer-events:none}
+  border:3px solid rgba(255,255,255,0.75);position:relative;
+  box-shadow:0 4px 14px rgba(0,0,0,.65)}
+.mon-img img{width:70px;height:70px;image-rendering:pixelated;pointer-events:none}
+.mon-lbl{color:#fff;font-size:13px;font-weight:900;background:rgba(0,0,0,.88);
+  border-radius:6px;padding:2px 7px;margin-top:3px;
+  white-space:nowrap;pointer-events:none;text-shadow:0 1px 2px #000}
+.mon.tgt .mon-img{border-color:#ffcb05;box-shadow:0 0 14px rgba(255,203,5,.6),0 4px 14px rgba(0,0,0,.65)}
+.mon.tgt .mon-lbl{background:#ffcb05;color:#111}
+/* Field decorations */
+.grass{position:absolute;pointer-events:none;z-index:1;
+  font-size:22px;opacity:.55;user-select:none;-webkit-user-select:none}
 
 /* FX */
 .bling{position:absolute;pointer-events:none;z-index:20;
@@ -391,6 +402,24 @@ function openCol(from) {
   goTo('scol');
 }
 
+/* ── FIELD DECORATION ── */
+var DECO = ['🌿','🌱','🍀','🌾','🌲','🌳','🌸','🍃','🌺','🌻'];
+function decorateField() {
+  var field = document.getElementById('field');
+  var old = field.querySelectorAll('.grass');
+  for (var k = 0; k < old.length; k++) old[k].parentNode.removeChild(old[k]);
+  var fw = field.offsetWidth  || 360;
+  var fh = field.offsetHeight || 480;
+  for (var i = 0; i < 14; i++) {
+    var g = document.createElement('div');
+    g.className = 'grass';
+    g.textContent = DECO[Math.floor(Math.random() * DECO.length)];
+    g.style.left = Math.floor(Math.random() * (fw - 30)) + 'px';
+    g.style.top  = Math.floor(Math.random() * (fh - 30)) + 'px';
+    field.appendChild(g);
+  }
+}
+
 /* ── LEVEL START ── */
 function beginLevel() {
   stopGame();
@@ -408,6 +437,7 @@ function beginLevel() {
   updateTimer();
   document.getElementById('timeup').classList.remove('show');
 
+  setTimeout(decorateField, 60);
   countdown(3, function() { beginSpawning(); });
 }
 
@@ -534,10 +564,10 @@ function spawnOne() {
   }
 
   var div = document.createElement('div');
-  div.className = 'mon';
+  div.className = 'mon' + (isTarget ? ' tgt' : '');
   div.style.left = m.x + 'px';
   div.style.top  = m.y + 'px';
-  div.innerHTML = '<div class="mon-img" style="background:' + pk.c + '28">'
+  div.innerHTML = '<div class="mon-img" style="background:' + pk.c + 'cc">'
     + '<img src="' + gif(pk.id) + '" onerror="this.src=\'' + png(pk.id) + '\'" alt="' + pk.n + '">'
     + '</div><div class="mon-lbl">' + pk.n + '</div>';
 
