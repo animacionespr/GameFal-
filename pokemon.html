@@ -87,9 +87,55 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 /* ── FIELD + DEPTH ── */
 #field{flex:1;width:100%;align-self:stretch;position:relative;overflow:hidden;
   min-height:200px;background:#0d1a0d}
-#map-canvas{position:absolute;top:0;left:0;width:100%;height:100%;
-  z-index:0;pointer-events:none;
-  image-rendering:pixelated;image-rendering:crisp-edges}
+#field::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:1}
+#field.map-0::before{
+  background:linear-gradient(168deg,rgba(255,255,160,.13) 0%,transparent 38%),
+    linear-gradient(192deg,rgba(255,255,140,.09) 0%,transparent 32%),
+    linear-gradient(180deg,rgba(255,255,150,.10) 0%,transparent 44%)}
+#field.map-1::before{top:43%;height:22%;bottom:auto;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0,rgba(255,255,255,.10) 22%,transparent 22%,transparent 55%);
+  -webkit-animation:waves 2.6s ease-in-out infinite alternate;animation:waves 2.6s ease-in-out infinite alternate}
+@-webkit-keyframes waves{0%{-webkit-transform:scaleX(1) translateX(0)}100%{-webkit-transform:scaleX(1.18) translateX(-9%)}}
+@keyframes waves{0%{transform:scaleX(1) translateX(0)}100%{transform:scaleX(1.18) translateX(-9%)}}
+#field.map-2::before{
+  background:radial-gradient(ellipse at 50% 108%,rgba(255,120,0,.42) 0%,transparent 52%);
+  -webkit-animation:lavapulse 2s ease-in-out infinite alternate;animation:lavapulse 2s ease-in-out infinite alternate}
+@-webkit-keyframes lavapulse{0%{opacity:.50}100%{opacity:1}}
+@keyframes lavapulse{0%{opacity:.50}100%{opacity:1}}
+#field.map-3::before{bottom:22%;
+  background:
+    radial-gradient(circle at 5% 8%,#fff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 15% 4%,#ddeeff 1px,transparent 1px),
+    radial-gradient(circle at 24% 12%,#fff 2px,transparent 2px),
+    radial-gradient(circle at 37% 6%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 47% 9%,#bbd0ff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 59% 3%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 71% 7%,#fff 2px,transparent 2px),
+    radial-gradient(circle at 82% 5%,#ddeeff 1px,transparent 1px),
+    radial-gradient(circle at 93% 9%,#fff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 8% 19%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 21% 23%,#ddeeff 2px,transparent 2px),
+    radial-gradient(circle at 34% 17%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 49% 21%,#fff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 64% 16%,#bbd0ff 1px,transparent 1px),
+    radial-gradient(circle at 77% 20%,#fff 2px,transparent 2px),
+    radial-gradient(circle at 88% 14%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 11% 34%,#ddeeff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 27% 37%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 41% 31%,#fff 2px,transparent 2px),
+    radial-gradient(circle at 57% 39%,#ddeeff 1px,transparent 1px),
+    radial-gradient(circle at 69% 29%,#fff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 84% 35%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 3% 45%,#bbd0ff 1px,transparent 1px),
+    radial-gradient(circle at 17% 49%,#fff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 32% 43%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 47% 51%,#ddeeff 2px,transparent 2px),
+    radial-gradient(circle at 62% 46%,#fff 1px,transparent 1px),
+    radial-gradient(circle at 75% 53%,#fff 1.5px,transparent 1.5px),
+    radial-gradient(circle at 90% 47%,#bbd0ff 1px,transparent 1px);
+  -webkit-animation:twinkle 3.5s ease-in-out infinite alternate;animation:twinkle 3.5s ease-in-out infinite alternate}
+@-webkit-keyframes twinkle{0%{opacity:.42}100%{opacity:.92}}
+@keyframes twinkle{0%{opacity:.42}100%{opacity:.92}}
 #field::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
   background:radial-gradient(ellipse at 50% 40%,transparent 30%,rgba(0,0,0,.45) 100%);
   pointer-events:none;z-index:3}
@@ -272,7 +318,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   </div>
   <div id="trow"></div>
   <div id="field">
-    <canvas id="map-canvas"></canvas>
     <div id="map-toast"></div>
     <div id="cdown"><div id="cdown-n"></div></div>
     <div id="timeup"><span>¡TIEMPO!</span></div>
@@ -338,10 +383,26 @@ var BOSS_POOL = [
 ];
 
 var MAPS = [
-  {deco:['🌿','🌱','🍀','🌾','🌲','🌳','🌸','🍃','🌺','🌻'], name:'Bosque', bg:'#1a3a14'},
-  {deco:['🌊','🐚','🏖️','🌴','🐠','🦀','🌺','⛵'],           name:'Playa',  bg:'#006699'},
-  {deco:['🪨','⛰️','💎','🌑','🦇','🕸️','💀','🔮'],           name:'Cueva',  bg:'#0a0a15'},
-  {deco:['⭐','🌙','✨','💫','🦉','🌌','🔭','🌟'],             name:'Noche',  bg:'#050515'}
+  {name:'Bosque', deco:['🌿','🌱','🍀','🌾','🌲','🌳','🌸','🍃','🌺','🌻'],
+   bg:'radial-gradient(ellipse 80% 55% at 52% -5%,rgba(255,255,150,.22) 0%,transparent 58%),' +
+      'radial-gradient(ellipse at 18% 55%,rgba(0,130,0,.18) 0%,transparent 34%),' +
+      'radial-gradient(ellipse at 82% 62%,rgba(0,110,0,.14) 0%,transparent 30%),' +
+      'linear-gradient(180deg,#78c8e8 0%,#9ad888 25%,#58c048 27%,#3a9028 52%,#1e5a18 76%,#0e3008 100%)'},
+  {name:'Playa', deco:['🌊','🐚','🏖️','🌴','🐠','🦀','🌺','⛵'],
+   bg:'radial-gradient(circle at 82% 12%,rgba(255,248,80,.34) 0%,transparent 18%),' +
+      'radial-gradient(circle at 82% 12%,rgba(255,255,200,.08) 0%,transparent 36%),' +
+      'linear-gradient(180deg,#3899d2 0%,#64b8e8 30%,#a4d8f0 42%,#c8eeff 44%,#0880c0 45%,#0060a0 64%,#e8c248 65%,#d8a428 84%,#c09020 100%)'},
+  {name:'Cueva', deco:['🪨','⛰️','💎','🌑','🦇','🕸️','💀','🔮'],
+   bg:'radial-gradient(ellipse at 50% 108%,rgba(255,90,0,.55) 0%,transparent 48%),' +
+      'radial-gradient(circle at 10% 68%,rgba(0,120,255,.28) 0%,transparent 26%),' +
+      'radial-gradient(circle at 90% 64%,rgba(150,0,255,.25) 0%,transparent 26%),' +
+      'radial-gradient(circle at 45% 40%,rgba(0,50,160,.14) 0%,transparent 38%),' +
+      'linear-gradient(180deg,#04020e 0%,#0a0820 32%,#060414 64%,#100820 100%)'},
+  {name:'Noche', deco:['⭐','🌙','✨','💫','🦉','🌌','🔭','🌟'],
+   bg:'radial-gradient(circle at 78% 9%,rgba(255,252,210,.22) 0%,transparent 16%),' +
+      'radial-gradient(circle at 78% 9%,rgba(255,255,200,.07) 0%,transparent 36%),' +
+      'radial-gradient(circle at 14% 28%,rgba(100,120,255,.06) 0%,transparent 20%),' +
+      'linear-gradient(180deg,#010410 0%,#020b22 50%,#030d28 74%,#091608 75%,#040c04 100%)'}
 ];
 
 function gif(id){ return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/'+id+'.gif'; }
@@ -668,214 +729,10 @@ function currentMap() { return MAPS[(LV - 1) % MAPS.length]; }
 
 function applyMap() {
   var field = document.getElementById('field');
-  if (field) field.style.background = currentMap().bg;
-}
-
-function drawMapBg() {
-  var cv = document.getElementById('map-canvas');
-  if (!cv) return;
-  var field = document.getElementById('field');
-  var W = field.offsetWidth || 360;
-  var H = field.offsetHeight || 480;
-  cv.width = W; cv.height = H;
-  var ctx = cv.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
-  var idx = (LV - 1) % 4;
-  if (idx === 0) drawForest(ctx, W, H);
-  else if (idx === 1) drawBeach(ctx, W, H);
-  else if (idx === 2) drawCave(ctx, W, H);
-  else drawNight(ctx, W, H);
-}
-
-function pTree(ctx, P, x, baseY, w, h, cols, trunk) {
-  var tH = Math.max(P*2, (h*0.28)|0), cH = h-tH, rows = Math.ceil(cH/P);
-  for (var r=0; r<rows; r++) {
-    var rW = Math.max(P*2, ((w*(0.15+r/rows*0.85)+0.5)|0));
-    rW = ((rW/P+0.5)|0)*P;
-    var rX = x+(((w-rW)/2)|0);
-    ctx.fillStyle = cols[Math.min(r, cols.length-1)];
-    ctx.fillRect(rX, baseY-cH+r*P, rW, P+1);
-  }
-  ctx.fillStyle = trunk;
-  var tW = Math.max(P, (w*0.22)|0);
-  ctx.fillRect(x+((w-tW)/2|0), baseY-tH, tW, tH);
-}
-
-function drawForest(ctx, W, H) {
-  var P=8;
-  ctx.fillStyle='#78c8e8'; ctx.fillRect(0,0,W,H*0.28);
-  ctx.fillStyle='#a8e098'; ctx.fillRect(0,H*0.25,W,H*0.05);
-  ctx.fillStyle='#58c048'; ctx.fillRect(0,H*0.28,W,H*0.24);
-  ctx.fillStyle='#389028'; ctx.fillRect(0,H*0.52,W,H*0.26);
-  ctx.fillStyle='#186018'; ctx.fillRect(0,H*0.78,W,H*0.22);
-  ctx.save(); ctx.globalAlpha=0.09; ctx.fillStyle='#ffff88';
-  for (var i=0;i<5;i++){
-    var bx=W*(0.08+i*0.2);
-    ctx.beginPath(); ctx.moveTo(bx+W*0.04,0); ctx.lineTo(bx-W*0.14,H); ctx.lineTo(bx+W*0.18,H);
-    ctx.closePath(); ctx.fill();
-  }
-  ctx.restore();
-  ctx.fillStyle='#3388cc'; ctx.fillRect(W*0.56,H*0.28,P*5,H*0.64);
-  ctx.fillStyle='#55aaee';
-  for (var y=H*0.30;y<H;y+=P*2) ctx.fillRect(W*0.56+P,y,P*2,P);
-  ctx.fillStyle='#88ccff';
-  for (var y=H*0.31;y<H;y+=P*5) ctx.fillRect(W*0.56+P*2,y,P,P*3);
-  var bT=[[0.01,0.13,0.18],[0.17,0.11,0.16],[0.36,0.14,0.20],[0.65,0.12,0.17],[0.78,0.13,0.19],[0.92,0.10,0.16]];
-  for (var i=0;i<bT.length;i++)
-    pTree(ctx,P,bT[i][0]*W,H*0.28,bT[i][1]*W,H*bT[i][2],['#2a6018','#1a4c10'],'#5a3010');
-  var fT=[[0.04,0.12,0.28],[0.28,0.14,0.32],[0.70,0.13,0.28],[0.87,0.11,0.26]];
-  for (var i=0;i<fT.length;i++)
-    pTree(ctx,P,fT[i][0]*W,H*0.28,fT[i][1]*W,H*fT[i][2],['#78dd44','#50b030','#2a7818'],'#7a4820');
-  ctx.fillStyle='#44cc22';
-  for (var i=0;i<18;i++){
-    var gx=((i*97+19)%(W-P*3)|0), gy=((H*0.30+(i*83+37)%(H*0.60))|0);
-    ctx.fillRect(gx,gy-P*2,P,P*2); ctx.fillRect(gx+P,gy-P*3,P,P*3); ctx.fillRect(gx+P*2,gy-P,P,P);
-  }
-  var fc=['#ff3388','#ff8800','#ffee00','#ff44bb','#66ffaa'];
-  for (var i=0;i<24;i++){
-    ctx.fillStyle=fc[i%fc.length];
-    var fx=((i*113+7)%(W-P*3)|0), fy=((H*0.33+(i*79+13)%(H*0.54))|0);
-    ctx.fillRect(fx+P,fy,P,P); ctx.fillRect(fx,fy+P,P,P);
-    ctx.fillRect(fx+P*2,fy+P,P,P); ctx.fillRect(fx+P,fy+P*2,P,P);
-    ctx.fillStyle='#ffffff'; ctx.fillRect(fx+P,fy+P,P,P);
-  }
-}
-
-function drawBeach(ctx, W, H) {
-  var P=8;
-  ctx.fillStyle='#44aadd'; ctx.fillRect(0,0,W,H*0.50);
-  ctx.fillStyle='#88ccee'; ctx.fillRect(0,H*0.28,W,H*0.12);
-  ctx.fillStyle='#cceeff'; ctx.fillRect(0,H*0.38,W,H*0.13);
-  ctx.fillStyle='#ffe844'; ctx.fillRect(W*0.76,H*0.05,P*6,P*6);
-  ctx.fillStyle='#fff066'; ctx.fillRect(W*0.77,H*0.04,P*4,P*8);
-  ctx.fillRect(W*0.75,H*0.06,P*8,P*4);
-  ctx.fillStyle='rgba(255,240,80,0.15)';
-  ctx.beginPath(); ctx.arc(W*0.79,H*0.085,P*6,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#0a88cc'; ctx.fillRect(0,H*0.50,W,H*0.12);
-  ctx.fillStyle='#0066aa'; ctx.fillRect(0,H*0.62,W,H*0.12);
-  ctx.fillStyle='#005599'; ctx.fillRect(0,H*0.74,W,H*0.02);
-  ctx.fillStyle='rgba(255,255,255,0.5)';
-  for (var i=0;i<4;i++) ctx.fillRect(0,H*0.52+i*H*0.05,W,3);
-  ctx.fillStyle='rgba(255,255,255,0.22)';
-  for (var i=0;i<W;i+=P*5){ ctx.fillRect(i,H*0.55,P*3,2); ctx.fillRect(i+P*2,H*0.60,P*4,2); }
-  ctx.fillStyle='#e8c048'; ctx.fillRect(0,H*0.74,W,H*0.16);
-  ctx.fillStyle='#d4a830'; ctx.fillRect(0,H*0.90,W,H*0.10);
-  ctx.fillStyle='rgba(180,120,20,0.28)';
-  for (var i=0;i<28;i++) ctx.fillRect(((i*113+41)%(W-16)|0), H*0.77+((i*67+23)%(H*0.18)|0), (i%4+1)*P, 3);
-  var pts=[[0.07,0.74,1],[0.87,0.74,-1]];
-  for (var p=0;p<pts.length;p++){
-    var px2=W*pts[p][0], py=H*pts[p][1], dir=pts[p][2];
-    for (var s=0;s<11;s++){
-      ctx.fillStyle=s%2===0?'#8a5818':'#7a4810';
-      ctx.fillRect(px2+dir*s*1.5-P, py-s*P*1.8, P*2, P*2);
-    }
-    var tipX=px2+dir*17, tipY=py-P*21;
-    var fa=[-1.1,-0.65,-0.2,0.25,0.70,1.15,-1.55];
-    for (var f=0;f<fa.length;f++){
-      ctx.fillStyle=f%2===0?'#3aaa28':'#2a8818';
-      for (var k=1;k<=5;k++) ctx.fillRect(tipX+Math.cos(fa[f])*k*7-P,tipY+Math.sin(fa[f])*k*5-P,P*2,P);
-    }
-  }
-  var sc=['#fff4e0','#ffccaa','#ffaacc','#ccffee'];
-  for (var i=0;i<12;i++){
-    ctx.fillStyle=sc[i%4];
-    ctx.fillRect(((i*89+31)%(W-16)|0), H*0.78+((i*53+17)%(H*0.10)|0), P*2, P);
-  }
-}
-
-function drawCave(ctx, W, H) {
-  var P=8;
-  ctx.fillStyle='#08060e'; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#0e0c18'; ctx.fillRect(0,H*0.15,W,H*0.70);
-  ctx.fillStyle='#14101e'; ctx.fillRect(0,H*0.35,W,H*0.40);
-  var sc=['#1a1526','#201830','#181228','#231a35'];
-  for (var i=0;i<35;i++){
-    ctx.fillStyle=sc[i%4];
-    ctx.fillRect(((i*79+13)%W|0),((i*43+7)%H|0),16+((i*23)%24),8+((i*17)%12));
-  }
-  ctx.fillStyle='#1e182c';
-  for (var i=0;i<14;i++){
-    var cx=W*(i+0.5)/14, cw=P*3+((i*17)%P)*2, ch=P*2+((i*11)%P)*3;
-    ctx.fillRect(cx-cw/2,0,cw,ch);
-  }
-  for (var i=0;i<12;i++){
-    var sx=W*(i+0.5)/12, sl=H*0.06+((i*37+11)%(H*0.17)|0);
-    ctx.fillStyle='#2a2040';
-    ctx.beginPath(); ctx.moveTo(sx-P*2,0); ctx.lineTo(sx+P*2,0); ctx.lineTo(sx,sl); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#3a2d58';
-    ctx.beginPath(); ctx.moveTo(sx-P,0); ctx.lineTo(sx+P,0); ctx.lineTo(sx,sl*0.65); ctx.closePath(); ctx.fill();
-  }
-  var cC=['#00eeff','#0088ff','#bb44ff','#ff44ee','#44ffdd','#4477ff'];
-  var cP=[[0.04,0.68],[0.11,0.80],[0.23,0.88],[0.65,0.90],[0.78,0.72],[0.88,0.82],[0.95,0.65]];
-  for (var ci=0;ci<cP.length;ci++){
-    var ccx=W*cP[ci][0], ccy=H*cP[ci][1];
-    for (var cj=0;cj<4;cj++){
-      var ch=H*0.05+cj*H*0.028, cw=P*(3-cj%2);
-      ctx.fillStyle=cC[ci%cC.length];
-      ctx.fillRect(ccx+cj*P*2-P,ccy-ch,cw,ch);
-      ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillRect(ccx+cj*P*2-P,ccy-ch,P,P);
-    }
-    ctx.fillStyle='rgba(0,200,255,0.08)';
-    ctx.beginPath(); ctx.arc(ccx+P*3,ccy-H*0.05,P*4,0,Math.PI*2); ctx.fill();
-  }
-  ctx.fillStyle='#cc4400'; ctx.fillRect(W*0.18,H*0.85,W*0.64,H*0.10);
-  ctx.fillStyle='#ee6600'; ctx.fillRect(W*0.22,H*0.84,W*0.56,H*0.06);
-  ctx.fillStyle='#ff9900';
-  for (var i=0;i<10;i++) ctx.fillRect(W*0.24+((i*67)%(W*0.48)|0),H*0.84+((i*31)%(H*0.05)|0),P*3,P);
-  ctx.fillStyle='#ffcc00';
-  for (var i=0;i<6;i++) ctx.fillRect(W*0.28+((i*89)%(W*0.40)|0),H*0.845,P,P);
-  var lg=ctx.createRadialGradient(W*0.5,H*0.88,0,W*0.5,H*0.88,W*0.5);
-  lg.addColorStop(0,'rgba(255,100,0,0.28)'); lg.addColorStop(1,'rgba(200,50,0,0)');
-  ctx.fillStyle=lg; ctx.fillRect(0,H*0.70,W,H*0.30);
-}
-
-function drawNight(ctx, W, H) {
-  var P=8;
-  ctx.fillStyle='#010610'; ctx.fillRect(0,0,W,H*0.30);
-  ctx.fillStyle='#030c20'; ctx.fillRect(0,H*0.30,W,H*0.28);
-  ctx.fillStyle='#05142e'; ctx.fillRect(0,H*0.58,W,H*0.20);
-  ctx.fillStyle='#081a38'; ctx.fillRect(0,H*0.78,W,H*0.06);
-  ctx.fillStyle='#fff8e8';
-  ctx.fillRect(W*0.74,H*0.04,P*8,P*8);
-  ctx.fillRect(W*0.74+P,H*0.03,P*6,P*10);
-  ctx.fillRect(W*0.73,H*0.06,P*10,P*6);
-  ctx.fillStyle='#ddd4b0'; ctx.fillRect(W*0.75,H*0.06,P*2,P*2);
-  ctx.fillStyle='#ccc498'; ctx.fillRect(W*0.75+P,H*0.07,P,P);
-  ctx.fillStyle='#ddd4b0'; ctx.fillRect(W*0.78,H*0.09,P*2,P*2);
-  ctx.fillStyle='rgba(255,248,200,0.06)';
-  ctx.beginPath(); ctx.arc(W*0.79,H*0.09,P*8,0,Math.PI*2); ctx.fill();
-  var sd=[[0.05,0.04,2],[0.14,0.08,1],[0.22,0.03,3],[0.31,0.11,1],[0.42,0.06,2],
-          [0.50,0.02,1],[0.58,0.15,2],[0.10,0.18,1],[0.20,0.22,3],[0.34,0.25,1],
-          [0.46,0.20,2],[0.60,0.08,1],[0.68,0.20,2],[0.15,0.35,1],[0.27,0.40,2],
-          [0.38,0.32,1],[0.52,0.36,3],[0.62,0.30,1],[0.08,0.45,2],[0.44,0.48,1],
-          [0.55,0.44,2],[0.66,0.50,1],[0.72,0.38,2],[0.80,0.25,1],[0.85,0.42,3],
-          [0.90,0.12,2],[0.95,0.32,1],[0.04,0.55,2],[0.18,0.60,1],[0.35,0.65,2]];
-  for (var i=0;i<sd.length;i++){
-    var sx=W*sd[i][0], sy=H*sd[i][1], ss=sd[i][2];
-    ctx.fillStyle=i%4===0?'#fff8cc':(i%3===0?'#ccddff':'#ffffff');
-    ctx.globalAlpha=0.75; ctx.fillRect(sx,sy,ss,ss);
-    if (ss>=2){ ctx.globalAlpha=0.35; ctx.fillRect(sx-ss,sy,ss,ss); ctx.fillRect(sx+ss,sy,ss,ss); ctx.fillRect(sx,sy-ss,ss,ss); ctx.fillRect(sx,sy+ss,ss,ss); }
-  }
-  ctx.globalAlpha=1;
-  ctx.fillStyle='#0a1a08'; ctx.fillRect(0,H*0.84,W,H*0.10);
-  ctx.fillStyle='#060e04'; ctx.fillRect(0,H*0.94,W,H*0.06);
-  ctx.fillStyle='#050d04';
-  var nt=[[0.01,0.09,0.13],[0.10,0.12,0.17],[0.21,0.08,0.12],[0.30,0.11,0.15],
-          [0.40,0.09,0.13],[0.48,0.13,0.18],[0.57,0.08,0.12],[0.65,0.11,0.16],
-          [0.74,0.09,0.13],[0.82,0.12,0.16],[0.90,0.08,0.11],[0.97,0.10,0.14]];
-  for (var ti=0;ti<nt.length;ti++){
-    var ntx=W*nt[ti][0], nth=H*nt[ti][2], ntw=W*nt[ti][1];
-    ctx.fillRect(ntx+ntw*0.4,H*0.84,ntw*0.2,nth*0.32);
-    ctx.fillRect(ntx,H*0.84-nth*0.60,ntw,nth*0.45);
-    ctx.fillRect(ntx+ntw*0.1,H*0.84-nth*0.88,ntw*0.8,nth*0.38);
-    ctx.fillRect(ntx+ntw*0.25,H*0.84-nth,ntw*0.5,nth*0.22);
-  }
-  for (var fi=0;fi<22;fi++){
-    var fx=((fi*113+37)%(W-16)|0), fy=((H*0.50+(fi*79+23)%(H*0.36))|0);
-    ctx.fillStyle='rgba(180,255,100,0.85)'; ctx.fillRect(fx,fy,4,4);
-    ctx.fillStyle='rgba(150,255,80,0.14)';
-    ctx.beginPath(); ctx.arc(fx+2,fy+2,P,0,Math.PI*2); ctx.fill();
-  }
+  if (!field) return;
+  var m = currentMap();
+  field.style.background = m.bg;
+  field.className = 'map-' + ((LV - 1) % 4);
 }
 
 function showMapToast() {
@@ -913,7 +770,7 @@ function beginLevel() {
   updateTimer();
   applyMap();
   document.getElementById('timeup').classList.remove('show');
-  setTimeout(function() { drawMapBg(); decorateField(); showMapToast(); }, 80);
+  setTimeout(function() { decorateField(); showMapToast(); }, 80);
   countdown(3, function() { beginSpawning(); });
 }
 
@@ -1226,7 +1083,7 @@ function spawnBoss() {
   field.appendChild(div);
   boss.el = div;
 
-  var CHARGE_MS = 7000;
+  var CHARGE_MS = 4000;
   var chargeStart = Date.now();
   boss.attackInterval = setInterval(function() {
     if (!boss || !running) { clearInterval(boss.attackInterval); return; }
