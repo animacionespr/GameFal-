@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>PokéCatch</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:'Courier New',monospace}
+#root{width:100vw;height:100dvh;position:relative;overflow:hidden}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center}
+.screen.active{display:flex}
+
+/* ── MENU ── */
+#menu-screen{
+  background:linear-gradient(180deg,#cc0000 0%,#cc0000 48%,#222 48%,#222 52%,#fff 52%,#fff 100%);
+  justify-content:center;gap:18px;
+}
+.pball{
+  width:110px;height:110px;border-radius:50%;
+  border:8px solid #222;
+  background:linear-gradient(180deg,#cc0000 0%,#cc0000 44%,#222 44%,#222 56%,#fff 56%,#fff 100%);
+  position:relative;box-shadow:0 8px 28px rgba(0,0,0,0.5);flex-shrink:0;
+}
+.pball::after{content:'';position:absolute;width:26px;height:26px;border-radius:50%;background:#f0f0f0;border:6px solid #222;top:50%;left:50%;transform:translate(-50%,-50%)}
+.m-title{font-size:50px;font-weight:900;color:#fff;text-shadow:3px 3px 0 #cc0000,-2px -2px 0 #222;letter-spacing:2px}
+.m-sub{font-size:15px;color:rgba(0,0,0,0.6);font-weight:700}
+.m-btn{
+  background:#ffcb05;color:#222;border:4px solid #222;border-radius:50px;
+  padding:15px 48px;font-size:22px;font-weight:900;cursor:pointer;
+  box-shadow:0 6px 0 #b8930a;font-family:inherit;transition:transform .1s;
+}
+.m-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b8930a}
+.m-col-btn{
+  background:transparent;color:#222;border:3px solid #222;border-radius:50px;
+  padding:8px 28px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;
+}
+.m-record{color:#222;font-size:13px;font-weight:700}
+
+/* ── GAME SCREEN ── */
+#game-screen{background:#c8e8c0;position:relative}
+
+#hud{
+  width:100%;background:linear-gradient(180deg,#cc0000,#aa0000);
+  padding:8px 12px 10px;display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;z-index:10;
+}
+#hud-lv{color:#ffcb05;font-size:14px;font-weight:900}
+#hud-timer{display:flex;flex-direction:column;align-items:center}
+#hud-tval{color:#fff;font-size:30px;font-weight:900;line-height:1}
+#hud-tbar{width:90px;height:6px;background:rgba(255,255,255,0.3);border-radius:3px;margin-top:3px}
+#hud-tfill{height:100%;background:#ffcb05;border-radius:3px;transition:width .8s linear,background .5s}
+#hud-colbtn{
+  background:#ffcb05;color:#222;border:3px solid #222;border-radius:8px;
+  padding:4px 10px;font-size:11px;font-weight:900;cursor:pointer;font-family:inherit;
+}
+
+#targets-bar{
+  width:100%;background:#1a1a1a;padding:6px 6px;
+  display:flex;justify-content:space-around;flex-shrink:0;z-index:10;
+}
+.tslot{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,0.07);border-radius:10px;padding:4px 6px;min-width:88px}
+.tslot img{width:52px;height:52px;image-rendering:pixelated}
+.tslot-name{color:#ffcb05;font-size:9px;font-weight:900;margin-top:1px;text-align:center}
+.tslot-pips{display:flex;gap:5px;margin-top:3px}
+.pip{width:13px;height:13px;border-radius:50%;border:2px solid #ffcb05;background:transparent;transition:background .2s}
+.pip.on{background:#ffcb05}
+
+#field{flex:1;position:relative;overflow:hidden}
+
+.fmon{position:absolute;cursor:pointer;z-index:5;transition:transform .08s}
+.fmon img{width:64px;height:64px;image-rendering:pixelated;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35));pointer-events:none}
+.fmon:active{transform:scale(.82)!important}
+
+.flash{position:absolute;pointer-events:none;z-index:30;animation:fl .45s forwards}
+@keyframes fl{0%{transform:scale(.4);opacity:1}100%{transform:scale(2.8);opacity:0}}
+.flash-ring{width:56px;height:56px;border-radius:50%;border:4px solid #ffcb05;background:rgba(255,203,5,.25)}
+
+.wrong-flash{position:absolute;pointer-events:none;z-index:30;animation:wfl .35s forwards}
+@keyframes wfl{0%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}
+.wrong-x{color:#ff4444;font-size:24px;font-weight:900}
+
+/* Level announce overlay */
+#la{position:absolute;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:14px;transition:opacity .4s}
+#la.gone{opacity:0;pointer-events:none}
+#la-title{color:#ffcb05;font-size:38px;font-weight:900;text-shadow:2px 2px 0 rgba(0,0,0,.5)}
+#la-sub{color:#fff;font-size:15px}
+#la-targets{display:flex;gap:20px}
+.la-t{display:flex;flex-direction:column;align-items:center;gap:4px}
+.la-t img{width:72px;height:72px;image-rendering:pixelated}
+.la-t-name{color:#fff;font-size:12px;font-weight:900}
+.la-t-badge{background:#cc0000;color:#fff;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:900}
+
+/* Time's up overlay */
+#timeup{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:90;pointer-events:none;opacity:0;transition:opacity .3s}
+#timeup.show{opacity:1}
+#timeup-txt{color:#ff4444;font-size:52px;font-weight:900;text-shadow:3px 3px 0 rgba(0,0,0,.5)}
+
+/* ── CASINO ── */
+#casino-screen{
+  background:radial-gradient(ellipse at 50% 0%,#2a1a4e,#0a0a1e);
+  justify-content:flex-start;padding:20px 14px;gap:12px;
+}
+#cas-title{color:#ffcb05;font-size:30px;font-weight:900;text-align:center;text-shadow:2px 2px 0 rgba(0,0,0,.5)}
+#cas-sub{color:rgba(255,255,255,.65);font-size:13px;text-align:center}
+#cas-reels{display:flex;gap:10px;justify-content:center;width:100%}
+.reel-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;max-width:100px}
+.reel-lbl{color:#ffcb05;font-size:10px;font-weight:900;text-align:center;min-height:14px}
+.reel-win{
+  width:82px;height:82px;border:4px solid #ffcb05;border-radius:12px;overflow:hidden;
+  position:relative;background:#0a0a1a;box-shadow:0 0 16px rgba(255,203,5,.3);
+}
+.reel-win.off{border-color:#333;box-shadow:none}
+.reel-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.reel-img img{width:62px;height:62px;image-rendering:pixelated}
+.reel-x{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:38px;color:#333;font-weight:900;background:rgba(0,0,0,.5)}
+.reel-score{color:rgba(255,255,255,.7);font-size:11px;text-align:center}
+.reel-win.spinning .reel-img{animation:spinY .15s linear infinite}
+@keyframes spinY{0%{transform:scaleY(1)}50%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+
+#cas-result{text-align:center;margin-top:8px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+#cas-res-img{width:84px;height:84px;image-rendering:pixelated;display:none}
+#cas-res-txt{color:#fff;font-size:17px;font-weight:900}
+#cas-res-name{color:#ffcb05;font-size:26px;font-weight:900}
+
+#cas-next{
+  background:#ffcb05;color:#222;border:4px solid #222;border-radius:50px;
+  padding:14px 40px;font-size:20px;font-weight:900;cursor:pointer;font-family:inherit;
+  box-shadow:0 6px 0 #b8930a;display:none;margin-top:auto;margin-bottom:8px;
+}
+#cas-next:active{transform:translateY(4px);box-shadow:0 2px 0 #b8930a}
+
+/* ── COLLECTION ── */
+#col-screen{background:#1a1a2e;padding:14px;gap:12px}
+#col-hdr{display:flex;width:100%;align-items:center;justify-content:space-between}
+#col-title{color:#ffcb05;font-size:22px;font-weight:900}
+#col-close{background:#cc0000;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit}
+#col-count{color:rgba(255,255,255,.6);font-size:13px;font-weight:700}
+#col-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  width:100%;overflow-y:auto;max-height:calc(100dvh - 90px);
+  padding-bottom:10px;
+}
+.ccell{
+  background:rgba(255,255,255,.06);border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;
+  padding:8px 4px;border:2px solid rgba(255,203,5,.15);
+}
+.ccell img{width:52px;height:52px;image-rendering:pixelated}
+.ccell-name{color:#ffcb05;font-size:9px;text-align:center;margin-top:3px;font-weight:900}
+.ccell-new{font-size:9px;color:#cc0000;font-weight:900}
+</style>
+</head>
+<body>
+<div id="root">
+
+<!-- MENU -->
+<div id="menu-screen" class="screen active">
+  <div class="pball"></div>
+  <div class="m-title">PokéCatch</div>
+  <div class="m-sub">¡Atrapa 3 de cada objetivo!</div>
+  <button class="m-btn" id="m-start">▶ JUGAR</button>
+  <button class="m-col-btn" id="m-col">📖 Mi Colección</button>
+  <div class="m-record" id="m-rec"></div>
+</div>
+
+<!-- GAME -->
+<div id="game-screen" class="screen">
+  <div id="hud">
+    <div id="hud-lv">LVL 1</div>
+    <div id="hud-timer">
+      <div id="hud-tval">60</div>
+      <div id="hud-tbar"><div id="hud-tfill" style="width:100%"></div></div>
+    </div>
+    <button id="hud-colbtn">📖</button>
+  </div>
+  <div id="targets-bar"></div>
+  <div id="field">
+    <div id="la">
+      <div id="la-title">NIVEL 1</div>
+      <div id="la-sub">¡Atrapa 3 de cada uno!</div>
+      <div id="la-targets"></div>
+    </div>
+    <div id="timeup"><div id="timeup-txt">¡TIEMPO!</div></div>
+  </div>
+</div>
+
+<!-- CASINO -->
+<div id="casino-screen" class="screen">
+  <div id="cas-title">🎰 ¡A RODAR!</div>
+  <div id="cas-sub">Solo los completos (3/3) están activos</div>
+  <div id="cas-reels"></div>
+  <div id="cas-result">
+    <img id="cas-res-img" alt="">
+    <div id="cas-res-txt"></div>
+    <div id="cas-res-name"></div>
+  </div>
+  <button id="cas-next">▶ SIGUIENTE NIVEL</button>
+</div>
+
+<!-- COLLECTION -->
+<div id="col-screen" class="screen">
+  <div id="col-hdr">
+    <div>
+      <div id="col-title">📖 Colección</div>
+      <div id="col-count"></div>
+    </div>
+    <button id="col-close">✕ Cerrar</button>
+  </div>
+  <div id="col-grid"></div>
+</div>
+
+</div>
+<script>
+'use strict';
+
+// ── DATA ──────────────────────────────────────────────────────
+const POOL = [
+  {id:1,name:'Bulbasaur'},{id:4,name:'Charmander'},{id:7,name:'Squirtle'},
+  {id:25,name:'Pikachu'},{id:39,name:'Jigglypuff'},{id:52,name:'Meowth'},
+  {id:54,name:'Psyduck'},{id:79,name:'Slowpoke'},{id:94,name:'Gengar'},
+  {id:113,name:'Chansey'},{id:129,name:'Magikarp'},{id:133,name:'Eevee'},
+  {id:143,name:'Snorlax'},{id:150,name:'Mewtwo'},{id:151,name:'Mew'},
+  {id:152,name:'Chikorita'},{id:155,name:'Cyndaquil'},{id:158,name:'Totodile'},
+  {id:172,name:'Pichu'},{id:175,name:'Togepi'},{id:196,name:'Espeon'},
+  {id:197,name:'Umbreon'},{id:216,name:'Teddiursa'},{id:249,name:'Lugia'},
+  {id:250,name:'Ho-oh'},{id:252,name:'Treecko'},{id:255,name:'Torchic'},
+  {id:258,name:'Mudkip'},{id:302,name:'Sableye'},{id:385,name:'Jirachi'},
+  {id:393,name:'Piplup'},{id:448,name:'Lucario'},{id:453,name:'Croagunk'},
+  {id:58,name:'Growlithe'},{id:63,name:'Abra'},{id:116,name:'Horsea'},
+  {id:147,name:'Dratini'},{id:183,name:'Marill'},{id:202,name:'Wobbuffet'},
+  {id:280,name:'Ralts'},{id:374,name:'Beldum'},{id:349,name:'Feebas'},
+];
+
+function gif(id){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`}
+function png(id){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
+function cry(id){return `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`}
+
+// ── STATE ────────────────────────────────────────────────────
+const G = {
+  level: 1,
+  targets: [],
+  decoys: [],
+  mons: [],         // on-field pokemon
+  timer: 60,
+  tInt: null,
+  raf: null,
+  sInt: null,
+  field: null,
+  running: false,
+  collection: JSON.parse(localStorage.getItem('pkc2') || '[]'),
+  newThisRound: null,
+};
+const MAX_T = 60;
+
+// ── UTILS ────────────────────────────────────────────────────
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]]}return b}
+function rnd(a,b){return a+Math.random()*(b-a)}
+
+// ── SCREENS ──────────────────────────────────────────────────
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+// ── SOUNDS ───────────────────────────────────────────────────
+const sndCache={};
+function playSound(id){
+  try{
+    if(!sndCache[id])sndCache[id]=new Audio(cry(id));
+    const a=sndCache[id].cloneNode();
+    a.volume=0.65;
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+
+// ── MENU ─────────────────────────────────────────────────────
+function updateMenuRec(){
+  const r=document.getElementById('m-rec');
+  if(G.collection.length>0)r.textContent=`Colección: ${G.collection.length} Pokémon`;
+  else r.textContent='';
+}
+
+document.getElementById('m-start').addEventListener('click',()=>beginLevel());
+document.getElementById('m-start').addEventListener('touchstart',e=>{e.preventDefault();beginLevel()},{passive:false});
+document.getElementById('m-col').addEventListener('click',()=>openCollection('menu-screen'));
+document.getElementById('m-col').addEventListener('touchstart',e=>{e.preventDefault();openCollection('menu-screen')},{passive:false});
+document.getElementById('hud-colbtn').addEventListener('click',()=>openCollection('game-screen'));
+document.getElementById('hud-colbtn').addEventListener('touchstart',e=>{e.preventDefault();openCollection('game-screen')},{passive:false});
+document.getElementById('col-close').addEventListener('click',()=>closeCollection());
+document.getElementById('col-close').addEventListener('touchstart',e=>{e.preventDefault();closeCollection()},{passive:false});
+document.getElementById('cas-next').addEventListener('click',()=>{G.level++;beginLevel()});
+document.getElementById('cas-next').addEventListener('touchstart',e=>{e.preventDefault();G.level++;beginLevel()},{passive:false});
+
+let _colFrom='menu-screen';
+function openCollection(from){
+  _colFrom=from;
+  const grid=document.getElementById('col-grid');
+  grid.innerHTML='';
+  document.getElementById('col-count').textContent=`${G.collection.length} capturados`;
+  if(G.collection.length===0){
+    grid.innerHTML='<div style="color:rgba(255,255,255,.45);font-size:13px;grid-column:1/-1;text-align:center;padding:30px">¡Aún no tienes ninguno!</div>';
+  } else {
+    G.collection.forEach(id=>{
+      const p=POOL.find(x=>x.id===id)||{name:'???'};
+      const c=document.createElement('div');
+      c.className='ccell';
+      const isNew=G.newThisRound===id;
+      c.innerHTML=`<img src="${gif(id)}" onerror="this.src='${png(id)}'"><div class="ccell-name">${p.name}</div>${isNew?'<div class="ccell-new">¡NUEVO!</div>':''}`;
+      grid.appendChild(c);
+    });
+  }
+  show('col-screen');
+}
+function closeCollection(){show(_colFrom)}
+
+// ── LEVEL START ──────────────────────────────────────────────
+function beginLevel(){
+  stopGameplay();
+  G.mons=[];
+  G.newThisRound=null;
+
+  const pool=shuffle(POOL);
+  G.targets=pool.slice(0,3).map(p=>({...p,count:0}));
+  G.decoys=pool.slice(3,18);
+  G.timer=MAX_T;
+
+  show('game-screen');
+  renderTargetsBar();
+  document.getElementById('hud-lv').textContent=`LVL ${G.level}`;
+  updateTimerUI();
+
+  // Level announce
+  const la=document.getElementById('la');
+  la.classList.remove('gone');
+  la.style.opacity='1';
+  la.style.pointerEvents='auto';
+  document.getElementById('la-title').textContent=`NIVEL ${G.level}`;
+  const laDom=document.getElementById('la-targets');
+  laDom.innerHTML='';
+  G.targets.forEach(t=>{
+    const d=document.createElement('div');
+    d.className='la-t';
+    d.innerHTML=`<img src="${gif(t.id)}" onerror="this.src='${png(t.id)}'"><div class="la-t-name">${t.name}</div><div class="la-t-badge">× 3</div>`;
+    laDom.appendChild(d);
+  });
+
+  setTimeout(()=>{
+    la.style.opacity='0';
+    la.style.pointerEvents='none';
+    setTimeout(()=>{la.classList.add('gone');startGameplay();},400);
+  },3000);
+}
+
+function renderTargetsBar(){
+  const bar=document.getElementById('targets-bar');
+  bar.innerHTML='';
+  G.targets.forEach((t,i)=>{
+    const s=document.createElement('div');
+    s.className='tslot';s.id=`ts${i}`;
+    let pips='';
+    for(let j=0;j<3;j++)pips+=`<div class="pip${j<t.count?' on':''}" id="p${i}${j}"></div>`;
+    s.innerHTML=`<img src="${gif(t.id)}" onerror="this.src='${png(t.id)}'"><div class="tslot-name">${t.name}</div><div class="tslot-pips">${pips}</div>`;
+    bar.appendChild(s);
+  });
+}
+
+// ── GAMEPLAY ─────────────────────────────────────────────────
+function startGameplay(){
+  G.field=document.getElementById('field');
+  G.running=true;
+  document.getElementById('timeup').classList.remove('show');
+  updateTimerUI();
+  G.tInt=setInterval(tickTimer,1000);
+  spawnWave();
+  G.sInt=setInterval(spawnWave,2200);
+  G.raf=requestAnimationFrame(moveLoop);
+}
+
+function stopGameplay(){
+  G.running=false;
+  clearInterval(G.tInt);clearInterval(G.sInt);cancelAnimationFrame(G.raf);
+  G.tInt=null;G.sInt=null;G.raf=null;
+  if(G.field){
+    // remove all mons
+    G.mons.forEach(m=>{if(m.el&&m.el.parentNode)m.el.parentNode.removeChild(m.el)});
+    G.mons=[];
+  }
+}
+
+function tickTimer(){
+  G.timer--;
+  updateTimerUI();
+  if(G.timer<=0){
+    document.getElementById('timeup').classList.add('show');
+    setTimeout(()=>endLevel(),1200);
+  }
+}
+
+function updateTimerUI(){
+  document.getElementById('hud-tval').textContent=G.timer;
+  const pct=(G.timer/MAX_T)*100;
+  const f=document.getElementById('hud-tfill');
+  f.style.width=pct+'%';
+  f.style.background=G.timer>15?'#ffcb05':'#ff4444';
+}
+
+// ── SPAWN ────────────────────────────────────────────────────
+function spawnWave(){
+  if(!G.running||!G.field)return;
+  const n=3+Math.floor(Math.random()*3);
+  for(let i=0;i<n;i++)setTimeout(spawnOne,i*250);
+}
+
+function spawnOne(){
+  if(!G.running||!G.field)return;
+  if(G.mons.length>22)return; // cap on screen
+
+  const isTarget=Math.random()<0.32;
+  let pk;
+  if(isTarget){
+    const incomplete=G.targets.filter(t=>t.count<3);
+    if(!incomplete.length)return;
+    pk=incomplete[0|Math.random()*incomplete.length];
+  } else {
+    pk=G.decoys[0|Math.random()*G.decoys.length];
+  }
+
+  const types=['float','fall','pop'];
+  const mv=types[0|Math.random()*3];
+  const fw=G.field.offsetWidth, fh=G.field.offsetHeight;
+
+  const m={id:pk.id,name:pk.name,isTarget,mv,alive:true,
+    x:0,y:0,vx:0,vy:0,
+    popBorn:0,popLife:0,el:null};
+
+  if(mv==='float'){
+    m.x=30+Math.random()*(fw-90);m.y=30+Math.random()*(fh-90);
+    const spd=1.2+Math.random()*2,ang=Math.random()*Math.PI*2;
+    m.vx=Math.cos(ang)*spd;m.vy=Math.sin(ang)*spd;
+  } else if(mv==='fall'){
+    m.x=16+Math.random()*(fw-80);m.y=-64;
+    m.vx=(Math.random()-.5)*1.4;m.vy=2+Math.random()*1.8;
+  } else {
+    m.x=16+Math.random()*(fw-80);m.y=20+Math.random()*(fh-80);
+    m.popBorn=Date.now();m.popLife=2200+Math.random()*2200;
+  }
+
+  const div=document.createElement('div');
+  div.className='fmon';
+  div.innerHTML=`<img src="${gif(pk.id)}" onerror="this.src='${png(pk.id)}'" alt="${pk.name}">`;
+  div.style.left=m.x+'px';div.style.top=m.y+'px';
+  div.style.opacity='1';
+
+  const tap=e=>{if(e.cancelable)e.preventDefault();onTap(m,div)};
+  div.addEventListener('touchstart',tap,{passive:false});
+  div.addEventListener('click',tap);
+
+  G.field.appendChild(div);
+  m.el=div;
+  G.mons.push(m);
+}
+
+// ── MOVEMENT ─────────────────────────────────────────────────
+function moveLoop(){
+  if(!G.running){return}
+  const fw=G.field?G.field.offsetWidth:390;
+  const fh=G.field?G.field.offsetHeight:500;
+
+  for(const m of G.mons){
+    if(!m.alive||!m.el)continue;
+    if(m.mv==='float'){
+      m.x+=m.vx;m.y+=m.vy;
+      if(m.x<0){m.x=0;m.vx=Math.abs(m.vx)}
+      if(m.x>fw-64){m.x=fw-64;m.vx=-Math.abs(m.vx)}
+      if(m.y<0){m.y=0;m.vy=Math.abs(m.vy)}
+      if(m.y>fh-64){m.y=fh-64;m.vy=-Math.abs(m.vy)}
+      m.el.style.left=m.x+'px';m.el.style.top=m.y+'px';
+    } else if(m.mv==='fall'){
+      m.x+=m.vx;m.y+=m.vy;
+      if(m.x<0){m.x=0;m.vx=Math.abs(m.vx)}
+      if(m.x>fw-64){m.x=fw-64;m.vx=-Math.abs(m.vx)}
+      m.el.style.left=m.x+'px';m.el.style.top=m.y+'px';
+      if(m.y>fh+20)killMon(m);
+    } else {
+      const age=Date.now()-m.popBorn;
+      if(age>m.popLife){killMon(m)}
+      else if(age>m.popLife-500){m.el.style.opacity=((m.popLife-age)/500).toFixed(2)}
+    }
+  }
+  G.raf=requestAnimationFrame(moveLoop);
+}
+
+function killMon(m){
+  m.alive=false;
+  if(m.el&&m.el.parentNode)m.el.parentNode.removeChild(m.el);
+  G.mons=G.mons.filter(x=>x!==m);
+}
+
+// ── TAP ──────────────────────────────────────────────────────
+function onTap(m,el){
+  if(!m.alive||!G.running)return;
+  playSound(m.id);
+
+  if(m.isTarget){
+    const t=G.targets.find(x=>x.id===m.id);
+    if(t&&t.count<3){
+      t.count++;
+      showFlash(m.x+32,m.y+32,true);
+      updatePips(t);
+      killMon(m);
+      if(G.targets.every(t=>t.count>=3))setTimeout(endLevel,400);
+    }
+  } else {
+    showFlash(m.x+32,m.y+32,false);
+    killMon(m);
+  }
+}
+
+function updatePips(t){
+  const i=G.targets.indexOf(t);
+  for(let j=0;j<3;j++){
+    const p=document.getElementById(`p${i}${j}`);
+    if(p)p.className='pip'+(j<t.count?' on':'');
+  }
+}
+
+function showFlash(x,y,ok){
+  if(!G.field)return;
+  const d=document.createElement('div');
+  d.className='flash';
+  d.style.left=(x-28)+'px';d.style.top=(y-28)+'px';
+  if(ok){
+    d.innerHTML='<div class="flash-ring"></div>';
+  } else {
+    d.className='wrong-flash';
+    d.innerHTML='<div class="wrong-x">✗</div>';
+  }
+  G.field.appendChild(d);
+  setTimeout(()=>{if(d.parentNode)d.parentNode.removeChild(d)},500);
+}
+
+// ── END LEVEL ────────────────────────────────────────────────
+function endLevel(){
+  stopGameplay();
+  showCasino();
+}
+
+// ── CASINO ───────────────────────────────────────────────────
+function showCasino(){
+  show('casino-screen');
+  const reelsEl=document.getElementById('cas-reels');
+  reelsEl.innerHTML='';
+  const ri=document.getElementById('cas-res-img');
+  const rt=document.getElementById('cas-res-txt');
+  const rn=document.getElementById('cas-res-name');
+  ri.style.display='none';rt.textContent='';rn.textContent='';
+  document.getElementById('cas-next').style.display='none';
+
+  const rwraps=[];
+  G.targets.forEach((t,i)=>{
+    const active=t.count>=3;
+    const w=document.createElement('div');
+    w.className='reel-wrap';
+    const winDiv=`<div class="reel-win${active?'':' off'}" id="rw${i}"><div class="reel-img" id="ri${i}"><img src="${gif(t.id)}" onerror="this.src='${png(t.id)}'"></div>${active?'':'<div class="reel-x">✗</div>'}</div>`;
+    w.innerHTML=`<div class="reel-lbl">${t.name}</div>${winDiv}<div class="reel-score">${t.count}/3</div>`;
+    reelsEl.appendChild(w);
+    if(active)rwraps.push({el:document.getElementById(`rw${i}`),t});
+  });
+
+  const active=G.targets.filter(t=>t.count>=3);
+
+  setTimeout(()=>{
+    if(!active.length){
+      rt.textContent='¡No capturaste nada!';
+      rt.style.color='#ff4444';
+      rn.textContent='Intenta de nuevo';rn.style.color='rgba(255,255,255,.5)';
+      document.getElementById('cas-next').style.display='block';
+      return;
+    }
+
+    rwraps.forEach(r=>r.el.classList.add('spinning'));
+
+    const winner=active[0|Math.random()*active.length];
+
+    setTimeout(()=>{
+      rwraps.forEach(r=>{
+        r.el.classList.remove('spinning');
+        if(r.t.id===winner.id){
+          r.el.style.borderColor='#ffcb05';
+          r.el.style.boxShadow='0 0 28px rgba(255,203,5,.9)';
+        } else {
+          r.el.style.opacity='.3';
+        }
+      });
+      playSound(winner.id);
+
+      const isNew=!G.collection.includes(winner.id);
+      ri.src=gif(winner.id);
+      ri.onerror=()=>{ri.src=png(winner.id)};
+      ri.style.display='block';
+      rt.textContent=isNew?'¡Nuevo Pokémon!':'¡Capturaste a...';
+      rt.style.color=isNew?'#ffcb05':'#fff';
+      rn.textContent=winner.name.toUpperCase()+'!';
+      rn.style.color='#ffcb05';
+
+      if(!G.collection.includes(winner.id)){
+        G.collection.push(winner.id);
+        localStorage.setItem('pkc2',JSON.stringify(G.collection));
+        G.newThisRound=winner.id;
+      }
+      document.getElementById('cas-next').style.display='block';
+    },3200);
+  },600);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+updateMenuRec();
+</script>
+</body>
+</html>
