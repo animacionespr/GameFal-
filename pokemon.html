@@ -198,6 +198,27 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   opacity:0;-webkit-transition:opacity .4s;transition:opacity .4s}
 #map-toast.show{opacity:1}
 
+/* ── MISSION OVERLAY ── */
+#mission-overlay{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  z-index:55;pointer-events:none;background:rgba(0,0,0,.70);
+  opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s}
+#mission-card{background:linear-gradient(160deg,#1a1a2e,#16213e);
+  border:3px solid #ffcb05;border-radius:18px;padding:18px 22px;
+  text-align:center;max-width:300px;width:88%;
+  box-shadow:0 0 30px rgba(255,203,5,.2)}
+#mission-title{color:#ffcb05;font-size:19px;font-weight:900;
+  text-shadow:0 0 12px rgba(255,203,5,.5);margin-bottom:12px;letter-spacing:1px}
+#mission-body{display:flex;justify-content:center;gap:10px;margin-bottom:13px}
+.mt-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mt-item img{width:54px;height:54px;image-rendering:pixelated;
+  background:rgba(255,255,255,.07);border-radius:50%;
+  border:2px solid rgba(255,203,5,.4)}
+.mt-item span{color:#fff;font-size:10px;font-weight:900}
+#mission-rules{display:flex;flex-direction:column;gap:4px;
+  color:rgba(255,255,255,.7);font-size:12px;font-weight:700;line-height:1.5}
+#mission-rules span{display:block}
+
 /* ── FX ── */
 .bling{position:absolute;pointer-events:none;z-index:20;
   width:60px;height:60px;border-radius:50%;
@@ -320,6 +341,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   <div id="field">
     <div id="map-toast"></div>
     <div id="cdown"><div id="cdown-n"></div></div>
+    <div id="mission-overlay">
+      <div id="mission-card">
+        <div id="mission-title">🎯 OBJETIVOS DEL NIVEL</div>
+        <div id="mission-body"></div>
+        <div id="mission-rules">
+          <span>✅ Atrapa <strong style="color:#ffcb05">3 de cada</strong> objetivo</span>
+          <span>❌ Evita los impostores o perderás puntos</span>
+          <span>👹 ¡Derrota al Jefe antes que te elimine!</span>
+        </div>
+      </div>
+    </div>
     <div id="timeup"><span>¡TIEMPO!</span></div>
   </div>
 </div>
@@ -771,7 +803,7 @@ function beginLevel() {
   applyMap();
   document.getElementById('timeup').classList.remove('show');
   setTimeout(function() { decorateField(); showMapToast(); }, 80);
-  countdown(3, function() { beginSpawning(); });
+  countdown(3, function() { showMission(beginSpawning); });
 }
 
 function buildTargetRow() {
@@ -818,6 +850,16 @@ function decorateField() {
 }
 
 /* ── COUNTDOWN ── */
+function speakWord(word) {
+  if (!window.speechSynthesis || muted) return;
+  try {
+    window.speechSynthesis.cancel();
+    var utt = new SpeechSynthesisUtterance(word);
+    utt.lang = 'es-ES'; utt.rate = 0.80; utt.pitch = 1.2; utt.volume = 1.0;
+    window.speechSynthesis.speak(utt);
+  } catch(e) {}
+}
+
 function countdown(n, cb) {
   var el = document.getElementById('cdown-n');
   var box = document.getElementById('cdown');
@@ -825,6 +867,7 @@ function countdown(n, cb) {
   function tick(v) {
     el.style.opacity = '0';
     el.textContent = v > 0 ? String(v) : '¡YA!';
+    speakWord(v > 0 ? String(v) : '¡A jugar!');
     setTimeout(function() {
       el.style.transition = 'opacity .15s';
       el.style.opacity = '1';
@@ -836,6 +879,26 @@ function countdown(n, cb) {
     }, 50);
   }
   tick(n);
+}
+
+function showMission(cb) {
+  var overlay = document.getElementById('mission-overlay');
+  var body = document.getElementById('mission-body');
+  if (!overlay) { cb(); return; }
+  body.innerHTML = '';
+  for (var i = 0; i < targets.length; i++) {
+    var d = document.createElement('div');
+    d.className = 'mt-item';
+    d.innerHTML = '<img src="' + gif(targets[i].id) + '" onerror="this.src=\'' + png(targets[i].id) + '\'" alt="">'
+      + '<span>' + targets[i].n + '</span>';
+    body.appendChild(d);
+  }
+  overlay.style.opacity = '1';
+  speakWord('¡Atrapa a ' + targets.map(function(t){ return t.n; }).join(', ') + '!');
+  setTimeout(function() {
+    overlay.style.opacity = '0';
+    setTimeout(cb, 380);
+  }, 2400);
 }
 
 /* ── GAMEPLAY ── */
@@ -858,6 +921,7 @@ function beginSpawning() {
 
 function stopGame() {
   running = false;
+  try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e) {}
   clearInterval(tInt); clearInterval(sInt);
   cancelAnimationFrame(raf);
   clearTimeout(bossSpawnTimer);
