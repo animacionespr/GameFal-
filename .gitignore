@@ -1,0 +1,15 @@
+# API keys y credenciales — NUNCA subir a GitHub
+bot/config.py
+bot/client_secrets.json
+bot/token.pickle
+
+# Archivos temporales del bot
+bot/downloads/
+bot/output/
+bot/log.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
