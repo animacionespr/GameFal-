@@ -1,8 +1,8 @@
 requests>=2.28
-elevenlabs>=1.0
 moviepy>=2.0
 imageio-ffmpeg>=0.4.7
 edge-tts>=6.1
+elevenlabs>=1.0
 google-api-python-client>=2.100
 google-auth-oauthlib>=1.1
 Pillow>=10.0

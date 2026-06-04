@@ -10,7 +10,10 @@ try:
 except ImportError:
     HAS_GOOGLE = False
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube",
+]
 TOKEN_FILE = "token.pickle"
 
 
@@ -33,7 +36,7 @@ def _get_credentials(client_secrets_file):
     return creds
 
 
-def upload_youtube(video_path, title, description, tags, category_id, client_secrets_file):
+def upload_youtube(video_path, title, description, tags, category_id, client_secrets_file, thumbnail_path=None):
     """
     Sube un video a YouTube.
     La primera vez abre el navegador para que des permiso.
@@ -73,4 +76,17 @@ def upload_youtube(video_path, title, description, tags, category_id, client_sec
             print(f"     Subiendo... {pct}%", end="\r")
 
     print()
-    return response["id"]
+    video_id = response["id"]
+
+    # Subir thumbnail si existe
+    if thumbnail_path and os.path.exists(thumbnail_path):
+        try:
+            youtube.thumbnails().set(
+                videoId=video_id,
+                media_body=MediaFileUpload(thumbnail_path, mimetype="image/jpeg")
+            ).execute()
+            print("     ✅ Thumbnail subido")
+        except Exception as e:
+            print(f"     [!] Thumbnail error: {e}")
+
+    return video_id
