@@ -6,207 +6,149 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>PokéCatch</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;background:#0d1117;overflow:hidden;
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+html,body{width:100%;height:100%;overflow:hidden;background:#111;
   font-family:'Courier New',monospace;user-select:none;-webkit-user-select:none;
   touch-action:manipulation}
 
-/* ── SCREENS: all hidden, JS controls display ── */
-.scr{position:absolute;inset:0;display:none;flex-direction:column;align-items:center}
+/* All screens hidden except menu (inline style below) */
+.scr{position:absolute;top:0;left:0;right:0;bottom:0;display:none;
+  flex-direction:column;align-items:center}
 
 /* ── MENU ── */
-#s-menu{
-  background:linear-gradient(170deg,#1a0000 0%,#cc0000 35%,#660000 65%,#0d0d0d 100%);
-  justify-content:center;gap:20px;padding:20px;
-}
-.pball{
-  width:96px;height:96px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(180deg,#cc0000 47%,#222 47%,#222 53%,#f0f0f0 53%);
-  border:7px solid #111;box-shadow:0 10px 30px rgba(0,0,0,.7);position:relative;
-}
-.pball::after{content:'';position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);width:22px;height:22px;
-  border-radius:50%;background:#e8e8e8;border:5px solid #111}
-#m-title{font-size:54px;font-weight:900;color:#fff;
-  text-shadow:0 0 20px rgba(255,80,80,.6),3px 3px 0 #000;letter-spacing:1px}
-#m-sub{color:rgba(255,255,255,.7);font-size:13px;text-align:center;line-height:1.5}
-#m-play{
-  background:#ffcb05;color:#111;border:4px solid #111;border-radius:60px;
-  padding:16px 56px;font-size:24px;font-weight:900;cursor:pointer;
-  font-family:inherit;box-shadow:0 6px 0 #9a7a00;
-  -webkit-appearance:none;appearance:none;
-}
-#m-play:active{transform:translateY(5px);box-shadow:0 1px 0 #9a7a00}
-#m-colbtn{
-  background:rgba(255,255,255,.12);color:#fff;
-  border:2px solid rgba(255,255,255,.3);border-radius:40px;
-  padding:9px 26px;font-size:14px;font-weight:700;
-  cursor:pointer;font-family:inherit;-webkit-appearance:none;
-}
-#m-saved{color:rgba(255,255,255,.55);font-size:12px}
-#m-mute{
-  background:none;border:none;color:rgba(255,255,255,.5);
-  font-size:20px;cursor:pointer;font-family:inherit;
-}
+#sm{background:linear-gradient(170deg,#330000,#cc0000 40%,#550000 70%,#111);
+  justify-content:center;gap:20px;padding:24px}
+.pb{width:96px;height:96px;border-radius:50%;flex-shrink:0;position:relative;
+  border:7px solid #111;box-shadow:0 10px 30px rgba(0,0,0,.7);
+  background:linear-gradient(180deg,#cc0000 47%,#222 47%,#222 53%,#eee 53%)}
+.pb:after{content:'';position:absolute;top:50%;left:50%;
+  width:22px;height:22px;border-radius:50%;
+  background:#e8e8e8;border:5px solid #111;
+  transform:translate(-50%,-50%)}
+#m-title{font-size:52px;font-weight:900;color:#fff;
+  text-shadow:3px 3px 0 #000,0 0 20px rgba(255,80,80,.5)}
+#m-sub{color:rgba(255,255,255,.7);font-size:13px;text-align:center;line-height:1.6}
+.bigbtn{background:#ffcb05;color:#111;border:4px solid #111;border-radius:60px;
+  padding:15px 52px;font-size:22px;font-weight:900;cursor:pointer;
+  font-family:inherit;box-shadow:0 6px 0 #9a7a00;display:block;
+  -webkit-appearance:none;width:auto}
+.bigbtn:active{transform:translateY(5px);box-shadow:0 1px 0 #9a7a00}
+.smolbtn{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.3);
+  border-radius:40px;padding:9px 26px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;-webkit-appearance:none;display:block}
+#m-saved{color:rgba(255,255,255,.55);font-size:12px;text-align:center}
+#m-mute{background:none;border:none;color:rgba(255,255,255,.5);
+  font-size:22px;cursor:pointer}
 
 /* ── GAME ── */
-#s-game{background:#162016}
-
-#hud{
-  width:100%;background:#cc0000;
-  padding:8px 14px;display:flex;justify-content:space-between;
-  align-items:center;flex-shrink:0;
-  box-shadow:0 2px 8px rgba(0,0,0,.4);
-}
+#sg{background:#0d1a0d}
+#hud{width:100%;background:#cc0000;padding:8px 14px;flex-shrink:0;
+  display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.5)}
 #hud-lv{color:#ffcb05;font-size:14px;font-weight:900}
 #hud-t{display:flex;flex-direction:column;align-items:center;gap:2px}
-#hud-tnum{color:#fff;font-size:32px;font-weight:900;line-height:1}
-#hud-tbar{width:80px;height:5px;background:rgba(255,255,255,.25);border-radius:3px}
-#hud-tfill{height:100%;border-radius:3px;background:#ffcb05;transition:width 1s linear,background .4s}
-#hud-cbtn{
-  background:#ffcb05;color:#111;border:2px solid #111;
-  border-radius:6px;padding:5px 10px;font-size:12px;font-weight:900;
-  cursor:pointer;font-family:inherit;-webkit-appearance:none;
-}
+#hud-n{color:#fff;font-size:32px;font-weight:900;line-height:1}
+#hud-b{width:80px;height:5px;background:rgba(255,255,255,.25);border-radius:3px}
+#hud-f{height:100%;border-radius:3px;background:#ffcb05;
+  -webkit-transition:width 1s linear,background .4s;transition:width 1s linear,background .4s}
+#hud-col{background:#ffcb05;color:#111;border:2px solid #111;border-radius:6px;
+  padding:5px 10px;font-size:12px;font-weight:900;cursor:pointer;
+  font-family:inherit;-webkit-appearance:none}
 
-#trow{
-  width:100%;background:#111;
-  display:flex;justify-content:space-around;
-  padding:6px 2px;flex-shrink:0;
-}
-.tslot{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:3px 8px;border-radius:8px;min-width:90px;
-  border:1px solid rgba(255,203,5,.15);
-}
-.tslot img{width:50px;height:50px;image-rendering:pixelated}
+#trow{width:100%;background:#111;display:flex;justify-content:space-around;
+  padding:6px 2px;flex-shrink:0}
+.tslot{display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:3px 8px;border-radius:8px;min-width:88px;
+  border:1px solid rgba(255,203,5,.15)}
+.tslot img{width:50px;height:50px;image-rendering:pixelated;border-radius:50%}
 .tname{color:#ffcb05;font-size:9px;font-weight:900;text-align:center}
 .tpips{display:flex;gap:4px;margin-top:1px}
-.pip{width:12px;height:12px;border-radius:50%;border:2px solid #ffcb05}
+.pip{width:12px;height:12px;border-radius:50%;border:2px solid #ffcb05;background:transparent}
 .pip.on{background:#ffcb05}
 
-#field{
-  flex:1;position:relative;overflow:hidden;
-  background:radial-gradient(ellipse at 50% 30%,#1e3a1e,#0d1a0d);
-}
+#field{flex:1;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 30%,#1a3a1a,#0a180a)}
 
-/* Pokémon sprite on field */
-.mon{
-  position:absolute;display:flex;flex-direction:column;
-  align-items:center;cursor:pointer;z-index:5;
-  /* CRITICAL for iOS tap detection */
-  -webkit-tap-highlight-color:transparent;
-}
-.mon-wrap{
-  width:72px;height:72px;border-radius:50%;
+/* Pokémon on field */
+.mon{position:absolute;display:flex;flex-direction:column;
+  align-items:center;cursor:pointer;z-index:5}
+.mon-img{width:72px;height:72px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  position:relative;border:2px solid rgba(255,255,255,.2);
-}
-.mon-wrap img{
-  width:64px;height:64px;image-rendering:pixelated;
-  pointer-events:none;position:absolute;
-}
-.mon-name{
-  color:#fff;font-size:9px;font-weight:900;
-  background:rgba(0,0,0,.7);border-radius:4px;
-  padding:1px 5px;margin-top:2px;white-space:nowrap;pointer-events:none;
-}
+  border:2px solid rgba(255,255,255,.2);position:relative}
+.mon-img img{width:64px;height:64px;image-rendering:pixelated;pointer-events:none}
+.mon-lbl{color:#fff;font-size:9px;font-weight:900;background:rgba(0,0,0,.7);
+  border-radius:4px;padding:1px 5px;margin-top:2px;
+  white-space:nowrap;pointer-events:none}
 
-/* catch/miss fx */
-.bling{
-  position:absolute;pointer-events:none;z-index:20;
+/* FX */
+.bling{position:absolute;pointer-events:none;z-index:20;
   width:60px;height:60px;border-radius:50%;
   border:4px solid #ffcb05;background:rgba(255,203,5,.2);
-  animation:bling .4s ease-out forwards;
-}
-@keyframes bling{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.8);opacity:0}}
-.miss-x{
-  position:absolute;pointer-events:none;z-index:20;
+  -webkit-animation:bl .4s ease-out forwards;animation:bl .4s ease-out forwards}
+@-webkit-keyframes bl{0%{-webkit-transform:scale(.3);opacity:1}100%{-webkit-transform:scale(2.8);opacity:0}}
+@keyframes bl{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.8);opacity:0}}
+.missx{position:absolute;pointer-events:none;z-index:20;
   font-size:24px;font-weight:900;color:#ff4444;
-  animation:missfly .35s ease-out forwards;
-}
-@keyframes missfly{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-28px)}}
+  -webkit-animation:mx .35s ease-out forwards;animation:mx .35s ease-out forwards}
+@-webkit-keyframes mx{0%{opacity:1}100%{opacity:0;-webkit-transform:translateY(-28px)}}
+@keyframes mx{0%{opacity:1}100%{opacity:0;transform:translateY(-28px)}}
 
-/* countdown */
-#cdown{
-  position:absolute;inset:0;display:flex;align-items:center;
-  justify-content:center;z-index:60;pointer-events:none;
-}
-#cdown-n{
-  font-size:130px;font-weight:900;color:#ffcb05;
-  text-shadow:5px 5px 0 #000,0 0 40px rgba(255,203,5,.5);
-}
+/* Countdown */
+#cdown{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  z-index:60;pointer-events:none}
+#cdown-n{font-size:130px;font-weight:900;color:#ffcb05;
+  text-shadow:5px 5px 0 #000;opacity:0}
 
-#timeup{
-  position:absolute;inset:0;display:flex;align-items:center;
-  justify-content:center;background:rgba(0,0,0,.72);
-  z-index:50;pointer-events:none;opacity:0;transition:opacity .35s;
-}
+#timeup{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.72);z-index:50;pointer-events:none;opacity:0;
+  -webkit-transition:opacity .35s;transition:opacity .35s}
 #timeup.show{opacity:1}
-#timeup span{color:#ff4444;font-size:58px;font-weight:900;text-shadow:4px 4px 0 #000}
+#timeup span{color:#ff4444;font-size:56px;font-weight:900;text-shadow:4px 4px 0 #000}
 
 /* ── CASINO ── */
-#s-casino{
-  background:radial-gradient(ellipse at 50% -5%,#2e1060,#080818);
-  padding:20px 14px;gap:14px;justify-content:flex-start;
-}
-#cas-h{color:#ffcb05;font-size:30px;font-weight:900;text-align:center;
-  text-shadow:0 0 20px rgba(255,203,5,.5)}
-#cas-sub{color:rgba(255,255,255,.55);font-size:12px;text-align:center}
+#sc{background:radial-gradient(ellipse at 50% 0%,#2a0e60,#060612);
+  padding:20px 12px;gap:12px;justify-content:flex-start}
+#cas-h{color:#ffcb05;font-size:28px;font-weight:900;text-align:center;
+  text-shadow:0 0 20px rgba(255,203,5,.4)}
+#cas-sub{color:rgba(255,255,255,.5);font-size:12px;text-align:center}
 #cas-reels{display:flex;gap:10px;justify-content:center;width:100%}
 .rw{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;max-width:105px}
 .rl{color:#ffcb05;font-size:10px;font-weight:900;text-align:center}
-.rv{
-  width:84px;height:84px;border:4px solid #ffcb05;border-radius:12px;
+.rv{width:84px;height:84px;border:4px solid #ffcb05;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  background:#060612;position:relative;
-  box-shadow:0 0 16px rgba(255,203,5,.3);overflow:hidden;
-}
-.rv.off{border-color:#333;box-shadow:none;opacity:.6}
+  background:#06060e;position:relative;overflow:hidden;
+  box-shadow:0 0 16px rgba(255,203,5,.25)}
+.rv.off{border-color:#333;box-shadow:none;opacity:.55}
 .rv img{width:66px;height:66px;image-rendering:pixelated}
-.rv .rx{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:36px;color:#444;font-weight:900;background:rgba(0,0,0,.5);
-}
-.rv.spin img{animation:spin .12s linear infinite}
-@keyframes spin{0%{transform:scaleY(1)}50%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+.rv .rx{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;color:#444;font-weight:900;background:rgba(0,0,0,.5)}
+.rv.spin img{-webkit-animation:sp .12s linear infinite;animation:sp .12s linear infinite}
+@-webkit-keyframes sp{0%{-webkit-transform:scaleY(1)}50%{-webkit-transform:scaleY(0)}100%{-webkit-transform:scaleY(1)}}
+@keyframes sp{0%{transform:scaleY(1)}50%{transform:scaleY(0)}100%{transform:scaleY(1)}}
 .rscore{color:rgba(255,255,255,.6);font-size:11px}
 
-#cas-res{
-  display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:8px;min-height:110px;width:100%;
-}
+#cas-res{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:6px;min-height:110px;width:100%;text-align:center}
 #cas-img{width:90px;height:90px;image-rendering:pixelated;display:none}
-#cas-txt{font-size:17px;font-weight:900;color:#fff;text-align:center}
-#cas-name{font-size:28px;font-weight:900;color:#ffcb05;text-align:center}
-
-#cas-btn{
-  background:#ffcb05;color:#111;border:4px solid #111;border-radius:50px;
-  padding:14px 44px;font-size:20px;font-weight:900;cursor:pointer;
-  font-family:inherit;box-shadow:0 6px 0 #9a7a00;display:none;
-  margin-top:auto;margin-bottom:12px;-webkit-appearance:none;
-}
-#cas-btn:active{transform:translateY(5px);box-shadow:0 1px 0 #9a7a00}
+#cas-txt{font-size:17px;font-weight:900;color:#fff}
+#cas-name{font-size:28px;font-weight:900;color:#ffcb05}
 
 /* ── COLLECTION ── */
-#s-col{background:#0a0a22;padding:14px;gap:12px}
+#scol{background:#08081e;padding:14px;gap:12px}
 #col-top{display:flex;width:100%;align-items:center;justify-content:space-between}
 #col-h{color:#ffcb05;font-size:22px;font-weight:900}
-#col-cnt{color:rgba(255,255,255,.5);font-size:12px}
-#col-x{
-  background:#cc0000;color:#fff;border:none;border-radius:8px;
+#col-cnt{color:rgba(255,255,255,.45);font-size:12px}
+#col-x{background:#cc0000;color:#fff;border:none;border-radius:8px;
   padding:7px 16px;font-size:13px;font-weight:900;cursor:pointer;
-  font-family:inherit;-webkit-appearance:none;
-}
-#col-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
-  width:100%;overflow-y:auto;flex:1;padding-bottom:8px;
-}
-.cel{
-  background:rgba(255,255,255,.04);border-radius:8px;
+  font-family:inherit;-webkit-appearance:none}
+#col-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
+  width:100%;overflow-y:auto;flex:1;padding-bottom:8px}
+.cel{background:rgba(255,255,255,.04);border-radius:8px;
   display:flex;flex-direction:column;align-items:center;
-  padding:7px 3px;border:1px solid rgba(255,203,5,.1);
-}
+  padding:7px 3px;border:1px solid rgba(255,203,5,.1)}
 .cel img{width:50px;height:50px;image-rendering:pixelated}
 .cel-n{color:#ffcb05;font-size:9px;font-weight:900;text-align:center;margin-top:3px}
 .cel-new{color:#ff4455;font-size:9px;font-weight:900}
@@ -214,26 +156,26 @@ html,body{width:100%;height:100%;background:#0d1117;overflow:hidden;
 </head>
 <body>
 
-<!-- MENU -->
-<div id="s-menu" class="scr">
-  <div class="pball"></div>
+<!-- MENU: display:flex inline so it shows even if JS fails -->
+<div id="sm" class="scr" style="display:flex">
+  <div class="pb"></div>
   <div id="m-title">PokéCatch</div>
   <div id="m-sub">Atrapa 3 de cada objetivo<br>antes de que acabe el tiempo</div>
-  <button id="m-play">▶ JUGAR</button>
-  <button id="m-colbtn">📖 Mi Colección</button>
+  <button class="bigbtn" id="m-play">▶ JUGAR</button>
+  <button class="smolbtn" id="m-col">📖 Mi Colección</button>
   <div id="m-saved"></div>
   <button id="m-mute">🔊</button>
 </div>
 
 <!-- GAME -->
-<div id="s-game" class="scr">
+<div id="sg" class="scr">
   <div id="hud">
     <div id="hud-lv">LVL 1</div>
     <div id="hud-t">
-      <div id="hud-tnum">60</div>
-      <div id="hud-tbar"><div id="hud-tfill" style="width:100%"></div></div>
+      <div id="hud-n">60</div>
+      <div id="hud-b"><div id="hud-f" style="width:100%"></div></div>
     </div>
-    <button id="hud-cbtn">📖 Col</button>
+    <button id="hud-col">📖 Col</button>
   </div>
   <div id="trow"></div>
   <div id="field">
@@ -243,20 +185,20 @@ html,body{width:100%;height:100%;background:#0d1117;overflow:hidden;
 </div>
 
 <!-- CASINO -->
-<div id="s-casino" class="scr">
+<div id="sc" class="scr">
   <div id="cas-h">🎰 RULETA</div>
-  <div id="cas-sub">Los completos (3/3) entran al sorteo</div>
+  <div id="cas-sub">Completa 3/3 para entrar al sorteo</div>
   <div id="cas-reels"></div>
   <div id="cas-res">
     <img id="cas-img" alt="">
     <div id="cas-txt"></div>
     <div id="cas-name"></div>
   </div>
-  <button id="cas-btn">▶ SIGUIENTE NIVEL</button>
+  <button class="bigbtn" id="cas-btn" style="display:none;margin-top:auto;margin-bottom:12px">▶ SIGUIENTE NIVEL</button>
 </div>
 
 <!-- COLLECTION -->
-<div id="s-col" class="scr">
+<div id="scol" class="scr">
   <div id="col-top">
     <div><div id="col-h">📖 Colección</div><div id="col-cnt"></div></div>
     <button id="col-x">✕ Cerrar</button>
@@ -265,10 +207,11 @@ html,body{width:100%;height:100%;background:#0d1117;overflow:hidden;
 </div>
 
 <script>
+(function() {
 'use strict';
 
-/* ─────────────────── DATA ─────────────────── */
-const POOL = [
+/* ── DATA ── */
+var POOL = [
   {id:1,  n:'Bulbasaur', c:'#78c850'},{id:4,  n:'Charmander',c:'#f08030'},
   {id:7,  n:'Squirtle',  c:'#6890f0'},{id:25, n:'Pikachu',   c:'#f8d030'},
   {id:39, n:'Jigglypuff',c:'#f4bdc9'},{id:52, n:'Meowth',    c:'#c8a850'},
@@ -285,468 +228,497 @@ const POOL = [
   {id:258,n:'Mudkip',    c:'#6890f0'},{id:385,n:'Jirachi',   c:'#f8d030'},
   {id:393,n:'Piplup',    c:'#6890f0'},{id:448,n:'Lucario',   c:'#3868b8'},
   {id:58, n:'Growlithe', c:'#f87030'},{id:147,n:'Dratini',   c:'#98a8d0'},
-  {id:183,n:'Marill',    c:'#6898f0'},{id:280,n:'Ralts',     c:'#f0a0b8'},
+  {id:183,n:'Marill',    c:'#6898f0'},{id:280,n:'Ralts',     c:'#f0a0b8'}
 ];
 
-const G  = id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
-const P  = id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-const CR = id=>`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
+function gif(id){ return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/'+id+'.gif'; }
+function png(id){ return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+id+'.png'; }
+function cryUrl(id){ return 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/'+id+'.ogg'; }
 
-/* ─────────────────── STATE ─────────────────── */
-const S = {
-  level:1, targets:[], decoys:[], mons:[],
-  timer:60, running:false,
-  tInt:null, sInt:null, raf:null,
-  col: (()=>{try{return JSON.parse(localStorage.getItem('pkc4')||'[]')}catch{return []}})(),
-  newCatch:null, back:null,
-};
+/* ── STATE ── */
+var col = [];
+try { col = JSON.parse(localStorage.getItem('pkc5') || '[]') || []; } catch(e) { col = []; }
 
-function saveCol(){try{localStorage.setItem('pkc4',JSON.stringify(S.col))}catch{}}
-function shuffle(a){
-  const b=[...a];
-  for(let i=b.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[b[i],b[j]]=[b[j],b[i]]}
+var LV = 1, targets = [], decoys = [], mons = [];
+var timer = 60, running = false;
+var tInt = null, sInt = null, raf = null;
+var newCatch = null, backScreen = null;
+var muted = false;
+
+function saveCol(){ try { localStorage.setItem('pkc5', JSON.stringify(col)); } catch(e) {} }
+
+function shuffle(a) {
+  var b = a.slice(), i, j, t;
+  for (i = b.length - 1; i > 0; i--) {
+    j = Math.floor(Math.random() * (i + 1));
+    t = b[i]; b[i] = b[j]; b[j] = t;
+  }
   return b;
 }
 
-/* ─────────────────── SCREENS ─────────────────── */
-// Direct display management — no CSS classes, no !important conflicts
-function show(id){
-  ['s-menu','s-game','s-casino','s-col'].forEach(s=>{
-    document.getElementById(s).style.display='none';
-  });
-  document.getElementById(id).style.display='flex';
-}
-
-/* ─────────────────── MUSIC ─────────────────── */
-let ac=null, muted=false, schedTimer=null, nextBeat=0, beatIdx=0;
-
-// C-major pentatonic cozy melody
-const MELODY=[261.63,329.63,392,440,523.25,392,329.63,261.63,
-              293.66,349.23,392,440,523.25,440,349.23,293.66];
-const BASS  =[130.81,0,196,0,130.81,0,196,0,
-              146.83,0,196,0,146.83,0,196,0];
-const BPS=0.42; // seconds per beat (≈71 BPM)
-
-function initAudio(){
-  if(ac)return;
-  ac=new(window.AudioContext||window.webkitAudioContext)();
-}
-
-function tone(freq,when,dur,vol,type='triangle'){
-  const o=ac.createOscillator(),g=ac.createGain();
-  o.type=type; o.frequency.value=freq;
-  g.gain.setValueAtTime(0,when);
-  g.gain.linearRampToValueAtTime(vol,when+0.04);
-  g.gain.exponentialRampToValueAtTime(0.0001,when+dur);
-  o.connect(g); g.connect(ac.destination);
-  o.start(when); o.stop(when+dur+0.06);
-}
-
-function musicTick(){
-  if(muted||!ac)return;
-  const AHEAD=0.35;
-  while(nextBeat<ac.currentTime+AHEAD){
-    const i=beatIdx%MELODY.length;
-    tone(MELODY[i],nextBeat,BPS*1.6,0.06);
-    if(BASS[i]) tone(BASS[i],nextBeat,BPS*3.2,0.045,'sine');
-    nextBeat+=BPS; beatIdx++;
+/* ── SCREENS ── */
+var IDS = ['sm','sg','sc','scol'];
+function goTo(id) {
+  for (var i = 0; i < IDS.length; i++) {
+    document.getElementById(IDS[i]).style.display = 'none';
   }
-  schedTimer=setTimeout(musicTick,120);
+  document.getElementById(id).style.display = 'flex';
 }
 
-function startMusic(){
-  if(muted)return;
-  initAudio();
-  if(ac.state==='suspended')ac.resume();
-  clearTimeout(schedTimer);
-  nextBeat=ac.currentTime+0.15;
-  beatIdx=0;
+/* ── MUSIC ── */
+var ac = null, musicTimer = null, nextBeat = 0, beatIdx = 0;
+var MELODY = [261.63,329.63,392,440,523.25,392,329.63,261.63,
+              293.66,349.23,392,440,523.25,440,349.23,293.66];
+var BASS   = [130.81,0,196,0,130.81,0,196,0,
+              146.83,0,196,0,146.83,0,196,0];
+var BPS = 0.42;
+
+function initAC() {
+  if (ac) return;
+  try {
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) { ac = null; }
+}
+
+function tone(freq, when, dur, vol, type) {
+  if (!ac) return;
+  try {
+    var o = ac.createOscillator();
+    var g = ac.createGain();
+    o.type = type || 'triangle';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0, when);
+    g.gain.linearRampToValueAtTime(vol, when + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    o.connect(g);
+    g.connect(ac.destination);
+    o.start(when);
+    o.stop(when + dur + 0.06);
+  } catch(e) {}
+}
+
+function musicTick() {
+  if (muted || !ac) return;
+  var AHEAD = 0.35;
+  while (nextBeat < ac.currentTime + AHEAD) {
+    var i = beatIdx % MELODY.length;
+    tone(MELODY[i], nextBeat, BPS * 1.6, 0.055);
+    if (BASS[i]) tone(BASS[i], nextBeat, BPS * 3.2, 0.04, 'sine');
+    nextBeat += BPS;
+    beatIdx++;
+  }
+  musicTimer = setTimeout(musicTick, 120);
+}
+
+function startMusic() {
+  if (muted) return;
+  initAC();
+  if (!ac) return;
+  if (ac.state === 'suspended') { try { ac.resume(); } catch(e) {} }
+  clearTimeout(musicTimer);
+  nextBeat = ac.currentTime + 0.2;
+  beatIdx = 0;
   musicTick();
 }
 
-function stopMusic(){clearTimeout(schedTimer);}
+function stopMusic() { clearTimeout(musicTimer); }
 
-/* ─────────────────── SOUND FX ─────────────────── */
-const sndCache={};
-function playCry(id){
-  try{
-    if(!sndCache[id])sndCache[id]=new Audio(CR(id));
-    const a=sndCache[id].cloneNode();
-    a.volume=0.6; a.play().catch(()=>{});
-  }catch(e){}
+/* ── SOUND FX ── */
+var sndCache = {};
+function playCry(id) {
+  try {
+    if (!sndCache[id]) sndCache[id] = new Audio(cryUrl(id));
+    var a = sndCache[id].cloneNode();
+    a.volume = 0.6;
+    a.play();
+  } catch(e) {}
 }
 
-/* ─────────────────── TAP HELPER (iOS fix) ─────────────────── */
-// Prevents ghost click after touchstart
-function bindTap(el, fn){
-  let touched=false;
-  el.addEventListener('touchstart',e=>{
-    e.preventDefault(); touched=true; fn(e);
-  },{passive:false});
-  el.addEventListener('click',e=>{
-    if(touched){touched=false;return;}
-    fn(e);
-  });
+/* ── BUTTON BINDING (iOS safe) ── */
+function onBtn(id, fn) {
+  var el = document.getElementById(id);
+  var fired = false;
+  el.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    if (!fired) { fired = true; setTimeout(function(){ fired = false; }, 300); fn(); }
+  }, false);
+  el.addEventListener('click', function() {
+    if (!fired) fn();
+  }, false);
 }
 
-/* ─────────────────── MENU ─────────────────── */
-function refreshMenu(){
-  document.getElementById('m-saved').textContent=
-    S.col.length?`📦 ${S.col.length} Pokémon capturados`:'';
+/* ── MENU ── */
+function refreshMenu() {
+  document.getElementById('m-saved').textContent =
+    col.length ? '📦 ' + col.length + ' Pokémon capturados' : '';
 }
 
-bindTap(document.getElementById('m-play'),  ()=>beginLevel());
-bindTap(document.getElementById('m-colbtn'),()=>openCol('s-menu'));
-bindTap(document.getElementById('hud-cbtn'),()=>openCol('s-game'));
-bindTap(document.getElementById('col-x'),   ()=>show(S.back));
-bindTap(document.getElementById('cas-btn'), ()=>{S.level++;beginLevel();});
+onBtn('m-play',   function() { startMusic(); beginLevel(); });
+onBtn('m-col',    function() { openCol('sm'); });
+onBtn('hud-col',  function() { openCol('sg'); });
+onBtn('col-x',    function() { goTo(backScreen); });
+onBtn('cas-btn',  function() { LV++; beginLevel(); });
 
-document.getElementById('m-mute').addEventListener('click',()=>{
-  muted=!muted;
-  document.getElementById('m-mute').textContent=muted?'🔇':'🔊';
-  if(muted)stopMusic(); else startMusic();
-});
+document.getElementById('m-mute').addEventListener('click', function() {
+  muted = !muted;
+  document.getElementById('m-mute').textContent = muted ? '🔇' : '🔊';
+  if (muted) stopMusic(); else startMusic();
+}, false);
 
-/* ─────────────────── COLLECTION ─────────────────── */
-function openCol(from){
-  S.back=from;
-  const grid=document.getElementById('col-grid');
-  grid.innerHTML='';
-  document.getElementById('col-cnt').textContent=`${S.col.length} capturados`;
-  if(!S.col.length){
-    grid.innerHTML='<div style="grid-column:1/-1;color:rgba(255,255,255,.35);text-align:center;padding:30px;font-size:13px">¡Atrapa tu primer Pokémon!</div>';
-  }else{
-    S.col.forEach(id=>{
-      const pk=POOL.find(p=>p.id===id)||{n:'???',c:'#888'};
-      const d=document.createElement('div');
-      d.className='cel';
-      d.style.borderColor=pk.c+'44';
-      d.innerHTML=`<img src="${G(id)}" onerror="this.src='${P(id)}'" alt="${pk.n}">
-        <div class="cel-n">${pk.n}</div>
-        ${S.newCatch===id?'<div class="cel-new">¡NUEVO!</div>':''}`;
+/* ── COLLECTION ── */
+function openCol(from) {
+  backScreen = from;
+  var grid = document.getElementById('col-grid');
+  grid.innerHTML = '';
+  document.getElementById('col-cnt').textContent = col.length + ' capturados';
+  if (!col.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;color:rgba(255,255,255,.35);text-align:center;padding:30px;font-size:13px">¡Atrapa tu primer Pokémon!</div>';
+  } else {
+    for (var i = 0; i < col.length; i++) {
+      var id = col[i];
+      var pk = null;
+      for (var j = 0; j < POOL.length; j++) { if (POOL[j].id === id) { pk = POOL[j]; break; } }
+      if (!pk) pk = { n: '???', c: '#888' };
+      var d = document.createElement('div');
+      d.className = 'cel';
+      d.style.borderColor = pk.c;
+      d.innerHTML = '<img src="' + gif(id) + '" onerror="this.src=\'' + png(id) + '\'" alt="' + pk.n + '">'
+        + '<div class="cel-n">' + pk.n + '</div>'
+        + (newCatch === id ? '<div class="cel-new">¡NUEVO!</div>' : '');
       grid.appendChild(d);
-    });
+    }
   }
-  show('s-col');
+  goTo('scol');
 }
 
-/* ─────────────────── LEVEL START ─────────────────── */
-function beginLevel(){
+/* ── LEVEL START ── */
+function beginLevel() {
   stopGame();
-  startMusic();
-  S.newCatch=null;
-  const pool=shuffle(POOL);
-  S.targets=pool.slice(0,3).map(p=>({...p,count:0}));
-  S.decoys=pool.slice(3,18);
-  S.mons=[];
-  S.timer=60;
+  newCatch = null;
+  var pool = shuffle(POOL);
+  targets = [];
+  for (var i = 0; i < 3; i++) targets.push({ id:pool[i].id, n:pool[i].n, c:pool[i].c, count:0 });
+  decoys = pool.slice(3, 18);
+  mons = [];
+  timer = 60;
 
-  show('s-game');
-  document.getElementById('hud-lv').textContent=`LVL ${S.level}`;
+  goTo('sg');
+  document.getElementById('hud-lv').textContent = 'LVL ' + LV;
   buildTargetRow();
   updateTimer();
   document.getElementById('timeup').classList.remove('show');
 
-  countdown(3,()=>beginSpawning());
+  countdown(3, function() { beginSpawning(); });
 }
 
-function buildTargetRow(){
-  const row=document.getElementById('trow');
-  row.innerHTML='';
-  S.targets.forEach((t,i)=>{
-    const d=document.createElement('div');
-    d.className='tslot'; d.id=`ts${i}`;
-    let pips='';
-    for(let j=0;j<3;j++)pips+=`<div class="pip" id="p${i}${j}"></div>`;
-    d.innerHTML=`<img src="${G(t.id)}" onerror="this.src='${P(t.id)}'" alt="${t.n}"
-        style="background:${t.c}22;border-radius:50%;padding:2px">
-      <div class="tname">${t.n}</div>
-      <div class="tpips">${pips}</div>`;
+function buildTargetRow() {
+  var row = document.getElementById('trow');
+  row.innerHTML = '';
+  for (var i = 0; i < targets.length; i++) {
+    var t = targets[i];
+    var d = document.createElement('div');
+    d.className = 'tslot';
+    d.id = 'ts' + i;
+    var pips = '';
+    for (var j = 0; j < 3; j++) pips += '<div class="pip" id="p' + i + j + '"></div>';
+    d.innerHTML = '<img src="' + gif(t.id) + '" onerror="this.src=\'' + png(t.id) + '\'" alt="' + t.n + '" style="background:' + t.c + '22">'
+      + '<div class="tname">' + t.n + '</div>'
+      + '<div class="tpips">' + pips + '</div>';
     row.appendChild(d);
-  });
+  }
 }
 
-/* ─────────────────── COUNTDOWN ─────────────────── */
-function countdown(n,cb){
-  const box=document.getElementById('cdown');
-  const el=document.getElementById('cdown-n');
-  box.style.pointerEvents='all';
+/* ── COUNTDOWN ── */
+function countdown(n, cb) {
+  var el = document.getElementById('cdown-n');
+  var box = document.getElementById('cdown');
+  box.style.pointerEvents = 'all';
 
-  function tick(v){
-    el.textContent=v>0?v:'¡YA!';
-    el.style.animation='none';
-    void el.offsetWidth; // reflow to restart
-    el.style.animation=`cdpop ${v>0?.85:.5}s ease-out forwards`;
-    if(v>0) setTimeout(()=>tick(v-1),900);
-    else setTimeout(()=>{
-      box.style.pointerEvents='none';
-      el.textContent='';
-      cb();
-    },500);
-  }
-
-  // inject anim keyframe once
-  if(!document.getElementById('kf-cd')){
-    const s=document.createElement('style');
-    s.id='kf-cd';
-    s.textContent='@keyframes cdpop{0%{transform:scale(.2);opacity:1}60%{transform:scale(1.15)}100%{transform:scale(.7);opacity:0}}';
-    document.head.appendChild(s);
+  function tick(v) {
+    el.style.opacity = '0';
+    el.textContent = v > 0 ? String(v) : '¡YA!';
+    // fade in
+    setTimeout(function() {
+      el.style.transition = 'opacity .15s';
+      el.style.opacity = '1';
+      setTimeout(function() {
+        el.style.opacity = '0';
+        if (v > 0) {
+          setTimeout(function() { tick(v - 1); }, 300);
+        } else {
+          box.style.pointerEvents = 'none';
+          el.textContent = '';
+          cb();
+        }
+      }, 700);
+    }, 50);
   }
   tick(n);
 }
 
-/* ─────────────────── GAMEPLAY ─────────────────── */
-function beginSpawning(){
-  S.running=true;
-  S.tInt=setInterval(()=>{
-    S.timer--;
+/* ── GAMEPLAY ── */
+function beginSpawning() {
+  running = true;
+  tInt = setInterval(function() {
+    timer--;
     updateTimer();
-    if(S.timer<=0){
-      clearInterval(S.tInt);
+    if (timer <= 0) {
+      clearInterval(tInt);
       document.getElementById('timeup').classList.add('show');
-      setTimeout(endLevel,1400);
+      setTimeout(endLevel, 1400);
     }
-  },1000);
+  }, 1000);
   burst();
-  S.sInt=setInterval(burst,2000);
-  S.raf=requestAnimationFrame(gameLoop);
+  sInt = setInterval(burst, 2000);
+  raf = requestAnimationFrame(gameLoop);
 }
 
-function stopGame(){
-  S.running=false;
-  clearInterval(S.tInt); clearInterval(S.sInt);
-  cancelAnimationFrame(S.raf);
-  S.tInt=S.sInt=S.raf=null;
-  S.mons.forEach(m=>m.el&&m.el.remove());
-  S.mons=[];
+function stopGame() {
+  running = false;
+  clearInterval(tInt); clearInterval(sInt);
+  cancelAnimationFrame(raf);
+  tInt = sInt = raf = null;
+  for (var i = 0; i < mons.length; i++) { if (mons[i].el) mons[i].el.parentNode && mons[i].el.parentNode.removeChild(mons[i].el); }
+  mons = [];
 }
 
-function updateTimer(){
-  document.getElementById('hud-tnum').textContent=S.timer;
-  const pct=S.timer/60*100;
-  const f=document.getElementById('hud-tfill');
-  f.style.width=pct+'%';
-  f.style.background=S.timer>15?'#ffcb05':'#ff4444';
+function updateTimer() {
+  document.getElementById('hud-n').textContent = timer;
+  var pct = timer / 60 * 100;
+  var f = document.getElementById('hud-f');
+  f.style.width = pct + '%';
+  f.style.background = timer > 15 ? '#ffcb05' : '#ff4444';
 }
 
-/* ─────────────────── SPAWN ─────────────────── */
-function burst(){
-  if(!S.running)return;
-  const n=3+(Math.random()*3|0);
-  for(let i=0;i<n;i++)setTimeout(spawnOne,i*200);
+/* ── SPAWN ── */
+function burst() {
+  if (!running) return;
+  var n = 3 + Math.floor(Math.random() * 3);
+  for (var i = 0; i < n; i++) (function(delay){ setTimeout(spawnOne, delay); })(i * 200);
 }
 
-function spawnOne(){
-  if(!S.running||S.mons.length>=22)return;
-  const field=document.getElementById('field');
-  const fw=field.offsetWidth||360, fh=field.offsetHeight||480;
+function spawnOne() {
+  if (!running || mons.length >= 22) return;
+  var field = document.getElementById('field');
+  var fw = field.offsetWidth  || 360;
+  var fh = field.offsetHeight || 480;
 
-  // 30% chance of target, 70% decoy
-  let pk;
-  if(Math.random()<0.30){
-    const inc=S.targets.filter(t=>t.count<3);
-    if(!inc.length)return;
-    pk=inc[Math.random()*inc.length|0];
-  }else{
-    pk=S.decoys[Math.random()*S.decoys.length|0];
+  var pk;
+  if (Math.random() < 0.30) {
+    var inc = [];
+    for (var i = 0; i < targets.length; i++) { if (targets[i].count < 3) inc.push(targets[i]); }
+    if (!inc.length) return;
+    pk = inc[Math.floor(Math.random() * inc.length)];
+  } else {
+    pk = decoys[Math.floor(Math.random() * decoys.length)];
   }
 
-  const isTarget=S.targets.some(t=>t.id===pk.id);
-  const mvTypes=['float','fall','pop'];
-  const mv=mvTypes[Math.random()*3|0];
+  var isTarget = false;
+  for (var i = 0; i < targets.length; i++) { if (targets[i].id === pk.id) { isTarget = true; break; } }
 
-  const m={id:pk.id,n:pk.n,isTarget,mv,alive:true,
-    x:0,y:0,vx:0,vy:0,born:0,life:0,el:null};
+  var mvList = ['float','fall','pop'];
+  var mv = mvList[Math.floor(Math.random() * 3)];
+  var m = { id:pk.id, n:pk.n, isTarget:isTarget, mv:mv,
+    alive:true, x:0, y:0, vx:0, vy:0, born:0, life:0, el:null };
 
-  if(mv==='float'){
-    m.x=20+Math.random()*(fw-92); m.y=10+Math.random()*(fh-92);
-    const sp=1.2+Math.random()*1.8, ang=Math.random()*Math.PI*2;
-    m.vx=Math.cos(ang)*sp; m.vy=Math.sin(ang)*sp;
-  }else if(mv==='fall'){
-    m.x=10+Math.random()*(fw-80); m.y=-80;
-    m.vx=(Math.random()-.5)*1.4; m.vy=2+Math.random()*1.6;
-  }else{
-    m.x=20+Math.random()*(fw-92); m.y=10+Math.random()*(fh-90);
-    m.born=Date.now(); m.life=1800+Math.random()*2200;
+  if (mv === 'float') {
+    m.x = 20 + Math.random() * (fw - 92); m.y = 10 + Math.random() * (fh - 92);
+    var sp = 1.2 + Math.random() * 1.8, ang = Math.random() * Math.PI * 2;
+    m.vx = Math.cos(ang) * sp; m.vy = Math.sin(ang) * sp;
+  } else if (mv === 'fall') {
+    m.x = 10 + Math.random() * (fw - 82); m.y = -80;
+    m.vx = (Math.random() - 0.5) * 1.4; m.vy = 2 + Math.random() * 1.6;
+  } else {
+    m.x = 20 + Math.random() * (fw - 92); m.y = 10 + Math.random() * (fh - 92);
+    m.born = Date.now(); m.life = 1800 + Math.random() * 2200;
   }
 
-  const div=document.createElement('div');
-  div.className='mon';
-  div.style.cssText=`left:${m.x}px;top:${m.y}px`;
-  div.innerHTML=`
-    <div class="mon-wrap" style="background:${pk.c}28">
-      <img src="${G(pk.id)}" onerror="this.src='${P(pk.id)}'" alt="${pk.n}">
-    </div>
-    <div class="mon-name">${pk.n}</div>`;
+  var div = document.createElement('div');
+  div.className = 'mon';
+  div.style.left = m.x + 'px';
+  div.style.top  = m.y + 'px';
+  div.innerHTML = '<div class="mon-img" style="background:' + pk.c + '28">'
+    + '<img src="' + gif(pk.id) + '" onerror="this.src=\'' + png(pk.id) + '\'" alt="' + pk.n + '">'
+    + '</div><div class="mon-lbl">' + pk.n + '</div>';
 
-  // iOS-compatible tap: touchstart fires immediately, prevents ghost click
-  let tapped=false;
-  div.addEventListener('touchstart',e=>{
-    e.preventDefault(); tapped=true; handleTap(m);
-  },{passive:false});
-  div.addEventListener('click',()=>{
-    if(tapped){tapped=false;return;}
-    handleTap(m);
-  });
+  // iOS-safe tap: use touchend to avoid 300ms delay, guard double-fire
+  (function(mon, el) {
+    var tapped = false;
+    el.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      if (!tapped) { tapped = true; handleTap(mon); setTimeout(function(){ tapped = false; }, 400); }
+    }, false);
+    el.addEventListener('click', function() {
+      if (!tapped) handleTap(mon);
+    }, false);
+  })(m, div);
 
   field.appendChild(div);
-  m.el=div;
-  S.mons.push(m);
+  m.el = div;
+  mons.push(m);
 }
 
-/* ─────────────────── GAME LOOP ─────────────────── */
-function gameLoop(){
-  if(!S.running)return;
-  const field=document.getElementById('field');
-  const fw=field.offsetWidth||360, fh=field.offsetHeight||480;
+/* ── GAME LOOP ── */
+function gameLoop() {
+  if (!running) return;
+  var field = document.getElementById('field');
+  var fw = field.offsetWidth  || 360;
+  var fh = field.offsetHeight || 480;
 
-  for(const m of [...S.mons]){
-    if(!m.alive||!m.el)continue;
-    if(m.mv==='float'){
-      m.x+=m.vx; m.y+=m.vy;
-      if(m.x<0){m.x=0;m.vx=Math.abs(m.vx)}
-      if(m.x>fw-76){m.x=fw-76;m.vx=-Math.abs(m.vx)}
-      if(m.y<0){m.y=0;m.vy=Math.abs(m.vy)}
-      if(m.y>fh-92){m.y=fh-92;m.vy=-Math.abs(m.vy)}
-      m.el.style.left=m.x+'px'; m.el.style.top=m.y+'px';
-    }else if(m.mv==='fall'){
-      m.x+=m.vx; m.y+=m.vy;
-      if(m.x<0){m.x=0;m.vx=Math.abs(m.vx)}
-      if(m.x>fw-76){m.x=fw-76;m.vx=-Math.abs(m.vx)}
-      m.el.style.left=m.x+'px'; m.el.style.top=m.y+'px';
-      if(m.y>fh+10)killMon(m);
-    }else{
-      const age=Date.now()-m.born;
-      if(age>m.life){killMon(m);continue}
-      if(age>m.life-500)m.el.style.opacity=((m.life-age)/500).toFixed(2);
+  for (var i = 0; i < mons.length; i++) {
+    var m = mons[i];
+    if (!m.alive || !m.el) continue;
+    if (m.mv === 'float') {
+      m.x += m.vx; m.y += m.vy;
+      if (m.x < 0)      { m.x = 0;       m.vx =  Math.abs(m.vx); }
+      if (m.x > fw - 76){ m.x = fw - 76;  m.vx = -Math.abs(m.vx); }
+      if (m.y < 0)      { m.y = 0;       m.vy =  Math.abs(m.vy); }
+      if (m.y > fh - 92){ m.y = fh - 92;  m.vy = -Math.abs(m.vy); }
+      m.el.style.left = m.x + 'px'; m.el.style.top = m.y + 'px';
+    } else if (m.mv === 'fall') {
+      m.x += m.vx; m.y += m.vy;
+      if (m.x < 0)      { m.x = 0;       m.vx =  Math.abs(m.vx); }
+      if (m.x > fw - 76){ m.x = fw - 76;  m.vx = -Math.abs(m.vx); }
+      m.el.style.left = m.x + 'px'; m.el.style.top = m.y + 'px';
+      if (m.y > fh + 10) killMon(m);
+    } else {
+      var age = Date.now() - m.born;
+      if (age > m.life) { killMon(m); continue; }
+      if (age > m.life - 500) m.el.style.opacity = ((m.life - age) / 500).toFixed(2);
     }
   }
-  S.raf=requestAnimationFrame(gameLoop);
+  raf = requestAnimationFrame(gameLoop);
 }
 
-function killMon(m){
-  m.alive=false;
-  m.el&&m.el.remove();
-  S.mons=S.mons.filter(x=>x!==m);
+function killMon(m) {
+  m.alive = false;
+  if (m.el && m.el.parentNode) m.el.parentNode.removeChild(m.el);
+  var next = [];
+  for (var i = 0; i < mons.length; i++) { if (mons[i] !== m) next.push(mons[i]); }
+  mons = next;
 }
 
-/* ─────────────────── TAP ─────────────────── */
-function handleTap(m){
-  if(!m.alive||!S.running)return;
+/* ── TAP ── */
+function handleTap(m) {
+  if (!m.alive || !running) return;
   playCry(m.id);
+  var field = document.getElementById('field');
 
-  const field=document.getElementById('field');
-
-  if(m.isTarget){
-    const t=S.targets.find(t=>t.id===m.id);
-    if(t&&t.count<3){
+  if (m.isTarget) {
+    var t = null;
+    for (var i = 0; i < targets.length; i++) { if (targets[i].id === m.id) { t = targets[i]; break; } }
+    if (t && t.count < 3) {
       t.count++;
-      addBling(field,m.x+36,m.y+36);
+      addBling(field, m.x + 36, m.y + 36);
       updatePips(t);
       killMon(m);
-      if(S.targets.every(t=>t.count>=3))setTimeout(endLevel,300);
+      var allDone = true;
+      for (var i = 0; i < targets.length; i++) { if (targets[i].count < 3) { allDone = false; break; } }
+      if (allDone) setTimeout(endLevel, 300);
     }
-  }else{
-    addMiss(field,m.x+36,m.y+10);
+  } else {
+    addMiss(field, m.x + 36, m.y + 10);
     killMon(m);
   }
 }
 
-function addBling(field,x,y){
-  const d=document.createElement('div');
-  d.className='bling';
-  d.style.left=(x-30)+'px'; d.style.top=(y-30)+'px';
+function addBling(field, x, y) {
+  var d = document.createElement('div');
+  d.className = 'bling';
+  d.style.left = (x - 30) + 'px'; d.style.top = (y - 30) + 'px';
   field.appendChild(d);
-  setTimeout(()=>d.remove(),450);
+  setTimeout(function() { if (d.parentNode) d.parentNode.removeChild(d); }, 450);
 }
-function addMiss(field,x,y){
-  const d=document.createElement('div');
-  d.className='miss-x'; d.textContent='✗';
-  d.style.left=x+'px'; d.style.top=y+'px';
+function addMiss(field, x, y) {
+  var d = document.createElement('div');
+  d.className = 'missx'; d.textContent = '✗';
+  d.style.left = x + 'px'; d.style.top = y + 'px';
   field.appendChild(d);
-  setTimeout(()=>d.remove(),400);
+  setTimeout(function() { if (d.parentNode) d.parentNode.removeChild(d); }, 400);
 }
 
-function updatePips(t){
-  const i=S.targets.indexOf(t);
-  for(let j=0;j<3;j++){
-    const el=document.getElementById(`p${i}${j}`);
-    if(el)el.className='pip'+(j<t.count?' on':'');
+function updatePips(t) {
+  var i = targets.indexOf(t);
+  for (var j = 0; j < 3; j++) {
+    var el = document.getElementById('p' + i + j);
+    if (el) el.className = 'pip' + (j < t.count ? ' on' : '');
   }
 }
 
-/* ─────────────────── CASINO ─────────────────── */
-function endLevel(){stopGame();showCasino();}
+/* ── CASINO ── */
+function endLevel() { stopGame(); showCasino(); }
 
-function showCasino(){
-  show('s-casino');
-  const reelsEl=document.getElementById('cas-reels');
-  reelsEl.innerHTML='';
-  const ci=document.getElementById('cas-img');
-  const ct=document.getElementById('cas-txt');
-  const cn=document.getElementById('cas-name');
-  ci.style.display='none'; ct.textContent=''; cn.textContent='';
-  document.getElementById('cas-btn').style.display='none';
+function showCasino() {
+  goTo('sc');
+  var reelsEl = document.getElementById('cas-reels');
+  reelsEl.innerHTML = '';
+  document.getElementById('cas-img').style.display = 'none';
+  document.getElementById('cas-txt').textContent = '';
+  document.getElementById('cas-name').textContent = '';
+  document.getElementById('cas-btn').style.display = 'none';
 
-  const active=[];
-  S.targets.forEach((t,i)=>{
-    const on=t.count>=3;
-    const w=document.createElement('div');
-    w.className='rw';
-    w.innerHTML=`<div class="rl">${t.n}</div>
-      <div class="rv${on?'':' off'}" id="rv${i}">
-        <img src="${G(t.id)}" onerror="this.src='${P(t.id)}'" alt="${t.n}">
-        ${on?'':'<div class="rx">✗</div>'}
-      </div>
-      <div class="rscore">${t.count}/3</div>`;
+  var active = [];
+  for (var i = 0; i < targets.length; i++) {
+    var t = targets[i];
+    var on = t.count >= 3;
+    var w = document.createElement('div');
+    w.className = 'rw';
+    w.innerHTML = '<div class="rl">' + t.n + '</div>'
+      + '<div class="rv' + (on ? '' : ' off') + '" id="rv' + i + '">'
+      + '<img src="' + gif(t.id) + '" onerror="this.src=\'' + png(t.id) + '\'" alt="' + t.n + '">'
+      + (on ? '' : '<div class="rx">✗</div>')
+      + '</div>'
+      + '<div class="rscore">' + t.count + '/3</div>';
     reelsEl.appendChild(w);
-    if(on)active.push({el:document.getElementById(`rv${i}`),t});
-  });
+    if (on) active.push({ el: document.getElementById('rv' + i), t: t });
+  }
 
-  setTimeout(()=>{
-    if(!active.length){
-      ct.textContent='¡No completaste ninguno!';
-      ct.style.color='#ff4444';
-      cn.textContent='Intenta de nuevo';
-      cn.style.color='rgba(255,255,255,.4)';
-      document.getElementById('cas-btn').style.display='block';
+  var ct = document.getElementById('cas-txt');
+  var cn = document.getElementById('cas-name');
+  var ci = document.getElementById('cas-img');
+
+  setTimeout(function() {
+    if (!active.length) {
+      ct.textContent = '¡No completaste ninguno!';
+      ct.style.color = '#ff4444';
+      cn.textContent = 'Intenta de nuevo';
+      cn.style.color = 'rgba(255,255,255,.4)';
+      document.getElementById('cas-btn').style.display = 'block';
       return;
     }
 
-    active.forEach(r=>r.el.classList.add('spin'));
-    const winner=active[Math.random()*active.length|0].t;
+    for (var i = 0; i < active.length; i++) active[i].el.classList.add('spin');
 
-    setTimeout(()=>{
-      active.forEach(r=>{
-        r.el.classList.remove('spin');
-        if(r.t.id!==winner.id) r.el.style.opacity='.25';
-        else r.el.style.boxShadow='0 0 28px #ffcb05,0 0 8px #ffcb05';
-      });
+    var winner = active[Math.floor(Math.random() * active.length)].t;
+
+    setTimeout(function() {
+      for (var i = 0; i < active.length; i++) {
+        active[i].el.classList.remove('spin');
+        if (active[i].t.id !== winner.id) active[i].el.style.opacity = '.25';
+        else active[i].el.style.boxShadow = '0 0 28px #ffcb05';
+      }
 
       playCry(winner.id);
-      ci.src=G(winner.id);
-      ci.onerror=()=>{ci.src=P(winner.id)};
-      ci.style.display='block';
+      ci.src = gif(winner.id);
+      ci.onerror = function() { ci.src = png(winner.id); };
+      ci.style.display = 'block';
 
-      const isNew=!S.col.includes(winner.id);
-      ct.textContent=isNew?'¡Nuevo Pokémon!':'¡Capturaste a...';
-      ct.style.color=isNew?'#ffcb05':'#fff';
-      cn.textContent=winner.n.toUpperCase()+'!';
-      cn.style.color='#ffcb05';
+      var isNew = col.indexOf(winner.id) === -1;
+      ct.textContent = isNew ? '¡Nuevo Pokémon!' : '¡Capturaste a...';
+      ct.style.color  = isNew ? '#ffcb05' : '#fff';
+      cn.textContent  = winner.n.toUpperCase() + '!';
+      cn.style.color  = '#ffcb05';
 
-      if(isNew){
-        S.col.push(winner.id);
-        S.newCatch=winner.id;
-        saveCol();
-      }
-      document.getElementById('cas-btn').style.display='block';
-    },3200);
-  },500);
+      if (isNew) { col.push(winner.id); newCatch = winner.id; saveCol(); }
+      document.getElementById('cas-btn').style.display = 'block';
+    }, 3200);
+  }, 500);
 }
 
-/* ─────────────────── INIT ─────────────────── */
-show('s-menu');
+/* ── INIT ── */
 refreshMenu();
+
+})(); // end IIFE
 </script>
 </body>
 </html>
