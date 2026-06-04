@@ -1,8 +1,8 @@
 import asyncio
 import os
-import textwrap
 import subprocess
-from pathlib import Path
+import textwrap
+import random
 
 try:
     import edge_tts
@@ -11,22 +11,15 @@ except ImportError:
     HAS_TTS = False
 
 try:
-    from moviepy.editor import (
-        VideoFileClip, AudioFileClip, CompositeVideoClip,
-        CompositeAudioClip, TextClip, ColorClip, concatenate_videoclips
-    )
-    HAS_MOVIEPY = True
-except ImportError:
-    HAS_MOVIEPY = False
+    import imageio_ffmpeg
+    FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+except Exception:
+    FFMPEG = "ffmpeg"
 
 
 # ---- Narración -------------------------------------------------------
 
 def generate_script(topic_title, subreddit=""):
-    """
-    Genera un guión de narración basado en el tema viral.
-    Sin IA externa — plantillas predefinidas. Puedes mejorarlo con GPT si quieres.
-    """
     templates = [
         f"¡Esto se está volviendo viral ahora mismo! {topic_title}. "
         f"Uno de los momentos más comentados del día. "
@@ -36,11 +29,10 @@ def generate_script(topic_title, subreddit=""):
         f"La gente en internet no puede dejar de hablar de esto. "
         f"Sígueme para no perderte los mejores videos del momento.",
 
-        f"Trending ahora: {topic_title}. "
+        f"Trending ahora mismo: {topic_title}. "
         f"Este video está rompiendo las redes sociales. "
         f"Comenta qué piensas y no te olvides de suscribirte.",
     ]
-    import random
     return random.choice(templates)
 
 
@@ -50,117 +42,110 @@ async def _tts_async(text, output_path, voice):
 
 
 def text_to_speech(text, output_path, voice="es-PR-KarinaNeural"):
-    """Convierte texto a voz usando edge-tts (gratis, sin API key)."""
     if not HAS_TTS:
-        print("  [!] edge-tts no instalado — video sin narración")
+        print("  [!] edge-tts no disponible — sin narración")
         return None
-    asyncio.run(_tts_async(text, output_path, voice))
-    return output_path if os.path.exists(output_path) else None
-
-
-# ---- Edición de video ------------------------------------------------
-
-def crop_to_portrait(clip):
-    """Recorta el video a proporción 9:16 (Shorts / TikTok)."""
-    w, h = clip.size
-    target_w = int(h * 9 / 16)
-    if target_w < w:
-        x_center = w / 2
-        clip = clip.crop(x1=x_center - target_w / 2, x2=x_center + target_w / 2)
-    return clip
-
-
-def add_title_overlay(clip, title):
-    """Añade el título en la parte superior del video."""
-    if not HAS_MOVIEPY:
-        return clip
-    wrapped = "\n".join(textwrap.wrap(title, width=28))
     try:
-        txt = (
-            TextClip(wrapped, fontsize=36, color="white",
-                     stroke_color="black", stroke_width=2,
-                     method="caption", size=(clip.w - 20, None))
-            .set_position(("center", 40))
-            .set_duration(clip.duration)
-        )
-        return CompositeVideoClip([clip, txt])
+        asyncio.run(_tts_async(text, output_path, voice))
+        return output_path if os.path.exists(output_path) else None
     except Exception as e:
-        print(f"  [!] No se pudo agregar texto ({e}) — continuando sin overlay")
-        return clip
+        print(f"  [!] TTS error: {e}")
+        return None
 
 
-def add_watermark(clip, text="@TuCanal"):
-    """Añade marca de agua en la parte inferior."""
-    if not HAS_MOVIEPY:
-        return clip
-    try:
-        wm = (
-            TextClip(text, fontsize=24, color="white",
-                     stroke_color="black", stroke_width=1)
-            .set_position(("center", clip.h - 60))
-            .set_duration(clip.duration)
-        )
-        return CompositeVideoClip([clip, wm])
-    except Exception:
-        return clip
+# ---- Edición con ffmpeg ----------------------------------------------
+
+def _escape_ffmpeg_text(text):
+    """Escapa caracteres especiales para el filtro drawtext de ffmpeg."""
+    return (text
+            .replace("\\", "\\\\")
+            .replace("'", "\\'")
+            .replace(":", "\\:")
+            .replace("[", "\\[")
+            .replace("]", "\\]"))
 
 
 def edit_video(input_path, output_path, title, script, voice, duration=45, watermark=""):
     """
-    Pipeline principal de edición:
-    1. Carga y recorta a portrait 9:16
-    2. Trim a la duración deseada
-    3. Genera narración TTS
-    4. Añade overlay de título + marca de agua
-    5. Exporta
+    Edita el video con ffmpeg puro:
+    1. Recorta a portrait 9:16
+    2. Trim a duración deseada
+    3. Añade narración TTS
+    4. Añade texto en pantalla
+    5. Exporta MP4
     """
-    if not HAS_MOVIEPY:
-        raise RuntimeError("moviepy no instalado. Ejecuta: pip install moviepy")
-
-    audio_path = output_path.replace(".mp4", "_narr.mp3")
+    narr_path = output_path.replace(".mp4", "_narr.mp3")
 
     # Generar narración
-    narr_path = text_to_speech(script, audio_path, voice)
+    narr_available = text_to_speech(script, narr_path, voice)
 
-    # Cargar video
-    clip = VideoFileClip(input_path)
+    # Construir filtros de video
+    title_short = title[:50] + ("..." if len(title) > 50 else "")
+    title_escaped = _escape_ffmpeg_text(title_short)
 
-    # Recortar a portrait
-    clip = crop_to_portrait(clip)
-
-    # Trim
-    if clip.duration > duration:
-        clip = clip.subclip(0, duration)
-
-    # Mezclar audio
-    if narr_path and os.path.exists(narr_path):
-        narr_audio = AudioFileClip(narr_path)
-        if narr_audio.duration > clip.duration:
-            narr_audio = narr_audio.subclip(0, clip.duration)
-        if clip.audio:
-            mixed = CompositeAudioClip([clip.audio.volumex(0.08), narr_audio.volumex(1.0)])
-            clip = clip.set_audio(mixed)
-        else:
-            clip = clip.set_audio(narr_audio)
-
-    # Añadir textos
-    clip = add_title_overlay(clip, title)
-    if watermark:
-        clip = add_watermark(clip, watermark)
-
-    # Exportar
-    clip.write_videofile(
-        output_path,
-        codec="libx264",
-        audio_codec="aac",
-        fps=30,
-        preset="fast",
-        logger=None,
+    video_filter = (
+        # Crop portrait 9:16 desde el centro
+        "crop=ih*9/16:ih:(iw-ih*9/16)/2:0,"
+        # Resize a 1080x1920 (Full HD vertical)
+        "scale=1080:1920,"
+        # Título arriba
+        f"drawtext=text='{title_escaped}'"
+        ":fontsize=48:fontcolor=white:x=(w-text_w)/2:y=80"
+        ":borderw=3:bordercolor=black@0.8"
+        ":line_spacing=10"
     )
 
-    # Limpiar archivos temporales
-    clip.close()
-    if narr_path and os.path.exists(narr_path):
+    if watermark:
+        wm_escaped = _escape_ffmpeg_text(watermark)
+        video_filter += (
+            f",drawtext=text='{wm_escaped}'"
+            ":fontsize=32:fontcolor=white@0.8:x=(w-text_w)/2:y=h-80"
+            ":borderw=2:bordercolor=black@0.6"
+        )
+
+    if narr_available and os.path.exists(narr_path):
+        # Mezclar audio original (bajo volumen) con narración
+        cmd = [
+            FFMPEG, "-y",
+            "-i", input_path,
+            "-i", narr_path,
+            "-t", str(duration),
+            "-filter_complex",
+            f"[0:v]{video_filter}[vout];"
+            "[0:a]volume=0.05[orig];"
+            "[1:a]volume=1.0[narr];"
+            "[orig][narr]amix=inputs=2:duration=shortest[aout]",
+            "-map", "[vout]",
+            "-map", "[aout]",
+            "-c:v", "libx264",
+            "-c:a", "aac",
+            "-preset", "fast",
+            "-crf", "23",
+            "-r", "30",
+            "-shortest",
+            output_path
+        ]
+    else:
+        # Sin narración — solo video con filtro
+        cmd = [
+            FFMPEG, "-y",
+            "-i", input_path,
+            "-t", str(duration),
+            "-vf", video_filter,
+            "-c:v", "libx264",
+            "-c:a", "aac",
+            "-preset", "fast",
+            "-crf", "23",
+            "-r", "30",
+            output_path
+        ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"ffmpeg error:\n{result.stderr[-500:]}")
+
+    # Limpiar audio temporal
+    if narr_available and os.path.exists(narr_path):
         os.remove(narr_path)
 
     return output_path
