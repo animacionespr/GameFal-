@@ -200,9 +200,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 
 /* ── MISSION OVERLAY ── */
 #mission-overlay{position:absolute;top:0;left:0;right:0;bottom:0;
-  display:flex;align-items:center;justify-content:center;
-  z-index:55;pointer-events:none;background:rgba(0,0,0,.70);
-  opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s}
+  display:none;align-items:center;justify-content:center;
+  z-index:58;pointer-events:none;background:rgba(0,0,0,.72)}
+#mission-overlay.show{display:flex;
+  -webkit-animation:minIn .32s ease-out forwards;animation:minIn .32s ease-out forwards}
+#mission-overlay.hide{
+  -webkit-animation:minOut .28s ease-in forwards;animation:minOut .28s ease-in forwards}
+@-webkit-keyframes minIn{from{opacity:0;-webkit-transform:scale(.88)}to{opacity:1;-webkit-transform:scale(1)}}
+@keyframes minIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@-webkit-keyframes minOut{from{opacity:1;-webkit-transform:scale(1)}to{opacity:0;-webkit-transform:scale(.94)}}
+@keyframes minOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.94)}}
 #mission-card{background:linear-gradient(160deg,#1a1a2e,#16213e);
   border:3px solid #ffcb05;border-radius:18px;padding:18px 22px;
   text-align:center;max-width:300px;width:88%;
@@ -850,16 +857,6 @@ function decorateField() {
 }
 
 /* ── COUNTDOWN ── */
-function speakWord(word) {
-  if (!window.speechSynthesis || muted) return;
-  try {
-    window.speechSynthesis.cancel();
-    var utt = new SpeechSynthesisUtterance(word);
-    utt.lang = 'es-ES'; utt.rate = 0.80; utt.pitch = 1.2; utt.volume = 1.0;
-    window.speechSynthesis.speak(utt);
-  } catch(e) {}
-}
-
 function countdown(n, cb) {
   var el = document.getElementById('cdown-n');
   var box = document.getElementById('cdown');
@@ -867,7 +864,6 @@ function countdown(n, cb) {
   function tick(v) {
     el.style.opacity = '0';
     el.textContent = v > 0 ? String(v) : '¡YA!';
-    speakWord(v > 0 ? String(v) : '¡A jugar!');
     setTimeout(function() {
       el.style.transition = 'opacity .15s';
       el.style.opacity = '1';
@@ -893,12 +889,18 @@ function showMission(cb) {
       + '<span>' + targets[i].n + '</span>';
     body.appendChild(d);
   }
-  overlay.style.opacity = '1';
-  speakWord('¡Atrapa a ' + targets.map(function(t){ return t.n; }).join(', ') + '!');
+  overlay.style.display = '';
+  overlay.classList.remove('hide');
+  overlay.classList.add('show');
   setTimeout(function() {
-    overlay.style.opacity = '0';
-    setTimeout(cb, 380);
-  }, 2400);
+    overlay.classList.remove('show');
+    overlay.classList.add('hide');
+    setTimeout(function() {
+      overlay.classList.remove('hide');
+      overlay.style.display = 'none';
+      cb();
+    }, 300);
+  }, 2600);
 }
 
 /* ── GAMEPLAY ── */
@@ -916,12 +918,12 @@ function beginSpawning() {
   burst();
   sInt = setInterval(burst, 2000);
   raf = requestAnimationFrame(gameLoop);
-  bossSpawnTimer = setTimeout(spawnBoss, 8000);
+  bossSpawnTimer = setTimeout(spawnBoss, 7000);
 }
 
 function stopGame() {
   running = false;
-  try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e) {}
+
   clearInterval(tInt); clearInterval(sInt);
   cancelAnimationFrame(raf);
   clearTimeout(bossSpawnTimer);
