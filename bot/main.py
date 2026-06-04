@@ -51,13 +51,14 @@ def run():
     os.makedirs("downloads", exist_ok=True)
     os.makedirs("output", exist_ok=True)
 
-    # 1. Obtener temas virales
+    # 1. Obtener temas
     print("\n📈 Buscando temas virales en Reddit...")
     topics = get_reddit_trending(config.REDDIT_SUBREDDITS, limit=20)
     if not topics:
-        print("  ⚠️  No se obtuvieron topics, usando búsquedas genéricas")
-        topics = [{"title": q, "subreddit": "popular", "score": 0, "search_query": q}
-                  for q in FALLBACK_QUERIES]
+        print("  ⚠️  Reddit no disponible, usando temas del config...")
+        topics = [{"title": q, "subreddit": q, "score": 0, "search_query": q}
+                  for q in config.VIDEO_TOPICS]
+        random.shuffle(topics)
 
     print(f"  ✅ {len(topics)} temas encontrados")
     topics_to_process = topics[:config.VIDEOS_PER_RUN]

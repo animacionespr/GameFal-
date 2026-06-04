@@ -23,7 +23,12 @@ VIDEOS_PER_RUN = 1
 # Duración del video en segundos (30-60s = ideal para Shorts)
 VIDEO_DURATION = 45
 
-# Idioma preferido para buscar temas virales
+# ¿Qué tipo de videos quieres crear?
+# Opciones: "beach", "aerial", "nature", "city", "animals", "space", "waterfall", "sunset"
+# Puedes poner varios separados por coma
+VIDEO_TOPICS = ["beach", "aerial", "ocean", "sunset", "nature"]
+
+# Reddit (opcional, si funciona en tu red)
 REDDIT_SUBREDDITS = ["popular", "videos", "nextfuckinglevel", "interestingasfuck", "mildlyinteresting"]
 
 # Categoría de YouTube (22 = People & Blogs, 24 = Entertainment, 28 = Science & Tech)

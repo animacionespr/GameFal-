@@ -20,19 +20,63 @@ except Exception:
 # ---- Narración -------------------------------------------------------
 
 def generate_script(topic_title, subreddit=""):
-    templates = [
-        f"¡Esto se está volviendo viral ahora mismo! {topic_title}. "
-        f"Uno de los momentos más comentados del día. "
-        f"Dale like si te sorprendió y suscríbete para más contenido viral.",
+    """
+    Genera narración que describe el video honestamente
+    según su categoría/tema visual.
+    """
+    t = topic_title.lower()
 
-        f"No vas a creer lo que está pasando. {topic_title}. "
-        f"La gente en internet no puede dejar de hablar de esto. "
-        f"Sígueme para no perderte los mejores videos del momento.",
+    if any(w in t for w in ["beach", "ocean", "sea", "playa", "mar", "wave"]):
+        templates = [
+            "Mira esta increíble toma aérea de la playa. "
+            "El color del agua, la arena blanca... momentos como este nos recuerdan lo hermoso que es el planeta. "
+            "Suscríbete para más videos relajantes de naturaleza.",
 
-        f"Trending ahora mismo: {topic_title}. "
-        f"Este video está rompiendo las redes sociales. "
-        f"Comenta qué piensas y no te olvides de suscribirte.",
-    ]
+            "Pocas cosas son más relajantes que el sonido y la vista del océano desde las alturas. "
+            "Este tipo de escena es perfecta para desconectarte del estrés del día. "
+            "Dale like si esto te dio paz.",
+        ]
+    elif any(w in t for w in ["aerial", "drone", "sky", "aéreo", "cielo", "vuelo"]):
+        templates = [
+            "Las tomas aéreas nos dan una perspectiva del mundo que muy pocos pueden ver en persona. "
+            "Desde arriba todo se ve diferente, más pequeño, más tranquilo. "
+            "Suscríbete para más contenido así.",
+
+            "Ver el mundo desde el aire siempre impresiona. "
+            "Este drone capturó algo realmente especial. "
+            "Comenta qué lugar te gustaría ver desde las alturas.",
+        ]
+    elif any(w in t for w in ["nature", "forest", "mountain", "naturaleza", "bosque", "montaña"]):
+        templates = [
+            "La naturaleza nunca deja de sorprender. "
+            "Estos paisajes nos recuerdan lo importante que es proteger nuestro planeta. "
+            "Dale like si esto te inspiró.",
+
+            "Hay lugares en el mundo que parecen de otro planeta. "
+            "La naturaleza es el mejor artista que existe. "
+            "Suscríbete para más videos de paisajes increíbles.",
+        ]
+    elif any(w in t for w in ["city", "urban", "street", "ciudad", "calle"]):
+        templates = [
+            "Las ciudades tienen su propia belleza, especialmente desde esta perspectiva. "
+            "La vida urbana vista desde otro ángulo. "
+            "Comenta qué ciudad quisieras visitar.",
+
+            "Cada ciudad tiene su propia energía y personalidad. "
+            "¿Reconoces este lugar? Comenta abajo. "
+            "Suscríbete para más contenido urbano.",
+        ]
+    else:
+        templates = [
+            f"Imágenes de {topic_title} que vale la pena ver. "
+            "A veces los mejores momentos son los más simples. "
+            "Dale like si te gustó y suscríbete para más.",
+
+            f"Disfruta estas tomas de {topic_title}. "
+            "El mundo está lleno de momentos hermosos esperando ser capturados. "
+            "Sígueme para no perderte el próximo video.",
+        ]
+
     return random.choice(templates)
 
 
