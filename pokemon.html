@@ -853,7 +853,7 @@ function beginSpawning() {
   burst();
   sInt = setInterval(burst, 2000);
   raf = requestAnimationFrame(gameLoop);
-  bossSpawnTimer = setTimeout(spawnBoss, 12000 + Math.floor(Math.random() * 8000));
+  bossSpawnTimer = setTimeout(spawnBoss, 8000);
 }
 
 function stopGame() {
@@ -1083,7 +1083,7 @@ function spawnBoss() {
   field.appendChild(div);
   boss.el = div;
 
-  var CHARGE_MS = 4000;
+  var CHARGE_MS = 2000;
   var chargeStart = Date.now();
   boss.attackInterval = setInterval(function() {
     if (!boss || !running) { clearInterval(boss.attackInterval); return; }
@@ -1129,7 +1129,7 @@ function killBoss(defeated) {
     field.appendChild(boom);
     setTimeout(function() { if (boom.parentNode) boom.parentNode.removeChild(boom); }, 650);
     if (running && timer > 12) {
-      bossSpawnTimer = setTimeout(spawnBoss, 14000 + Math.floor(Math.random() * 6000));
+      bossSpawnTimer = setTimeout(spawnBoss, 3000);
     }
   }
   killBossEl();
