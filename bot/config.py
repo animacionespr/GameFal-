@@ -24,9 +24,7 @@ VIDEOS_PER_RUN = 1
 VIDEO_DURATION = 45
 
 # ¿Qué tipo de videos quieres crear?
-# Opciones: "beach", "aerial", "nature", "city", "animals", "space", "waterfall", "sunset"
-# Puedes poner varios separados por coma
-VIDEO_TOPICS = ["beach", "aerial", "ocean", "sunset", "nature"]
+VIDEO_TOPICS = ["gaming setup", "video game", "esports", "gaming", "controller", "streamer", "pc gaming", "console gaming"]
 
 # Reddit (opcional, si funciona en tu red)
 REDDIT_SUBREDDITS = ["popular", "videos", "nextfuckinglevel", "interestingasfuck", "mildlyinteresting"]

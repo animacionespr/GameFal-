@@ -26,15 +26,23 @@ def generate_script(topic_title, subreddit=""):
     """
     t = topic_title.lower()
 
-    if any(w in t for w in ["beach", "ocean", "sea", "playa", "mar", "wave"]):
+    if any(w in t for w in ["gaming", "game", "esport", "streamer", "console", "controller", "pc gaming", "playstation", "xbox", "nintendo", "videojuego"]):
         templates = [
-            "Mira esta increíble toma aérea de la playa. "
-            "El color del agua, la arena blanca... momentos como este nos recuerdan lo hermoso que es el planeta. "
-            "Suscríbete para más videos relajantes de naturaleza.",
+            "Los videojuegos han evolucionado a un nivel increíble. "
+            "Cada año los gráficos, las historias y la experiencia mejoran más. "
+            "Comenta cuál es tu juego favorito del momento.",
 
-            "Pocas cosas son más relajantes que el sonido y la vista del océano desde las alturas. "
-            "Este tipo de escena es perfecta para desconectarte del estrés del día. "
-            "Dale like si esto te dio paz.",
+            "El gaming ya no es solo un hobby — es cultura, es comunidad, es el futuro del entretenimiento. "
+            "¿Eres más de PC o consola? Comenta abajo. "
+            "Suscríbete para más contenido gamer.",
+
+            "Mira este setup — cada detalle pensado para la mejor experiencia gaming posible. "
+            "La competencia en los esports está a otro nivel. "
+            "Dale like si eres gamer y sígueme para más.",
+
+            "Los mejores jugadores del mundo hacen que parezca fácil, pero detrás hay horas y horas de práctica. "
+            "El gaming profesional es tan competitivo como cualquier deporte. "
+            "Suscríbete para no perderte más contenido así.",
         ]
     elif any(w in t for w in ["aerial", "drone", "sky", "aéreo", "cielo", "vuelo"]):
         templates = [
