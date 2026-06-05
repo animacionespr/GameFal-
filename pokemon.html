@@ -30,7 +30,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 
 /* ── MENU ── */
 #sm{background:linear-gradient(170deg,#330000,#cc0000 40%,#550000 70%,#111);
-  justify-content:center;gap:18px;padding:24px}
+  justify-content:center;gap:18px;padding:24px;overflow-y:auto}
 .pb{width:96px;height:96px;border-radius:50%;flex-shrink:0;position:relative;
   border:7px solid #111;box-shadow:0 10px 30px rgba(0,0,0,.7);
   background:linear-gradient(180deg,#cc0000 47%,#222 47%,#222 53%,#eee 53%)}
@@ -54,12 +54,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 #m-mute{background:none;border:none;color:rgba(255,255,255,.5);
   font-size:22px;cursor:pointer}
 
+/* ── LEADERBOARD ── */
+#lb-wrap{width:100%;max-width:340px;background:rgba(0,0,0,.35);
+  border:2px solid rgba(255,203,5,.3);border-radius:14px;padding:10px 14px}
+#lb-title{color:#ffcb05;font-size:13px;font-weight:900;text-align:center;
+  margin-bottom:8px;letter-spacing:1px}
+#lb-rows{display:flex;flex-direction:column;gap:4px}
+.lb-row{display:flex;align-items:center;gap:8px;padding:4px 0;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{color:#ffcb05;font-size:12px;font-weight:900;min-width:20px;text-align:center}
+.lb-name{color:#fff;font-size:12px;font-weight:700;flex:1;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-score{color:#ffcb05;font-size:12px;font-weight:900}
+.lb-lv{color:rgba(255,255,255,.45);font-size:10px}
+.lb-empty{color:rgba(255,255,255,.35);font-size:11px;text-align:center;padding:8px 0}
+
 /* ── GAME ── */
 #sg{background:#0d1a0d;align-items:stretch}
 #hud{background:#cc0000;padding:8px 14px;flex-shrink:0;
   display:flex;justify-content:space-between;align-items:center;
   box-shadow:0 2px 8px rgba(0,0,0,.5)}
+#hud-left{display:flex;flex-direction:column;gap:3px}
 #hud-lv{color:#ffcb05;font-size:14px;font-weight:900}
+#hud-score{color:#fff;font-size:12px;font-weight:900}
 #hud-t{display:flex;flex-direction:column;align-items:center;gap:2px}
 #hud-n{color:#fff;font-size:32px;font-weight:900;line-height:1}
 #hud-b{width:80px;height:5px;background:rgba(255,255,255,.25);border-radius:3px}
@@ -259,6 +277,110 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 @-webkit-keyframes ft{0%{opacity:1;-webkit-transform:translateY(0)}100%{opacity:0;-webkit-transform:translateY(-38px)}}
 @keyframes ft{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-38px)}}
 
+/* ── POKÉBALL CAPTURE ANIMATION ── */
+.pb-cap{position:absolute;pointer-events:none;z-index:22;
+  width:44px;height:44px;border-radius:50%;
+  border:5px solid #111;
+  background:linear-gradient(180deg,#cc0000 47%,#222 47%,#222 53%,#eee 53%)}
+.pb-cap:after{content:'';position:absolute;top:50%;left:50%;
+  width:12px;height:12px;border-radius:50%;
+  background:#e8e8e8;border:3px solid #111;
+  transform:translate(-50%,-50%)}
+.pb-cap.wobble{-webkit-animation:pbWobble 700ms ease-in-out forwards;
+  animation:pbWobble 700ms ease-in-out forwards}
+.pb-cap.collapse{-webkit-animation:pbCollapse 200ms ease-in forwards;
+  animation:pbCollapse 200ms ease-in forwards}
+@-webkit-keyframes pbWobble{
+  0%  {-webkit-transform:scale(1) rotate(0deg)}
+  15% {-webkit-transform:scale(1.1) rotate(-18deg)}
+  30% {-webkit-transform:scale(1.05) rotate(18deg)}
+  45% {-webkit-transform:scale(1.1) rotate(-14deg)}
+  60% {-webkit-transform:scale(1.05) rotate(14deg)}
+  75% {-webkit-transform:scale(1.05) rotate(-8deg)}
+  90% {-webkit-transform:scale(1.02) rotate(5deg)}
+  100%{-webkit-transform:scale(1) rotate(0deg)}}
+@keyframes pbWobble{
+  0%  {transform:scale(1) rotate(0deg)}
+  15% {transform:scale(1.1) rotate(-18deg)}
+  30% {transform:scale(1.05) rotate(18deg)}
+  45% {transform:scale(1.1) rotate(-14deg)}
+  60% {transform:scale(1.05) rotate(14deg)}
+  75% {transform:scale(1.05) rotate(-8deg)}
+  90% {transform:scale(1.02) rotate(5deg)}
+  100%{transform:scale(1) rotate(0deg)}}
+@-webkit-keyframes pbCollapse{
+  0%  {-webkit-transform:scale(1);opacity:1}
+  100%{-webkit-transform:scale(0);opacity:0}}
+@keyframes pbCollapse{
+  0%  {transform:scale(1);opacity:1}
+  100%{transform:scale(0);opacity:0}}
+
+/* ── COMBO POP ── */
+.combo-pop{position:absolute;pointer-events:none;z-index:25;
+  background:linear-gradient(135deg,#ffcb05,#ff8800);
+  color:#111;font-size:17px;font-weight:900;
+  border-radius:14px;padding:8px 16px;
+  text-align:center;border:3px solid #111;
+  box-shadow:0 4px 18px rgba(255,203,5,.5);
+  -webkit-animation:comboPop .9s ease-out forwards;animation:comboPop .9s ease-out forwards}
+@-webkit-keyframes comboPop{
+  0%  {opacity:0;-webkit-transform:scale(.5) translateY(10px)}
+  25% {opacity:1;-webkit-transform:scale(1.15) translateY(-4px)}
+  55% {opacity:1;-webkit-transform:scale(1) translateY(0)}
+  80% {opacity:1;-webkit-transform:scale(1) translateY(-8px)}
+  100%{opacity:0;-webkit-transform:scale(.9) translateY(-20px)}}
+@keyframes comboPop{
+  0%  {opacity:0;transform:scale(.5) translateY(10px)}
+  25% {opacity:1;transform:scale(1.15) translateY(-4px)}
+  55% {opacity:1;transform:scale(1) translateY(0)}
+  80% {opacity:1;transform:scale(1) translateY(-8px)}
+  100%{opacity:0;transform:scale(.9) translateY(-20px)}}
+
+/* ── POWER-UP HUD ── */
+#pu-hud{position:absolute;top:8px;right:8px;z-index:30;pointer-events:none;
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.pu-badge{background:rgba(0,0,0,.75);border:2px solid #ffcb05;
+  border-radius:10px;padding:4px 9px;font-size:12px;font-weight:900;
+  color:#ffcb05;white-space:nowrap;
+  -webkit-animation:puPulse 1.4s ease-in-out infinite alternate;
+  animation:puPulse 1.4s ease-in-out infinite alternate}
+@-webkit-keyframes puPulse{0%{box-shadow:0 0 6px rgba(255,203,5,.4)}100%{box-shadow:0 0 16px rgba(255,203,5,.9)}}
+@keyframes puPulse{0%{box-shadow:0 0 6px rgba(255,203,5,.4)}100%{box-shadow:0 0 16px rgba(255,203,5,.9)}}
+
+/* ── POWER-UP FIELD ITEM ── */
+.pu-item{position:absolute;z-index:18;cursor:pointer;
+  width:54px;height:54px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;border:3px solid #ffcb05;
+  background:rgba(0,0,0,.7);
+  box-shadow:0 0 18px rgba(255,203,5,.7);
+  -webkit-animation:puFloat 2s ease-in-out infinite alternate;
+  animation:puFloat 2s ease-in-out infinite alternate}
+@-webkit-keyframes puFloat{0%{-webkit-transform:translateY(0)}100%{-webkit-transform:translateY(-10px)}}
+@keyframes puFloat{0%{transform:translateY(0)}100%{transform:translateY(-10px)}}
+
+/* ── VICTORY OVERLAY ── */
+#vic-overlay{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:none;align-items:center;justify-content:center;
+  z-index:55;background:rgba(0,0,0,.8)}
+#vic-overlay.show{display:flex;
+  -webkit-animation:vicIn .35s ease-out forwards;animation:vicIn .35s ease-out forwards}
+@-webkit-keyframes vicIn{from{opacity:0;-webkit-transform:scale(.9)}to{opacity:1;-webkit-transform:scale(1)}}
+@keyframes vicIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+#vic-card{background:linear-gradient(160deg,#1a2e1a,#162e16);
+  border:3px solid #ffcb05;border-radius:18px;padding:22px 28px;
+  text-align:center;max-width:300px;width:88%;
+  box-shadow:0 0 40px rgba(255,203,5,.25)}
+#vic-title{color:#ffcb05;font-size:22px;font-weight:900;
+  text-shadow:0 0 16px rgba(255,203,5,.6);margin-bottom:14px;letter-spacing:1px}
+.vic-stat{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.vic-stat:last-child{border-bottom:none}
+.vic-stat-label{color:rgba(255,255,255,.6);font-size:13px}
+.vic-stat-val{color:#ffcb05;font-size:15px;font-weight:900}
+#vic-progress{color:rgba(255,255,255,.45);font-size:11px;text-align:center;
+  margin-top:12px}
+
 /* ── COUNTDOWN ── */
 #cdown{position:absolute;top:0;left:0;right:0;bottom:0;
   display:flex;align-items:center;justify-content:center;
@@ -316,6 +438,111 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 .cel img{width:50px;height:50px;image-rendering:pixelated}
 .cel-n{color:#ffcb05;font-size:9px;font-weight:900;text-align:center;margin-top:3px}
 .cel-new{color:#ff4455;font-size:9px;font-weight:900}
+
+/* ── POKÉBALL CAPTURE ── */
+.pb-cap{position:absolute;pointer-events:none;z-index:25;
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(180deg,#cc0000 47%,#222 47%,#222 53%,#eee 53%);
+  border:3px solid #111;box-shadow:0 0 18px rgba(255,203,5,.8)}
+.pb-cap::after{content:'';position:absolute;top:50%;left:50%;width:12px;height:12px;
+  border-radius:50%;background:#e8e8e8;border:3px solid #111;
+  -webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%)}
+@-webkit-keyframes pbWobble{
+  0%{-webkit-transform:scale(.4) rotate(0deg);opacity:0}
+  15%{-webkit-transform:scale(1.1) rotate(0deg);opacity:1}
+  30%{-webkit-transform:scale(1) rotate(-22deg)}
+  45%{-webkit-transform:scale(1) rotate(22deg)}
+  60%{-webkit-transform:scale(1) rotate(-18deg)}
+  75%{-webkit-transform:scale(1) rotate(16deg)}
+  90%{-webkit-transform:scale(1) rotate(-10deg)}
+  100%{-webkit-transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes pbWobble{
+  0%{transform:scale(.4) rotate(0deg);opacity:0}
+  15%{transform:scale(1.1) rotate(0deg);opacity:1}
+  30%{transform:scale(1) rotate(-22deg)}
+  45%{transform:scale(1) rotate(22deg)}
+  60%{transform:scale(1) rotate(-18deg)}
+  75%{transform:scale(1) rotate(16deg)}
+  90%{transform:scale(1) rotate(-10deg)}
+  100%{transform:scale(1) rotate(0deg);opacity:1}}
+@-webkit-keyframes pbClose{0%{-webkit-transform:scale(1);opacity:1}100%{-webkit-transform:scale(0);opacity:0}}
+@keyframes pbClose{0%{transform:scale(1);opacity:1}100%{transform:scale(0);opacity:0}}
+
+/* ── COMBO ── */
+.combo-pop{position:absolute;left:50%;top:28%;
+  -webkit-transform:translateX(-50%);transform:translateX(-50%);
+  z-index:30;pointer-events:none;text-align:center;white-space:nowrap;
+  -webkit-animation:comboAnim 1s ease-out forwards;animation:comboAnim 1s ease-out forwards}
+.combo-pop .cb-lbl{font-size:38px;font-weight:900;color:#ffcb05;
+  text-shadow:3px 3px 0 #000,0 0 20px rgba(255,203,5,.8)}
+.combo-pop .cb-sub{font-size:15px;color:#fff;font-weight:900;text-shadow:1px 1px 0 #000}
+@-webkit-keyframes comboAnim{
+  0%{opacity:0;-webkit-transform:translateX(-50%) scale(.5)}
+  20%{opacity:1;-webkit-transform:translateX(-50%) scale(1.2)}
+  50%{opacity:1;-webkit-transform:translateX(-50%) scale(1)}
+  80%{opacity:1;-webkit-transform:translateX(-50%) translateY(-18px)}
+  100%{opacity:0;-webkit-transform:translateX(-50%) translateY(-48px)}}
+@keyframes comboAnim{
+  0%{opacity:0;transform:translateX(-50%) scale(.5)}
+  20%{opacity:1;transform:translateX(-50%) scale(1.2)}
+  50%{opacity:1;transform:translateX(-50%) scale(1)}
+  80%{opacity:1;transform:translateX(-50%) translateY(-18px)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-48px)}}
+
+/* ── VICTORY OVERLAY ── */
+#vic-overlay{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:none;align-items:center;justify-content:center;
+  z-index:55;background:rgba(0,0,0,.82);pointer-events:none}
+#vic-overlay.show{display:flex;
+  -webkit-animation:vicIn .4s ease-out forwards;animation:vicIn .4s ease-out forwards}
+@-webkit-keyframes vicIn{from{opacity:0;-webkit-transform:scale(.88)}to{opacity:1;-webkit-transform:scale(1)}}
+@keyframes vicIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+#vic-card{background:linear-gradient(160deg,#0a1628,#1a2840);
+  border:3px solid #ffcb05;border-radius:18px;padding:22px 26px;
+  text-align:center;max-width:300px;width:90%;
+  box-shadow:0 0 40px rgba(255,203,5,.25)}
+#vic-title{color:#ffcb05;font-size:21px;font-weight:900;
+  text-shadow:0 0 14px rgba(255,203,5,.5);margin-bottom:14px}
+.vic-row{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.75);font-size:13px;font-weight:700}
+.vic-row:last-child{border-bottom:none}
+.vic-val{color:#ffcb05;font-weight:900}
+
+/* ── POWER-UPS ── */
+.powerup{position:absolute;z-index:8;pointer-events:all;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;
+  -webkit-animation:puPop .3s cubic-bezier(.17,.67,.34,1.3) both;
+  animation:puPop .3s cubic-bezier(.17,.67,.34,1.3) both}
+.pu-icon{width:52px;height:52px;border-radius:50%;border:3px solid #ffcb05;
+  background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  -webkit-animation:puGlow 1.2s ease-in-out infinite alternate;
+  animation:puGlow 1.2s ease-in-out infinite alternate}
+.pu-lbl{color:#ffcb05;font-size:8px;font-weight:900;background:rgba(0,0,0,.75);
+  border-radius:4px;padding:1px 5px;margin-top:2px;white-space:nowrap}
+@-webkit-keyframes puPop{0%{-webkit-transform:scale(0)}100%{-webkit-transform:scale(1)}}
+@keyframes puPop{0%{transform:scale(0)}100%{transform:scale(1)}}
+@-webkit-keyframes puGlow{
+  0%{box-shadow:0 0 10px rgba(255,203,5,.5)}
+  100%{box-shadow:0 0 28px rgba(255,203,5,1),0 0 50px rgba(255,203,5,.4)}}
+@keyframes puGlow{
+  0%{box-shadow:0 0 10px rgba(255,203,5,.5)}
+  100%{box-shadow:0 0 28px rgba(255,203,5,1),0 0 50px rgba(255,203,5,.4)}}
+#pu-hud{position:absolute;top:8px;right:8px;z-index:30;
+  background:rgba(0,0,0,.75);border:2px solid #ffcb05;border-radius:10px;
+  padding:4px 10px;font-size:11px;font-weight:900;color:#ffcb05;
+  display:none;pointer-events:none}
+
+/* ── LEADERBOARD ── */
+#lb-wrap{width:100%;max-width:300px}
+#lb-title{color:#ffcb05;font-size:13px;font-weight:900;text-align:center;margin-bottom:5px}
+.lb-row{display:flex;justify-content:space-between;align-items:center;
+  background:rgba(255,255,255,.07);border-radius:8px;padding:5px 10px;margin-bottom:3px}
+.lb-rank{width:22px;font-size:14px}
+.lb-name{color:#fff;font-weight:700;font-size:12px;flex:1;padding-left:4px}
+.lb-score{color:#ffcb05;font-weight:900;font-size:13px}
+.lb-empty{color:rgba(255,255,255,.3);font-size:12px;text-align:center;padding:6px}
 </style>
 </head>
 <body>
@@ -342,6 +569,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   <button class="bigbtn" id="m-play">▶ JUGAR</button>
   <button class="smolbtn" id="m-col">📖 Mi Colección</button>
   <div id="m-saved"></div>
+  <div id="lb-wrap">
+    <div id="lb-title">🏆 TOP JUGADORES</div>
+    <div id="lb-rows"></div>
+  </div>
   <div style="display:flex;gap:14px;align-items:center">
     <button id="m-mute" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer">🔊</button>
     <button class="smolbtn" id="m-logout" style="font-size:12px;padding:6px 16px">🚪 Salir</button>
@@ -351,7 +582,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 <!-- GAME -->
 <div id="sg" class="scr">
   <div id="hud">
-    <div id="hud-lv">LVL 1</div>
+    <div id="hud-left">
+      <div id="hud-lv">LVL 1</div>
+      <div id="hud-score">⭐ 0</div>
+    </div>
     <div id="hud-t">
       <div id="hud-n">60</div>
       <div id="hud-b"><div id="hud-f" style="width:100%"></div></div>
@@ -376,6 +610,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
         </div>
       </div>
     </div>
+    <div id="vic-overlay">
+      <div id="vic-card">
+        <div id="vic-title">✅ ¡NIVEL COMPLETO!</div>
+        <div id="vic-stats"></div>
+        <div id="vic-progress">Continuando...</div>
+      </div>
+    </div>
+    <div id="pu-hud"></div>
     <div id="timeup"><span>¡TIEMPO!</span></div>
   </div>
 </div>
@@ -490,6 +732,46 @@ function saveCol() {
   try { localStorage.setItem(key, JSON.stringify(col)); } catch(e) {}
 }
 
+/* ── LEADERBOARD ── */
+function loadLeaderboard() {
+  try { return JSON.parse(localStorage.getItem('pkc-lb') || '[]') || []; } catch(e) { return []; }
+}
+
+function saveLeaderboard(lb) {
+  try { localStorage.setItem('pkc-lb', JSON.stringify(lb)); } catch(e) {}
+}
+
+function submitScore(name, scoreVal, lv) {
+  var lb = loadLeaderboard();
+  lb.push({name: name, score: scoreVal, lv: lv, date: Date.now()});
+  lb.sort(function(a, b){ return b.score - a.score; });
+  if (lb.length > 10) lb = lb.slice(0, 10);
+  saveLeaderboard(lb);
+}
+
+function renderLeaderboard() {
+  var rows = document.getElementById('lb-rows');
+  if (!rows) return;
+  var lb = loadLeaderboard();
+  rows.innerHTML = '';
+  if (!lb.length) {
+    rows.innerHTML = '<div class="lb-empty">¡Sé el primero en el ranking!</div>';
+    return;
+  }
+  var top5 = lb.slice(0, 5);
+  var medals = ['🥇','🥈','🥉','4','5'];
+  for (var i = 0; i < top5.length; i++) {
+    var e = top5[i];
+    var d = document.createElement('div');
+    d.className = 'lb-row';
+    d.innerHTML = '<span class="lb-rank">' + medals[i] + '</span>'
+      + '<span class="lb-name">' + e.name + '</span>'
+      + '<span class="lb-lv">LV' + e.lv + '</span>'
+      + '<span class="lb-score">⭐' + e.score + '</span>';
+    rows.appendChild(d);
+  }
+}
+
 /* ── STATE ── */
 var LV = 1, targets = [], decoys = [], mons = [];
 var timer = 60, running = false;
@@ -497,6 +779,15 @@ var tInt = null, sInt = null, raf = null;
 var newCatch = null, backScreen = null, muted = false;
 var playerHP = 5, MAX_HP = 5;
 var boss = null, bossSpawnTimer = null;
+var score = 0, catchStreak = 0, bestCombo = 0;
+var powerupTimer = null, freezeBossTimer = null, doublePtsTimer = null;
+var freezeBossActive = false, doublePtsActive = false;
+var powerupEls = [];
+var freezeBossActive = false, freezeBossTimer = null;
+var doublePtsActive = false, doublePtsTimer = null;
+var puSpawnTimer = null, puSpawnInterval = null;
+var activePuEl = null;
+var levelCaught = 0;
 
 function shuffle(a) {
   var b = a.slice(), i, j, t;
@@ -621,6 +912,15 @@ function playDamage() {
   tone(110, t+0.1, 0.2, 0.10, 'square');
 }
 
+function playCombo() {
+  if (!ac || muted) return;
+  var t = ac.currentTime;
+  tone(523.25, t,       0.08, 0.07, 'sine');
+  tone(659.25, t+0.06,  0.08, 0.07, 'sine');
+  tone(783.99, t+0.12,  0.08, 0.07, 'sine');
+  tone(1046.5, t+0.18,  0.14, 0.08, 'sine');
+}
+
 function playDrumHit(when, vol, pitch) {
   if (!ac) return;
   try {
@@ -729,6 +1029,7 @@ function refreshMenu() {
     document.getElementById('m-saved').textContent =
       col.length ? '📦 ' + col.length + ' Pokémon capturados' : 'Colección vacía';
   }
+  renderLeaderboard();
 }
 
 onBtn('m-play',   function() { startMusic(); beginLevel(); });
@@ -807,12 +1108,31 @@ function updateHP() {
   if (el) el.textContent = s;
 }
 
+/* ── SCORE ── */
+function updateScoreDisplay() {
+  var el = document.getElementById('hud-score');
+  if (el) el.textContent = '⭐ ' + score;
+}
+
+function addScore(pts) {
+  var actual = doublePtsActive ? pts * 2 : pts;
+  score += actual;
+  if (score < 0) score = 0;
+  updateScoreDisplay();
+  return actual;
+}
+
 /* ── LEVEL START ── */
 function beginLevel() {
   stopGame();
   newCatch = null;
   playerHP = MAX_HP;
+  score = 0;
+  catchStreak = 0;
+  bestCombo = 0;
+  levelCaught = 0;
   updateHP();
+  updateScoreDisplay();
   var pool = shuffle(POOL);
   targets = [];
   for (var i = 0; i < 3; i++) targets.push({id:pool[i].id, n:pool[i].n, c:pool[i].c, count:0});
@@ -826,6 +1146,10 @@ function beginLevel() {
   updateTimer();
   applyMap();
   document.getElementById('timeup').classList.remove('show');
+  document.getElementById('vic-overlay').classList.remove('show');
+  document.getElementById('vic-overlay').style.display = 'none';
+  var puHud = document.getElementById('pu-hud');
+  if (puHud) puHud.innerHTML = '';
   setTimeout(function() { decorateField(); showMapToast(); }, 80);
   countdown(3, function() { showMission(beginSpawning); });
 }
@@ -920,6 +1244,113 @@ function showMission(cb) {
   }, 2600);
 }
 
+/* ── POWER-UPS ── */
+function schedulePowerUp() {
+  if (!running) return;
+  puSpawnTimer = setTimeout(function() {
+    if (!running) return;
+    if (Math.random() < 0.65) spawnPowerUp();
+    schedulePowerUpInterval();
+  }, 15000);
+}
+
+function schedulePowerUpInterval() {
+  if (!running) return;
+  var delay = 18000 + Math.random() * 7000;
+  puSpawnInterval = setTimeout(function() {
+    if (!running) return;
+    if (Math.random() < 0.65) spawnPowerUp();
+    schedulePowerUpInterval();
+  }, delay);
+}
+
+function spawnPowerUp() {
+  if (!running) return;
+  if (activePuEl && activePuEl.parentNode) return;
+  var field = document.getElementById('field');
+  var fw = field.offsetWidth  || 360;
+  var fh = field.offsetHeight || 480;
+
+  var types = [
+    {emoji:'❄️', label:'CONGELA JEFE', type:'freeze'},
+    {emoji:'⭐', label:'2X PUNTOS',    type:'double'}
+  ];
+  var pu = types[Math.floor(Math.random() * types.length)];
+
+  var el = document.createElement('div');
+  el.className = 'pu-item';
+  el.textContent = pu.emoji;
+  el.title = pu.label;
+  el.style.left = (20 + Math.random() * (fw - 74)) + 'px';
+  el.style.top  = (20 + Math.random() * (fh - 74)) + 'px';
+
+  var autoRemove = setTimeout(function() {
+    if (el.parentNode) el.parentNode.removeChild(el);
+    activePuEl = null;
+  }, 8000);
+
+  el.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    clearTimeout(autoRemove);
+    if (el.parentNode) el.parentNode.removeChild(el);
+    activePuEl = null;
+    activatePowerUp(pu);
+  }, false);
+  el.addEventListener('click', function() {
+    clearTimeout(autoRemove);
+    if (el.parentNode) el.parentNode.removeChild(el);
+    activePuEl = null;
+    activatePowerUp(pu);
+  }, false);
+
+  field.appendChild(el);
+  activePuEl = el;
+}
+
+function activatePowerUp(pu) {
+  var puHud = document.getElementById('pu-hud');
+  if (pu.type === 'freeze') {
+    freezeBossActive = true;
+    clearTimeout(freezeBossTimer);
+    var badge = document.createElement('div');
+    badge.className = 'pu-badge';
+    badge.id = 'pu-freeze-badge';
+    badge.textContent = '❄️ JEFE CONGELADO';
+    if (puHud) puHud.appendChild(badge);
+    freezeBossTimer = setTimeout(function() {
+      freezeBossActive = false;
+      var b = document.getElementById('pu-freeze-badge');
+      if (b && b.parentNode) b.parentNode.removeChild(b);
+    }, 6000);
+  } else if (pu.type === 'double') {
+    doublePtsActive = true;
+    clearTimeout(doublePtsTimer);
+    var badge2 = document.createElement('div');
+    badge2.className = 'pu-badge';
+    badge2.id = 'pu-double-badge';
+    badge2.textContent = '⭐ 2X PUNTOS';
+    if (puHud) puHud.appendChild(badge2);
+    doublePtsTimer = setTimeout(function() {
+      doublePtsActive = false;
+      var b2 = document.getElementById('pu-double-badge');
+      if (b2 && b2.parentNode) b2.parentNode.removeChild(b2);
+    }, 8000);
+  }
+}
+
+function clearPowerUps() {
+  clearTimeout(puSpawnTimer); puSpawnTimer = null;
+  clearTimeout(puSpawnInterval); puSpawnInterval = null;
+  clearTimeout(freezeBossTimer); freezeBossTimer = null;
+  clearTimeout(doublePtsTimer); doublePtsTimer = null;
+  freezeBossActive = false;
+  doublePtsActive = false;
+  if (activePuEl && activePuEl.parentNode) activePuEl.parentNode.removeChild(activePuEl);
+  activePuEl = null;
+  var puHud = document.getElementById('pu-hud');
+  if (puHud) puHud.innerHTML = '';
+}
+
 /* ── GAMEPLAY ── */
 function beginSpawning() {
   running = true;
@@ -936,6 +1367,7 @@ function beginSpawning() {
   sInt = setInterval(burst, 2000);
   raf = requestAnimationFrame(gameLoop);
   bossSpawnTimer = setTimeout(spawnBoss, 7000);
+  schedulePowerUp();
 }
 
 function stopGame() {
@@ -945,6 +1377,7 @@ function stopGame() {
   cancelAnimationFrame(raf);
   clearTimeout(bossSpawnTimer);
   bossSpawnTimer = null;
+  clearPowerUps();
   if (boss) { clearInterval(boss.attackInterval); killBossEl(); }
   tInt = sInt = raf = null;
   for (var i = 0; i < mons.length; i++) {
@@ -981,8 +1414,12 @@ function spawnOne() {
   var fw = field.offsetWidth  || 360;
   var fh = field.offsetHeight || 480;
 
+  /* difficulty scaling */
+  var tgtChance = Math.max(0.18, 0.30 - (LV - 1) * 0.03);
+  var speedMult = 1 + (LV - 1) * 0.12;
+
   var pk;
-  if (Math.random() < 0.30) {
+  if (Math.random() < tgtChance) {
     var inc = [];
     for (var i = 0; i < targets.length; i++) { if (targets[i].count < 3) inc.push(targets[i]); }
     if (!inc.length) return;
@@ -1001,14 +1438,17 @@ function spawnOne() {
 
   if (mv === 'float') {
     m.x = 20 + Math.random() * (fw - 92); m.y = 10 + Math.random() * (fh - 92);
-    var sp = 1.2 + Math.random() * 1.8, ang = Math.random() * Math.PI * 2;
+    var sp = (1.2 + Math.random() * 1.8) * speedMult;
+    var ang = Math.random() * Math.PI * 2;
     m.vx = Math.cos(ang) * sp; m.vy = Math.sin(ang) * sp;
   } else if (mv === 'fall') {
     m.x = 10 + Math.random() * (fw - 82); m.y = -80;
-    m.vx = (Math.random() - 0.5) * 1.4; m.vy = 2 + Math.random() * 1.6;
+    m.vx = (Math.random() - 0.5) * 1.4 * speedMult;
+    m.vy = (2 + Math.random() * 1.6) * speedMult;
   } else {
     m.x = 20 + Math.random() * (fw - 92); m.y = 10 + Math.random() * (fh - 92);
-    m.born = Date.now(); m.life = 1800 + Math.random() * 2200;
+    m.born = Date.now();
+    m.life = Math.max(1200, 1800 + Math.random() * 2200 - (LV - 1) * 200);
   }
 
   var div = document.createElement('div');
@@ -1083,6 +1523,26 @@ function killMon(m) {
   mons = next;
 }
 
+/* ── POKÉBALL CAPTURE ANIMATION ── */
+function showPokeballCapture(field, cx, cy, onDone) {
+  var pb = document.createElement('div');
+  pb.className = 'pb-cap';
+  pb.style.left = (cx - 22) + 'px';
+  pb.style.top  = (cy - 22) + 'px';
+  field.appendChild(pb);
+
+  pb.classList.add('wobble');
+  setTimeout(function() {
+    pb.classList.remove('wobble');
+    pb.classList.add('collapse');
+    addBling(field, cx, cy);
+    setTimeout(function() {
+      if (pb.parentNode) pb.parentNode.removeChild(pb);
+      if (onDone) onDone();
+    }, 220);
+  }, 700);
+}
+
 /* ── TAP ── */
 function handleTap(m) {
   if (!m.alive || !running) return;
@@ -1094,15 +1554,43 @@ function handleTap(m) {
     for (var i = 0; i < targets.length; i++) { if (targets[i].id === m.id) { t = targets[i]; break; } }
     if (t && t.count < 3) {
       t.count++;
+      levelCaught++;
+      catchStreak++;
+      if (catchStreak > bestCombo) bestCombo = catchStreak;
+
+      var pts = addScore(10);
       playGood();
-      addBling(field, m.x + 41, m.y + 41);
-      updatePips(t);
+      addFloatTxt(field, m.x + 36, m.y - 8, '+' + pts, '#ffcb05', '18px');
+
+      /* pokéball animation then kill */
+      var mx = m.x, my = m.y;
       killMon(m);
+      showPokeballCapture(field, mx + 41, my + 41, function() {
+        addBling(field, mx + 41, my + 41);
+      });
+
+      updatePips(t);
+
+      /* combo check */
+      if (catchStreak >= 3) {
+        var bonus = catchStreak >= 5 ? 100 : 50;
+        var actualBonus = doublePtsActive ? bonus * 2 : bonus;
+        score += actualBonus;
+        if (score < 0) score = 0;
+        updateScoreDisplay();
+        playCombo();
+        showComboPop(field, catchStreak, actualBonus);
+      }
+
       var allDone = true;
       for (var i = 0; i < targets.length; i++) { if (targets[i].count < 3) { allDone = false; break; } }
       if (allDone) setTimeout(endLevel, 300);
     }
   } else {
+    /* impostor */
+    try { if (navigator.vibrate) navigator.vibrate(180); } catch(e) {}
+    catchStreak = 0;
+
     var maxCnt = -1, penIdx = -1;
     for (var i = 0; i < targets.length; i++) {
       if (targets[i].count > maxCnt) { maxCnt = targets[i].count; penIdx = i; }
@@ -1117,10 +1605,25 @@ function handleTap(m) {
       }
       addFloatTxt(field, m.x + 36, m.y - 4, '-1', '#ff4444', '22px');
     }
+    score = Math.max(0, score - 5);
+    updateScoreDisplay();
     playBad();
-    addFloatTxt(field, m.x + 41, m.y + 10, '✗', '#ff4444', '26px');
+    addFloatTxt(field, m.x + 20, m.y - 20, '¡IMPOSTOR!', '#ff2200', '15px');
+    addFloatTxt(field, m.x + 36, m.y + 14, '-5', '#ff4444', '20px');
     killMon(m);
   }
+}
+
+function showComboPop(field, streak, bonus) {
+  var fw = field.offsetWidth  || 360;
+  var fh = field.offsetHeight || 480;
+  var d = document.createElement('div');
+  d.className = 'combo-pop';
+  d.innerHTML = 'x' + streak + ' COMBO!<br>+' + bonus + ' bonus';
+  d.style.left = (fw / 2 - 70) + 'px';
+  d.style.top  = (fh / 2 - 40) + 'px';
+  field.appendChild(d);
+  setTimeout(function() { if (d.parentNode) d.parentNode.removeChild(d); }, 950);
 }
 
 /* ── BOSS ── */
@@ -1219,6 +1722,7 @@ function killBoss(defeated) {
 }
 
 function bossAttack() {
+  if (freezeBossActive) return;
   if (!boss || !running) return;
   playDamage();
   playerHP = Math.max(0, playerHP - 1);
@@ -1269,8 +1773,44 @@ function updatePips(t) {
   }
 }
 
+/* ── VICTORY OVERLAY ── */
+function showVictory(cb) {
+  var overlay = document.getElementById('vic-overlay');
+  var statsEl = document.getElementById('vic-stats');
+  if (!overlay || !statsEl) { cb(); return; }
+
+  statsEl.innerHTML = '';
+  var rows = [
+    {label:'Nivel completado', val:'LVL ' + LV},
+    {label:'Pokémon atrapados', val: levelCaught},
+    {label:'Tiempo restante',   val: timer + 's'},
+    {label:'Puntuación',        val: '⭐ ' + score},
+    {label:'Mejor combo',       val: 'x' + bestCombo}
+  ];
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var d = document.createElement('div');
+    d.className = 'vic-stat';
+    d.innerHTML = '<span class="vic-stat-label">' + r.label + '</span>'
+      + '<span class="vic-stat-val">' + r.val + '</span>';
+    statsEl.appendChild(d);
+  }
+
+  /* save leaderboard */
+  if (currentUser) submitScore(currentUser.name, score, LV);
+
+  overlay.style.display = 'flex';
+  overlay.classList.add('show');
+
+  setTimeout(function() {
+    overlay.classList.remove('show');
+    overlay.style.display = 'none';
+    cb();
+  }, 2800);
+}
+
 /* ── CASINO ── */
-function endLevel() { stopGame(); showCasino(); }
+function endLevel() { stopGame(); showVictory(function(){ showCasino(); }); }
 
 function showCasino() {
   goTo('sc');
