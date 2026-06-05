@@ -233,6 +233,34 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   opacity:0;-webkit-transition:opacity .4s;transition:opacity .4s}
 #map-toast.show{opacity:1}
 
+/* ── EVENT TOAST ── */
+#event-toast{position:absolute;top:44%;left:50%;
+  -webkit-transform:translateX(-50%);transform:translateX(-50%);
+  font-size:20px;font-weight:900;border-radius:20px;padding:12px 26px;
+  z-index:44;pointer-events:none;letter-spacing:1px;display:none;
+  text-align:center;white-space:nowrap}
+#event-toast.show{display:block;
+  -webkit-animation:eventPop .5s cubic-bezier(.17,.67,.34,1.3) forwards;
+  animation:eventPop .5s cubic-bezier(.17,.67,.34,1.3) forwards}
+@-webkit-keyframes eventPop{
+  0%  {opacity:0;-webkit-transform:translateX(-50%) scale(.5)}
+  65% {opacity:1;-webkit-transform:translateX(-50%) scale(1.1)}
+  100%{opacity:1;-webkit-transform:translateX(-50%) scale(1)}}
+@keyframes eventPop{
+  0%  {opacity:0;transform:translateX(-50%) scale(.5)}
+  65% {opacity:1;transform:translateX(-50%) scale(1.1)}
+  100%{opacity:1;transform:translateX(-50%) scale(1)}}
+
+/* ── BOSS INTRO ── */
+#boss-intro{position:absolute;top:30%;left:50%;
+  -webkit-transform:translateX(-50%);transform:translateX(-50%);
+  font-size:17px;font-weight:900;border-radius:16px;padding:11px 24px;
+  z-index:46;pointer-events:none;letter-spacing:1px;display:none;
+  text-align:center;white-space:nowrap}
+#boss-intro.show{display:block;
+  -webkit-animation:eventPop .4s cubic-bezier(.17,.67,.34,1.3) forwards;
+  animation:eventPop .4s cubic-bezier(.17,.67,.34,1.3) forwards}
+
 /* ── MISSION OVERLAY ── */
 #mission-overlay{position:absolute;top:0;left:0;right:0;bottom:0;
   display:none;align-items:center;justify-content:center;
@@ -317,12 +345,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
 
 /* ── COMBO POP ── */
 .combo-pop{position:absolute;pointer-events:none;z-index:25;
-  background:linear-gradient(135deg,#ffcb05,#ff8800);
-  color:#111;font-size:17px;font-weight:900;
-  border-radius:14px;padding:8px 16px;
+  background:rgba(0,0,0,.82);
+  font-size:28px;font-weight:900;
+  border-radius:16px;padding:10px 20px;
   text-align:center;border:3px solid #111;
-  box-shadow:0 4px 18px rgba(255,203,5,.5);
-  -webkit-animation:comboPop .9s ease-out forwards;animation:comboPop .9s ease-out forwards}
+  text-shadow:2px 2px 0 #000;
+  -webkit-animation:comboPop .95s ease-out forwards;animation:comboPop .95s ease-out forwards}
 @-webkit-keyframes comboPop{
   0%  {opacity:0;-webkit-transform:scale(.5) translateY(10px)}
   25% {opacity:1;-webkit-transform:scale(1.15) translateY(-4px)}
@@ -598,6 +626,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;
   <div id="trow"></div>
   <div id="field">
     <div id="map-toast"></div>
+    <div id="event-toast"></div>
+    <div id="boss-intro"></div>
     <div id="cdown"><div id="cdown-n"></div></div>
     <div id="mission-overlay">
       <div id="mission-card">
@@ -689,22 +719,22 @@ var MAPS = [
 
 /* ── SVG CHARACTER SPRITES ── */
 var CHAR_DEFS = {
-  1:  {sk:'#c8854a',sh:'#e8e8e8',ht:'cap', hc:'#ffffff',md:'h',ac:'chain'},
-  2:  {sk:'#c8854a',sh:'#f080c0',ht:'bun', hc:'#c04040',md:'h',ac:'hoops'},
-  3:  {sk:'#9a6020',sh:'#8040c0',ht:'afro',hc:'#2a1808',md:'c',ac:'chain'},
-  4:  {sk:'#e09060',sh:'#f09040',ht:'none',hc:'#3a2008',md:'h',ac:'none'},
-  5:  {sk:'#c8854a',sh:'#3060f0',ht:'cap', hc:'#3060f0',md:'c',ac:'none'},
-  6:  {sk:'#b07030',sh:'#0060d0',ht:'none',hc:'#1a0a00',md:'h',ac:'none'},
-  7:  {sk:'#9a6020',sh:'#40c040',ht:'none',hc:'#2a1808',md:'c',ac:'shades'},
-  8:  {sk:'#e09060',sh:'#f04080',ht:'pig', hc:'#a03060',md:'h',ac:'hoops'},
-  9:  {sk:'#e09060',sh:'#f0d040',ht:'none',hc:'#3a2008',md:'h',ac:'none'},
-  10: {sk:'#9a6020',sh:'#f06020',ht:'none',hc:'#1a0a00',md:'t',ac:'beard'},
-  11: {sk:'#c8a080',sh:'#a0a0a0',ht:'gray',hc:'#c0c0c0',md:'h',ac:'none'},
-  12: {sk:'#6a3810',sh:'#202020',ht:'cap', hc:'#111111',md:'t',ac:'chain'},
-  101:{sk:'#2a1a0a',sh:'#181818',ht:'cap', hc:'#111111',md:'e',ac:'chain'},
-  102:{sk:'#c8a050',sh:'#1a3070',ht:'none',hc:'#1a0a00',md:'e',ac:'tie'},
-  103:{sk:'#8a4020',sh:'#600000',ht:'none',hc:'#1a0a00',md:'e',ac:'beard'},
-  104:{sk:'#3a1050',sh:'#600080',ht:'horns',hc:'#aa00ff',md:'e',ac:'none'}
+  1:  {sk:'#c8854a',sh:'#e8e8e8',ht:'cap', hc:'#ffffff',md:'h',ac:'chain',prop:'mic'},
+  2:  {sk:'#c8854a',sh:'#f080c0',ht:'bun', hc:'#c04040',md:'h',ac:'hoops',prop:'phone'},
+  3:  {sk:'#9a6020',sh:'#8040c0',ht:'afro',hc:'#2a1808',md:'c',ac:'chain',prop:null},
+  4:  {sk:'#e09060',sh:'#f09040',ht:'none',hc:'#3a2008',md:'h',ac:'none',prop:null},
+  5:  {sk:'#c8854a',sh:'#3060f0',ht:'cap', hc:'#3060f0',md:'c',ac:'none',prop:null},
+  6:  {sk:'#b07030',sh:'#0060d0',ht:'none',hc:'#1a0a00',md:'h',ac:'none',prop:'flag'},
+  7:  {sk:'#9a6020',sh:'#40c040',ht:'none',hc:'#2a1808',md:'c',ac:'shades',prop:null},
+  8:  {sk:'#e09060',sh:'#f04080',ht:'pig', hc:'#a03060',md:'h',ac:'hoops',prop:null},
+  9:  {sk:'#e09060',sh:'#f0d040',ht:'none',hc:'#3a2008',md:'h',ac:'none',prop:null},
+  10: {sk:'#9a6020',sh:'#f06020',ht:'none',hc:'#1a0a00',md:'t',ac:'beard',prop:null},
+  11: {sk:'#c8a080',sh:'#a0a0a0',ht:'gray',hc:'#c0c0c0',md:'h',ac:'none',prop:null},
+  12: {sk:'#6a3810',sh:'#202020',ht:'cap', hc:'#111111',md:'t',ac:'chain',prop:null},
+  101:{sk:'#2a1a0a',sh:'#181818',ht:'cap', hc:'#111111',md:'e',ac:'chain',prop:null},
+  102:{sk:'#c8a050',sh:'#1a3070',ht:'none',hc:'#1a0a00',md:'e',ac:'tie',prop:'cash'},
+  103:{sk:'#8a4020',sh:'#600000',ht:'none',hc:'#1a0a00',md:'e',ac:'beard',prop:null},
+  104:{sk:'#3a1050',sh:'#600080',ht:'horns',hc:'#aa00ff',md:'e',ac:'none',prop:'star'}
 };
 
 function makeSvg(def) {
