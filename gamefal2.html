@@ -739,52 +739,82 @@ var CHAR_DEFS = {
 
 function makeSvg(def) {
   var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">';
-  s += '<circle cx="50" cy="62" r="42" fill="'+def.sh+'" opacity="0.14"/>';
-  s += '<rect x="14" y="58" width="72" height="40" rx="12" fill="'+def.sh+'" stroke="#111" stroke-width="3"/>';
-  s += '<path d="M38 58 L50 72 L62 58" fill="none" stroke="#111" stroke-width="2.5"/>';
-  s += '<rect x="38" y="50" width="24" height="13" rx="5" fill="'+def.sk+'" stroke="#111" stroke-width="2.5"/>';
+  // Body shadow
+  s += '<ellipse cx="50" cy="97" rx="30" ry="4" fill="#000" opacity="0.25"/>';
+  // Legs
+  s += '<rect x="30" y="82" width="16" height="18" rx="6" fill="'+def.sh+'" stroke="#111" stroke-width="2.5"/>';
+  s += '<rect x="54" y="82" width="16" height="18" rx="6" fill="'+def.sh+'" stroke="#111" stroke-width="2.5"/>';
+  s += '<rect x="28" y="94" width="18" height="8" rx="4" fill="#222" stroke="#111" stroke-width="2"/>';
+  s += '<rect x="54" y="94" width="18" height="8" rx="4" fill="#222" stroke="#111" stroke-width="2"/>';
+  // Shirt/body
+  s += '<rect x="18" y="54" width="64" height="34" rx="10" fill="'+def.sh+'" stroke="#111" stroke-width="3"/>';
+  // Shirt highlight
+  s += '<rect x="20" y="55" width="60" height="10" rx="8" fill="#fff" opacity="0.18"/>';
+  // Arms
+  s += '<rect x="6" y="56" width="16" height="28" rx="7" fill="'+def.sk+'" stroke="#111" stroke-width="2.5"/>';
+  s += '<rect x="78" y="56" width="16" height="28" rx="7" fill="'+def.sk+'" stroke="#111" stroke-width="2.5"/>';
+  // Hands
+  s += '<circle cx="14" cy="84" r="8" fill="'+def.sk+'" stroke="#111" stroke-width="2.5"/>';
+  s += '<circle cx="86" cy="84" r="8" fill="'+def.sk+'" stroke="#111" stroke-width="2.5"/>';
+  // Neck
+  s += '<rect x="42" y="44" width="16" height="14" rx="6" fill="'+def.sk+'" stroke="#111" stroke-width="2.5"/>';
   if (def.ht === 'afro') {
-    s += '<ellipse cx="50" cy="22" rx="28" ry="22" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
-    s += '<circle cx="36" cy="18" r="3.5" fill="'+def.hc+'" stroke="#111" stroke-width="1.2"/>';
-    s += '<circle cx="50" cy="12" r="3.5" fill="'+def.hc+'" stroke="#111" stroke-width="1.2"/>';
-    s += '<circle cx="64" cy="18" r="3.5" fill="'+def.hc+'" stroke="#111" stroke-width="1.2"/>';
+    s += '<ellipse cx="50" cy="20" rx="30" ry="24" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<circle cx="26" cy="22" r="7" fill="'+def.hc+'" stroke="#111" stroke-width="2"/>';
+    s += '<circle cx="32" cy="10" r="8" fill="'+def.hc+'" stroke="#111" stroke-width="2"/>';
+    s += '<circle cx="50" cy="6" r="9" fill="'+def.hc+'" stroke="#111" stroke-width="2"/>';
+    s += '<circle cx="68" cy="10" r="8" fill="'+def.hc+'" stroke="#111" stroke-width="2"/>';
+    s += '<circle cx="74" cy="22" r="7" fill="'+def.hc+'" stroke="#111" stroke-width="2"/>';
   } else if (def.ht === 'bun') {
-    s += '<path d="M26 36 Q50 14 74 36" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
-    s += '<ellipse cx="50" cy="15" rx="13" ry="10" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
+    s += '<path d="M24 34 Q50 10 76 34" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<ellipse cx="50" cy="12" rx="15" ry="11" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<ellipse cx="50" cy="12" rx="9" ry="7" fill="'+def.hc+'" opacity="0.6"/>';
   } else if (def.ht === 'pig') {
-    s += '<path d="M26 36 Q50 14 74 36" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
-    s += '<circle cx="24" cy="34" r="9" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
-    s += '<circle cx="76" cy="34" r="9" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
+    s += '<path d="M24 34 Q50 10 76 34" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<circle cx="22" cy="32" r="11" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<circle cx="78" cy="32" r="11" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<circle cx="22" cy="32" r="5" fill="'+def.hc+'" stroke="#111" stroke-width="2" opacity="0.7"/>';
   }
-  s += '<circle cx="50" cy="36" r="26" fill="'+def.sk+'" stroke="#111" stroke-width="3"/>';
+  // Head (drawn AFTER hair so hair appears behind)
+  s += '<circle cx="50" cy="32" r="28" fill="'+def.sk+'" stroke="#111" stroke-width="3.5"/>';
+  // Head highlight
+  s += '<ellipse cx="40" cy="20" rx="14" ry="9" fill="#fff" opacity="0.18"/>';
   if (def.ht === 'cap') {
-    s += '<ellipse cx="50" cy="18" rx="26" ry="12" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
-    s += '<rect x="22" y="24" width="56" height="8" rx="4" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
-    s += '<rect x="64" y="24" width="18" height="7" rx="3" fill="'+def.hc+'" stroke="#111" stroke-width="2"/>';
+    s += '<ellipse cx="50" cy="14" rx="28" ry="13" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<rect x="20" y="20" width="60" height="9" rx="4" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
+    s += '<rect x="64" y="20" width="20" height="8" rx="4" fill="'+def.hc+'" stroke="#111" stroke-width="2"/>';
     var lc = (def.hc === '#ffffff' || def.hc === '#3060f0') ? '#f0b800' : '#fff';
-    s += '<rect x="44" y="16" width="12" height="6" rx="2" fill="'+lc+'" opacity="0.8"/>';
+    s += '<rect x="42" y="12" width="16" height="7" rx="3" fill="'+lc+'" opacity="0.8"/>';
   } else if (def.ht === 'gray') {
-    s += '<path d="M26 36 Q28 16 38 22" fill="none" stroke="'+def.hc+'" stroke-width="4" stroke-linecap="round"/>';
-    s += '<path d="M74 36 Q72 16 62 22" fill="none" stroke="'+def.hc+'" stroke-width="4" stroke-linecap="round"/>';
-    s += '<path d="M40 16 Q50 10 60 16" fill="none" stroke="'+def.hc+'" stroke-width="4" stroke-linecap="round"/>';
+    s += '<path d="M24 34 Q26 10 38 18" fill="none" stroke="'+def.hc+'" stroke-width="5" stroke-linecap="round"/>';
+    s += '<path d="M76 34 Q74 10 62 18" fill="none" stroke="'+def.hc+'" stroke-width="5" stroke-linecap="round"/>';
+    s += '<path d="M38 14 Q50 6 62 14" fill="none" stroke="'+def.hc+'" stroke-width="5" stroke-linecap="round"/>';
   } else if (def.ht === 'horns') {
-    s += '<path d="M30 22 L24 4 L40 20Z" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
-    s += '<path d="M70 22 L76 4 L60 20Z" fill="'+def.hc+'" stroke="#111" stroke-width="2.5"/>';
+    s += '<path d="M28 20 L20 2 L38 18Z" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+    s += '<path d="M72 20 L80 2 L62 18Z" fill="'+def.hc+'" stroke="#111" stroke-width="3"/>';
+  } else if (def.ht === 'none') {
+    // Short hair wave on top
+    s += '<path d="M26 24 Q38 14 50 20 Q62 14 74 24" fill="none" stroke="#3a2008" stroke-width="3" stroke-linecap="round" opacity="0.5"/>';
   }
+  // Eyebrows
   if (def.md === 'h' || def.md === 'c') {
-    s += '<path d="M30 26 Q34 22 40 26" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>';
-    s += '<path d="M60 26 Q64 22 70 26" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>';
+    s += '<path d="M28 22 Q34 18 40 22" fill="none" stroke="#3a2008" stroke-width="2.5" stroke-linecap="round"/>';
+    s += '<path d="M60 22 Q66 18 72 22" fill="none" stroke="#3a2008" stroke-width="2.5" stroke-linecap="round"/>';
   } else {
-    s += '<path d="M30 26 Q34 30 40 26" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>';
-    s += '<path d="M60 26 Q64 30 70 26" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>';
+    s += '<path d="M28 22 Q34 26 40 22" fill="none" stroke="#3a2008" stroke-width="3" stroke-linecap="round"/>';
+    s += '<path d="M60 22 Q66 26 72 22" fill="none" stroke="#3a2008" stroke-width="3" stroke-linecap="round"/>';
   }
-  s += '<circle cx="38" cy="35" r="7" fill="#fff" stroke="#111" stroke-width="2"/>';
-  s += '<circle cx="62" cy="35" r="7" fill="#fff" stroke="#111" stroke-width="2"/>';
-  s += '<circle cx="39" cy="36" r="4" fill="#111"/>';
-  s += '<circle cx="63" cy="36" r="4" fill="#111"/>';
-  s += '<circle cx="40.5" cy="34.5" r="1.6" fill="#fff"/>';
-  s += '<circle cx="64.5" cy="34.5" r="1.6" fill="#fff"/>';
-  s += '<ellipse cx="50" cy="43" rx="3" ry="2" fill="none" stroke="#9a6040" stroke-width="1.5" opacity="0.5"/>';
+  // Eyes - bigger and more detailed
+  s += '<circle cx="36" cy="32" r="9" fill="#fff" stroke="#111" stroke-width="2.5"/>';
+  s += '<circle cx="64" cy="32" r="9" fill="#fff" stroke="#111" stroke-width="2.5"/>';
+  s += '<circle cx="37" cy="33" r="6" fill="#111"/>';
+  s += '<circle cx="65" cy="33" r="6" fill="#111"/>';
+  s += '<circle cx="39" cy="31" r="2.5" fill="#fff"/>';
+  s += '<circle cx="67" cy="31" r="2.5" fill="#fff"/>';
+  s += '<circle cx="36" cy="35" r="1.2" fill="#fff" opacity="0.7"/>';
+  s += '<circle cx="64" cy="35" r="1.2" fill="#fff" opacity="0.7"/>';
+  // Nose
+  s += '<ellipse cx="50" cy="40" rx="3.5" ry="2.5" fill="none" stroke="#9a6040" stroke-width="2" opacity="0.6"/>';
   if (def.ac === 'shades') {
     s += '<rect x="28" y="29" width="18" height="12" rx="5" fill="#111" stroke="#444" stroke-width="1.5"/>';
     s += '<rect x="54" y="29" width="18" height="12" rx="5" fill="#111" stroke="#444" stroke-width="1.5"/>';
