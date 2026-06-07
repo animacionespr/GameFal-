@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Restock · Pokémon TCG</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100%;background:#0f0f1a;color:#fff;font-family:'Courier New',monospace;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+
+/* ── Header ── */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg,#cc0000 0%,#990000 100%);
+  padding:10px 14px 10px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 3px 16px rgba(0,0,0,0.6);
+}
+.back-btn{
+  background:rgba(0,0,0,0.35);border:2px solid rgba(255,255,255,0.35);
+  color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:900;
+  cursor:pointer;font-family:inherit;flex-shrink:0;text-decoration:none;
+  display:flex;align-items:center;gap:4px;white-space:nowrap;
+}
+.header-center{flex:1;text-align:center}
+.header-title{font-size:17px;font-weight:900;color:#ffcb05;text-shadow:1px 1px 0 #000;letter-spacing:1px}
+.header-sub{font-size:9px;color:rgba(255,203,5,0.65);letter-spacing:2px;margin-top:1px}
+
+/* ── Pokéball icon ── */
+.pball-icon{width:32px;height:32px;flex-shrink:0}
+
+/* ── Date strip ── */
+.date-strip{
+  background:#1a1a2e;border-bottom:1px solid #2a2a40;
+  padding:6px 16px;font-size:10px;color:rgba(255,255,255,0.4);
+  text-align:center;letter-spacing:0.5px;
+}
+
+/* ── Filter bar ── */
+.filters{
+  display:flex;overflow-x:auto;gap:6px;padding:10px 12px;
+  scrollbar-width:none;background:#12122a;
+  border-bottom:2px solid #1e1e38;
+  position:sticky;top:58px;z-index:99;
+}
+.filters::-webkit-scrollbar{display:none}
+.filter-btn{
+  flex-shrink:0;background:#1e1e38;border:2px solid #2e2e50;
+  color:rgba(255,255,255,0.45);
+  border-radius:20px;padding:5px 13px;font-size:11px;font-weight:900;
+  cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s;
+}
+.filter-btn .cnt{
+  display:inline-block;background:rgba(255,255,255,0.15);
+  border-radius:10px;padding:0 6px;font-size:9px;margin-left:4px;
+}
+.filter-btn[data-f="todos"].active   {border-color:#ffcb05;color:#ffcb05;background:#1e1c00}
+.filter-btn[data-f="proximo"].active {border-color:#a855f7;color:#a855f7;background:#1a0f2a}
+.filter-btn[data-f="nuevo"].active   {border-color:#22c55e;color:#22c55e;background:#0a1e12}
+.filter-btn[data-f="reciente"].active{border-color:#3b82f6;color:#3b82f6;background:#0a1222}
+.filter-btn[data-f="clasico"].active {border-color:#78716c;color:#a8a29e;background:#161412}
+
+/* ── Content area ── */
+.content{padding:10px 10px 90px}
+
+/* ── Update note ── */
+.update-note{
+  background:#1e1c00;border:1px solid #ffcb0533;border-radius:8px;
+  padding:8px 12px;margin:0 0 14px;font-size:10px;color:rgba(255,203,5,0.6);
+  line-height:1.5;display:flex;align-items:flex-start;gap:6px;
+}
+.update-note b{color:#ffcb05}
+
+/* ── Section header ── */
+.sec-hdr{
+  display:flex;align-items:center;gap:8px;margin:14px 0 8px;
+}
+.sec-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
+.sec-label{font-size:12px;font-weight:900;letter-spacing:2px}
+.sec-count{font-size:10px;color:rgba(255,255,255,0.3);margin-left:auto}
+
+/* ── Cards grid ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ── Card ── */
+.card{
+  background:#16162a;border-radius:10px;overflow:hidden;
+  border:2px solid #2a2a42;transition:transform .1s;
+}
+.card:active{transform:scale(.96)}
+.card-stripe{height:5px}
+.card-code{font-size:8px;font-weight:900;color:rgba(255,255,255,0.28);padding:6px 8px 0;letter-spacing:1px}
+.card-name{font-size:12px;font-weight:900;color:#fff;padding:2px 8px 3px;line-height:1.25}
+.card-date{font-size:9px;color:rgba(255,255,255,0.38);padding:0 8px 5px}
+.card-badge{
+  display:inline-block;border-radius:5px;padding:2px 7px;
+  font-size:9px;font-weight:900;letter-spacing:0.5px;margin:0 8px 5px;
+}
+.card-countdown{
+  display:inline-block;background:rgba(168,85,247,0.18);border:1px solid #a855f755;
+  border-radius:5px;padding:2px 7px;font-size:8px;color:#c084fc;
+  margin:0 8px 6px;
+}
+.card-prods{padding:0 6px 8px;display:flex;flex-wrap:wrap;gap:3px}
+.prod-tag{
+  background:#202040;border:1px solid #2e2e50;
+  border-radius:4px;padding:2px 5px;font-size:8px;color:rgba(255,255,255,0.5);
+}
+.card-placeholder{
+  margin:0 8px 6px;font-size:8px;color:rgba(255,200,0,0.4);
+  font-style:italic;
+}
+
+/* ── Empty state ── */
+.empty-state{
+  text-align:center;padding:50px 20px;
+  color:rgba(255,255,255,0.25);font-size:13px;line-height:1.8;
+}
+
+/* ── Stats bar ── */
+.stats-bar{
+  background:#12122a;border-top:2px solid #1e1e38;
+  position:fixed;bottom:0;left:0;right:0;padding:8px 16px;
+  display:flex;justify-content:space-around;z-index:100;
+}
+.stat-item{text-align:center}
+.stat-num{font-size:18px;font-weight:900;line-height:1}
+.stat-lbl{font-size:8px;color:rgba(255,255,255,0.35);margin-top:2px;letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="pokemon.html" class="back-btn">← Pokémon</a>
+  <div class="header-center">
+    <div class="header-title">RESTOCK TCG</div>
+    <div class="header-sub">POKÉMON TRADING CARD GAME</div>
+  </div>
+  <svg class="pball-icon" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="30" r="27" fill="#fff" stroke="#111" stroke-width="3.5"/>
+    <path d="M3 30 Q3 3 30 3 Q57 3 57 30Z" fill="#cc0000"/>
+    <rect x="3" y="26.5" width="54" height="7" fill="#111"/>
+    <circle cx="30" cy="30" r="9" fill="#f0f0f0" stroke="#111" stroke-width="3.5"/>
+    <circle cx="30" cy="30" r="4.5" fill="#fff"/>
+    <circle cx="26" cy="26" r="2" fill="rgba(255,255,255,0.6)"/>
+  </svg>
+</div>
+
+<div class="date-strip" id="date-strip"></div>
+<div class="filters" id="filters"></div>
+<div class="content" id="content"></div>
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<script>
+'use strict';
+
+// ────────────────────────────────────────────────────────────────
+//  DATOS DE SETS
+//  Actualiza esta lista cuando salgan nuevos sets.
+//  release: 'YYYY-MM-DD'  (fecha de lanzamiento en inglés/EEUU)
+//  placeholder: true  →  añade aviso de "confirmar datos"
+// ────────────────────────────────────────────────────────────────
+var SETS = [
+
+  // ── Scarlet & Violet ── (2023)
+  { id:'sv1',   name:'Scarlet & Violet',      code:'SV1',    release:'2023-03-31', color:'#cc2200',
+    products:['Booster','ETB','Build&Battle','Blisters'] },
+  { id:'sv2',   name:'Paldea Evolved',         code:'SV2',    release:'2023-06-09', color:'#0055cc',
+    products:['Booster','ETB','Blisters'] },
+  { id:'sv3',   name:'Obsidian Flames',        code:'SV3',    release:'2023-08-11', color:'#ff5500',
+    products:['Booster','ETB','Blisters'] },
+  { id:'sv35',  name:'151',                    code:'SV3.5',  release:'2023-09-22', color:'#ffaa00',
+    products:['Booster','ETB','UPC','Blisters'] },
+  { id:'sv4',   name:'Paradox Rift',           code:'SV4',    release:'2023-11-03', color:'#7722cc',
+    products:['Booster','ETB','Blisters'] },
+
+  // ── Scarlet & Violet ── (2024)
+  { id:'sv45',  name:'Paldean Fates',          code:'SV4.5',  release:'2024-01-26', color:'#dd3388',
+    products:['Booster','ETB','Blisters'] },
+  { id:'sv5',   name:'Temporal Forces',        code:'SV5',    release:'2024-03-22', color:'#229933',
+    products:['Booster','ETB','Build&Battle','Blisters'] },
+  { id:'sv6',   name:'Twilight Masquerade',    code:'SV6',    release:'2024-05-24', color:'#cc9900',
+    products:['Booster','ETB','Blisters'] },
+  { id:'sv65',  name:'Shrouded Fissure',       code:'SV6.5',  release:'2024-08-02', color:'#884400',
+    products:['Booster','ETB','Blisters'] },
+  { id:'sv7',   name:'Stellar Crown',          code:'SV7',    release:'2024-09-13', color:'#0099cc',
+    products:['Booster','ETB','Build&Battle','Blisters'] },
+  { id:'sv8',   name:'Surging Sparks',         code:'SV8',    release:'2024-11-08', color:'#ddcc00',
+    products:['Booster','ETB','UPC','Blisters'] },
+
+  // ── Scarlet & Violet ── (2025)
+  { id:'sv85',  name:'Prismatic Evolutions',   code:'SV8.5',  release:'2025-01-17', color:'#cc00bb',
+    products:['Booster','ETB','UPC','Blisters'] },
+  { id:'sv9',   name:'Journey Together',        code:'SV9',    release:'2025-03-28', color:'#339966',
+    products:['Booster','ETB','Blisters'] },
+  { id:'sv95',  name:'Destined Rivals',         code:'SV9.5',  release:'2025-05-23', color:'#cc3300',
+    products:['Booster','ETB','Build&Battle','Blisters'] },
+
+  // ── Actualiza desde aquí con los sets más recientes ────────────
+  // Reemplaza nombre, código, fecha y productos con los datos reales.
+
+  { id:'sv10',  name:'⚠ Set SV10',             code:'SV10',   release:'2025-08-08', color:'#0077aa',
+    products:['Booster','ETB'], placeholder:true },
+  { id:'sv105', name:'⚠ Set SV10.5',           code:'SV10.5', release:'2025-09-26', color:'#aa6600',
+    products:['Booster','ETB'], placeholder:true },
+  { id:'sv11',  name:'⚠ Set SV11',             code:'SV11',   release:'2025-11-07', color:'#447700',
+    products:['Booster','ETB'], placeholder:true },
+  { id:'sv115', name:'⚠ Set SV11.5',           code:'SV11.5', release:'2026-01-23', color:'#880088',
+    products:['Booster','ETB'], placeholder:true },
+  { id:'sv12',  name:'⚠ Set SV12',             code:'SV12',   release:'2026-03-27', color:'#005599',
+    products:['Booster','ETB'], placeholder:true },
+  { id:'sv125', name:'⚠ Set SV12.5',           code:'SV12.5', release:'2026-05-22', color:'#994400',
+    products:['Booster','ETB'], placeholder:true },
+  { id:'sv13',  name:'⚠ Set SV13',             code:'SV13',   release:'2026-08-07', color:'#006644',
+    products:['Booster','ETB'], placeholder:true },
+
+];
+
+// ────────────────────────────────────────────────────────────────
+//  ALGORITMO DE CATEGORIZACIÓN
+//  Basado en días desde el lanzamiento (se calcula hoy automático)
+// ────────────────────────────────────────────────────────────────
+var CATS = {
+  proximo:  { key:'proximo',  label:'Próximo',  labelUp:'PRÓXIMO',  color:'#a855f7', bg:'rgba(168,85,247,0.18)',  dot:'#a855f7' },
+  nuevo:    { key:'nuevo',    label:'Nuevo',    labelUp:'NUEVO',    color:'#22c55e', bg:'rgba(34,197,94,0.18)',   dot:'#22c55e' },
+  reciente: { key:'reciente', label:'Reciente', labelUp:'RECIENTE', color:'#3b82f6', bg:'rgba(59,130,246,0.18)', dot:'#3b82f6' },
+  clasico:  { key:'clasico',  label:'Clásico',  labelUp:'CLÁSICO',  color:'#78716c', bg:'rgba(120,113,108,0.15)',dot:'#78716c' },
+};
+
+function today0() {
+  var d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function categorize(releaseStr) {
+  var release = new Date(releaseStr + 'T12:00:00');
+  var days = (today0() - release) / 86400000;
+  if (days < 0)   return 'proximo';  // lanzamiento futuro
+  if (days < 90)  return 'nuevo';    // últimos 3 meses
+  if (days < 365) return 'reciente'; // último año
+  return 'clasico';                  // más de 1 año
+}
+
+function daysUntil(releaseStr) {
+  var release = new Date(releaseStr + 'T12:00:00');
+  return Math.ceil((release - today0()) / 86400000);
+}
+
+function daysAgo(releaseStr) {
+  var release = new Date(releaseStr + 'T12:00:00');
+  return Math.floor((today0() - release) / 86400000);
+}
+
+function fmtDate(releaseStr) {
+  var d = new Date(releaseStr + 'T12:00:00');
+  var M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return M[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+// ── Classify all sets ────────────────────────────────────────
+var byCat = { proximo:[], nuevo:[], reciente:[], clasico:[] };
+SETS.forEach(function(s) {
+  s.cat = categorize(s.release);
+  byCat[s.cat].push(s);
+});
+byCat.proximo.sort(function(a,b){ return new Date(a.release)-new Date(b.release); });
+['nuevo','reciente','clasico'].forEach(function(k){
+  byCat[k].sort(function(a,b){ return new Date(b.release)-new Date(a.release); });
+});
+
+// ── State ────────────────────────────────────────────────────
+var activeFilter = 'todos';
+
+// ── Date strip ───────────────────────────────────────────────
+var now = new Date();
+document.getElementById('date-strip').textContent =
+  'Actualizado: ' + now.toLocaleDateString('es-PR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// ── Stats bar ────────────────────────────────────────────────
+function renderStats() {
+  var el = document.getElementById('stats-bar');
+  var stats = [
+    { num: byCat.proximo.length,  lbl:'Próximos',  color:'#a855f7' },
+    { num: byCat.nuevo.length,    lbl:'Nuevos',    color:'#22c55e' },
+    { num: byCat.reciente.length, lbl:'Recientes', color:'#3b82f6' },
+    { num: byCat.clasico.length,  lbl:'Clásicos',  color:'#78716c' },
+  ];
+  el.innerHTML = stats.map(function(s){
+    return '<div class="stat-item">'+
+      '<div class="stat-num" style="color:'+s.color+'">'+s.num+'</div>'+
+      '<div class="stat-lbl">'+s.lbl+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── Filters ──────────────────────────────────────────────────
+var FILTER_DEFS = [
+  { f:'todos',    label:'Todos'    },
+  { f:'proximo',  label:'Próximo'  },
+  { f:'nuevo',    label:'Nuevo'    },
+  { f:'reciente', label:'Reciente' },
+  { f:'clasico',  label:'Clásico'  },
+];
+
+function countFor(f) {
+  if (f==='todos') return SETS.length;
+  return byCat[f].length;
+}
+
+function renderFilters() {
+  var el = document.getElementById('filters');
+  el.innerHTML = FILTER_DEFS.map(function(fd){
+    var cnt = countFor(fd.f);
+    return '<button class="filter-btn'+(fd.f===activeFilter?' active':'')+'" data-f="'+fd.f+'">'+
+      fd.label+'<span class="cnt">'+cnt+'</span></button>';
+  }).join('');
+  el.querySelectorAll('.filter-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      activeFilter = this.dataset.f;
+      renderFilters();
+      renderContent();
+    });
+  });
+}
+
+// ── Card ─────────────────────────────────────────────────────
+function makeCard(s) {
+  var cat = CATS[s.cat];
+  var prods = s.products.map(function(p){
+    return '<span class="prod-tag">'+p+'</span>';
+  }).join('');
+
+  var extra = '';
+  if (s.cat === 'proximo') {
+    extra = '<div class="card-countdown">⏳ '+daysUntil(s.release)+' días</div>';
+  }
+  if (s.placeholder) {
+    extra += '<div class="card-placeholder">⚠ Confirmar datos</div>';
+  }
+
+  return '<div class="card" style="border-color:'+s.color+'44">'+
+    '<div class="card-stripe" style="background:'+s.color+'"></div>'+
+    '<div class="card-code">'+s.code+'</div>'+
+    '<div class="card-name">'+s.name+'</div>'+
+    '<div class="card-date">'+fmtDate(s.release)+'</div>'+
+    '<span class="card-badge" style="background:'+cat.bg+';color:'+cat.color+'">'+cat.label+'</span>'+
+    extra+
+    '<div class="card-prods">'+prods+'</div>'+
+  '</div>';
+}
+
+// ── Content ──────────────────────────────────────────────────
+var CAT_ORDER = ['proximo','nuevo','reciente','clasico'];
+
+function renderContent() {
+  var el = document.getElementById('content');
+  var hasAny = false;
+
+  var hasPlaceholders = SETS.some(function(s){ return s.placeholder && s.cat !== 'clasico'; });
+  var noteHtml = hasPlaceholders
+    ? '<div class="update-note">📋 <div><b>Actualizar datos:</b> Los sets marcados con ⚠ usan fechas estimadas. '+
+      'Edita <code>restock.html</code> → array SETS para añadir nombres y fechas reales.</div></div>'
+    : '';
+
+  var html = noteHtml;
+
+  CAT_ORDER.forEach(function(key){
+    var sets = (activeFilter === 'todos' || activeFilter === key) ? byCat[key] : [];
+    if (!sets.length) return;
+    hasAny = true;
+    var cat = CATS[key];
+    html +=
+      '<div class="sec-hdr">'+
+        '<div class="sec-dot" style="background:'+cat.dot+';color:'+cat.dot+'"></div>'+
+        '<div class="sec-label" style="color:'+cat.color+'">'+cat.labelUp+'</div>'+
+        '<div class="sec-count">'+sets.length+' set'+(sets.length===1?'':'s')+'</div>'+
+      '</div>'+
+      '<div class="grid">'+sets.map(makeCard).join('')+'</div>';
+  });
+
+  if (!hasAny) {
+    html += '<div class="empty-state">No hay sets en esta categoría.<br><br>🎴</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+renderStats();
+renderFilters();
+renderContent();
+</script>
+</body>
+</html>
