@@ -9,10 +9,8 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{
-  width:100%;min-height:100%;
-  background:#0c0c1a;color:#fff;
-  font-family:'Courier New',monospace;
-  overflow-x:hidden;
+  width:100%;min-height:100%;background:#0c0c1a;color:#fff;
+  font-family:'Courier New',monospace;overflow-x:hidden;
   -webkit-tap-highlight-color:transparent;
 }
 
@@ -20,7 +18,7 @@ html,body{
 .hdr{
   position:sticky;top:0;z-index:200;
   background:linear-gradient(135deg,#cc0000,#880000);
-  padding:12px 16px 10px;
+  padding:11px 14px 9px;
   display:flex;align-items:center;gap:10px;
   box-shadow:0 4px 20px rgba(0,0,0,0.7);
 }
@@ -35,119 +33,170 @@ html,body{
 .hdr-date{font-size:9px;color:rgba(255,203,5,0.55);letter-spacing:1px;margin-top:3px}
 .hdr-ball{width:34px;height:34px;flex-shrink:0}
 
-/* ── CONTENT ── */
-.page{padding:14px 12px 24px}
+/* ── PAGE ── */
+.page{padding:14px 11px 28px}
 
-/* ── TRENDING SECTION ── */
-.sec-title{
-  font-size:11px;font-weight:900;letter-spacing:2px;color:rgba(255,255,255,0.45);
-  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+/* ── SECTION TITLE ── */
+.sec-hdr{
+  font-size:10px;font-weight:900;letter-spacing:2px;
+  color:rgba(255,255,255,0.4);margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
 }
-.sec-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.sec-hdr::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.07)}
 
+/* ── TRENDING ROW ── */
 .trend-row{
-  display:flex;overflow-x:auto;gap:10px;padding-bottom:6px;
+  display:flex;overflow-x:auto;gap:10px;padding-bottom:4px;
   scrollbar-width:none;margin-bottom:22px;
 }
 .trend-row::-webkit-scrollbar{display:none}
 
-/* Trending card (compact, horizontal scroll) */
 .tcard{
-  flex-shrink:0;width:148px;border-radius:12px;overflow:hidden;
-  border:2px solid rgba(255,255,255,0.08);
-  background:#14142a;cursor:default;transition:transform .1s;
+  flex-shrink:0;width:140px;border-radius:11px;overflow:hidden;
+  border:2px solid rgba(255,255,255,0.07);background:#14142a;
 }
-.tcard:active{transform:scale(.95)}
-.tcard-hdr{
-  height:78px;position:relative;overflow:hidden;
-  display:flex;flex-direction:column;justify-content:flex-end;padding:8px 9px;
+.tcard-img-wrap{
+  height:70px;position:relative;overflow:hidden;
+  background:#0c0c22;
+  display:flex;align-items:center;justify-content:center;
 }
-.tcard-wm{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-size:44px;font-weight:900;color:rgba(255,255,255,0.12);
-  white-space:nowrap;pointer-events:none;letter-spacing:-2px;
+.tcard-img{width:100%;height:100%;object-fit:contain;padding:6px}
+.tcard-fallback{
+  display:none;width:100%;height:100%;
+  align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:rgba(255,255,255,0.75);
+  letter-spacing:-1px;
 }
-.tcard-code{font-size:8px;font-weight:900;color:rgba(255,255,255,0.5);letter-spacing:1px}
-.tcard-name{font-size:12px;font-weight:900;color:#fff;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,0.6)}
-.tcard-body{padding:8px 9px 9px}
-.hot-badge{
-  display:inline-flex;align-items:center;gap:3px;
-  background:rgba(255,80,0,0.25);border:1px solid rgba(255,80,0,0.4);
-  color:#ff9955;border-radius:5px;padding:2px 7px;font-size:8px;font-weight:900;
-  letter-spacing:0.5px;margin-bottom:6px;
+.tcard-hot{
+  position:absolute;top:5px;left:5px;
+  background:rgba(255,80,0,0.85);border-radius:5px;
+  padding:2px 7px;font-size:7px;font-weight:900;color:#fff;letter-spacing:0.5px;
 }
-.tcard-avail{font-size:9px;color:rgba(255,255,255,0.35);line-height:1.7}
+.tcard-body{padding:7px 9px 9px}
+.tcard-name{font-size:11px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:4px}
+.tcard-avail{font-size:8px;color:rgba(255,255,255,0.35);line-height:1.6}
 
-/* ── MAIN SET LIST ── */
-.sets-list{display:flex;flex-direction:column;gap:10px}
+/* ── FILTER CHIPS ── */
+.filter-row{
+  display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;
+  scrollbar-width:none;margin-bottom:14px;
+}
+.filter-row::-webkit-scrollbar{display:none}
+.fchip{
+  flex-shrink:0;padding:5px 13px;border-radius:20px;font-size:10px;font-weight:900;
+  font-family:inherit;cursor:pointer;border:2px solid transparent;
+  background:#1a1a30;color:rgba(255,255,255,0.4);transition:all .15s;
+  white-space:nowrap;
+}
+.fchip .cnt{
+  background:rgba(255,255,255,0.12);border-radius:8px;
+  padding:0 5px;font-size:8px;margin-left:4px;
+}
+.fchip.active[data-f="todos"]     {background:#1e1e00;border-color:#ffcb05;color:#ffcb05}
+.fchip.active[data-f="high"]      {background:#052010;border-color:#22c55e;color:#22c55e}
+.fchip.active[data-f="low"]       {background:#1a1000;border-color:#f59e0b;color:#f59e0b}
+.fchip.active[data-f="incoming"]  {background:#050e20;border-color:#3b82f6;color:#3b82f6}
+.fchip.active[data-f="out"]       {background:#160606;border-color:#ef4444;color:#ef4444}
 
-/* Main card */
-.scard{
-  border-radius:12px;overflow:hidden;
+/* ── PRODUCT GRID ── */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+/* ── PRODUCT CARD ── */
+.pcard{
+  border-radius:11px;overflow:hidden;
   border:2px solid rgba(255,255,255,0.06);
   background:#13132a;transition:transform .1s;
 }
-.scard:active{transform:scale(.99)}
+.pcard:active{transform:scale(.96)}
 
-.scard-hdr{
-  height:82px;position:relative;overflow:hidden;
-  display:flex;flex-direction:column;justify-content:flex-end;
-  padding:10px 14px;
+/* Top color strip */
+.pcard-strip{height:4px}
+
+/* Image area */
+.pcard-img-wrap{
+  height:110px;position:relative;overflow:hidden;
+  background:#0c0c1e;
+  display:flex;align-items:center;justify-content:center;
 }
-.scard-wm{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-size:58px;font-weight:900;color:rgba(255,255,255,0.10);
-  white-space:nowrap;pointer-events:none;letter-spacing:-3px;
+.pcard-img{
+  width:100%;height:100%;object-fit:contain;padding:10px;
+  transition:filter .3s;
 }
-.scard-top-row{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  gap:8px;
-}
-.scard-code{font-size:9px;font-weight:900;color:rgba(255,255,255,0.5);letter-spacing:1px;flex-shrink:0}
-.scard-badge{
-  border-radius:5px;padding:2px 8px;font-size:8px;font-weight:900;
-  letter-spacing:0.5px;flex-shrink:0;margin-top:1px;
-}
-.scard-name{
-  font-size:17px;font-weight:900;color:#fff;line-height:1.15;
-  text-shadow:0 1px 4px rgba(0,0,0,0.5);
+.pcard-fallback{
+  display:none;width:100%;height:100%;
+  align-items:center;justify-content:center;
+  font-size:22px;font-weight:900;letter-spacing:-1px;
+  color:rgba(255,255,255,0.8);
 }
 
-/* Product grid */
-.scard-body{padding:10px 12px 12px}
-.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.prod-item{
-  display:flex;align-items:center;gap:5px;
-  background:rgba(255,255,255,0.04);border-radius:6px;
-  padding:5px 8px;
+/* Status overlay (top-left of image) */
+.pcard-status{
+  position:absolute;top:7px;left:7px;
+  border-radius:5px;padding:3px 8px;
+  font-size:8px;font-weight:900;letter-spacing:0.5px;
+  text-transform:uppercase;white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,0.5);
 }
-.prod-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.prod-label{font-size:9px;font-weight:900;color:rgba(255,255,255,0.7);flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.prod-status{font-size:8px;color:rgba(255,255,255,0.35);white-space:nowrap;flex-shrink:0}
+.st-high    {background:#16a34a;color:#fff}
+.st-low     {background:#b45309;color:#fff}
+.st-incoming{background:#1d4ed8;color:#fff}
+.st-out     {background:rgba(150,20,20,0.9);color:rgba(255,255,255,0.8)}
 
-/* Countdown (for upcoming sets) */
-.scard-countdown{
-  margin:0 12px 10px;
-  background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.3);
-  border-radius:8px;padding:7px 10px;
-  font-size:11px;color:#c084fc;font-weight:900;letter-spacing:0.5px;
-  display:flex;align-items:center;gap:6px;
+/* Grayscale for out of stock */
+.pcard-out .pcard-img    {filter:grayscale(1) opacity(0.3)}
+.pcard-out .pcard-fallback{filter:grayscale(1) opacity(0.3)}
+.pcard-out              {border-color:rgba(255,50,50,0.1)}
+
+/* Card body */
+.pcard-body{padding:7px 9px 9px}
+.pcard-type{
+  display:inline-block;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
+  border-radius:4px;padding:2px 6px;
+  font-size:7px;font-weight:900;color:rgba(255,255,255,0.45);
+  letter-spacing:1px;margin-bottom:4px;
 }
+.pcard-name{
+  font-size:11px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:2px;
+}
+.pcard-product{font-size:9px;color:rgba(255,255,255,0.3);line-height:1.3}
+.pcard-out .pcard-name{color:rgba(255,255,255,0.4)}
 
-/* Release date line */
-.scard-date{font-size:10px;color:rgba(255,255,255,0.28);margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.05)}
+/* ── SECTION DIVIDER ── */
+.sdiv{
+  display:flex;align-items:center;gap:8px;
+  margin:20px 0 10px;font-size:10px;font-weight:900;
+  letter-spacing:2px;
+}
+.sdiv-line{flex:1;height:1px;background:rgba(255,255,255,0.07)}
 
-/* Stock dot colors */
-.dot-high{background:#22c55e}
-.dot-low{background:#f59e0b}
-.dot-out{background:#ef4444}
-.dot-inc{background:#3b82f6}
-
-/* Category badge colors */
-.badge-proximo{background:rgba(168,85,247,0.2);color:#c084fc}
-.badge-nuevo{background:rgba(34,197,94,0.2);color:#4ade80}
-.badge-reciente{background:rgba(59,130,246,0.2);color:#60a5fa}
-.badge-clasico{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.35)}
+/* ── UPCOMING card (full width) ── */
+.ucard{
+  border-radius:11px;overflow:hidden;margin-bottom:10px;
+  border:2px solid rgba(168,85,247,0.3);background:#18132a;
+}
+.ucard-inner{
+  padding:14px;display:flex;align-items:center;gap:12px;
+}
+.ucard-img-wrap{
+  width:80px;height:70px;flex-shrink:0;overflow:hidden;border-radius:8px;
+  background:#0c0a1e;display:flex;align-items:center;justify-content:center;
+}
+.ucard-img{width:100%;height:100%;object-fit:contain;padding:6px}
+.ucard-fallback{
+  display:none;width:100%;height:100%;
+  align-items:center;justify-content:center;
+  font-size:16px;font-weight:900;color:rgba(255,255,255,0.7);
+}
+.ucard-info{flex:1;min-width:0}
+.ucard-badge{
+  display:inline-block;background:rgba(168,85,247,0.25);border:1px solid #a855f755;
+  color:#c084fc;border-radius:5px;padding:2px 8px;font-size:8px;font-weight:900;
+  letter-spacing:0.5px;margin-bottom:5px;
+}
+.ucard-name{font-size:15px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:3px}
+.ucard-code{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:5px}
+.ucard-countdown{font-size:12px;color:#c084fc;font-weight:900}
 </style>
 </head>
 <body>
@@ -164,107 +213,97 @@ html,body{
     <rect x="3" y="26.5" width="54" height="7" fill="#111"/>
     <circle cx="30" cy="30" r="9" fill="#eee" stroke="#111" stroke-width="3.5"/>
     <circle cx="30" cy="30" r="4.5" fill="#fff"/>
-    <circle cx="25.5" cy="25.5" r="2.2" fill="rgba(255,255,255,0.55)"/>
+    <circle cx="25.5" cy="25.5" r="2" fill="rgba(255,255,255,0.5)"/>
   </svg>
 </div>
 
 <div class="page">
-  <div class="sec-title" id="trend-title"></div>
+  <div id="upcoming-section"></div>
+
+  <div class="sec-hdr">🔥 TRENDING</div>
   <div class="trend-row" id="trend-row"></div>
 
-  <div class="sec-title" id="sets-title"></div>
-  <div class="sets-list" id="sets-list"></div>
+  <div class="sec-hdr">PRODUCTOS</div>
+  <div class="filter-row" id="filter-row"></div>
+  <div class="pgrid" id="pgrid"></div>
 </div>
 
 <script>
 'use strict';
 
 // ────────────────────────────────────────────────────────────────────
-//  SETS — Edita release, stock y hot para reflejar tu inventario real.
+//  PRODUCTOS — edita stock y hot para reflejar tu inventario.
 //
 //  stock por producto:
-//    'high'     → ✅ Disponible
-//    'low'      → ⚠ Pocas
-//    'out'      → ❌ Agotado
-//    'incoming' → 🚚 En camino
-//    null       → producto no existe para este set
+//    'high'     → DISPONIBLE   (verde)
+//    'low'      → POCAS        (ámbar)
+//    'incoming' → EN CAMINO    (azul)
+//    'out'      → AGOTADO      (rojo + gris)
+//    null       → no existe este producto para el set
 //
-//  hot: true  → aparece en la sección Trending
+//  hot: true  → aparece en Trending
+//  imgId      → ID del set en pokemontcg.io (para cargar la imagen automática)
 // ────────────────────────────────────────────────────────────────────
 var SETS = [
-  { id:'sv95',  name:'Destined Rivals',      code:'SV9.5', release:'2025-05-23', color:'#cc3300', hot:true,
-    stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high' } },
-
-  { id:'sv9',   name:'Journey Together',     code:'SV9',   release:'2025-03-28', color:'#228855', hot:false,
-    stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high' } },
-
-  { id:'sv85',  name:'Prismatic Evolutions', code:'SV8.5', release:'2025-01-17', color:'#bb00bb', hot:true,
-    stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'  } },
-
-  { id:'sv8',   name:'Surging Sparks',       code:'SV8',   release:'2024-11-08', color:'#ccaa00', hot:true,
-    stock:{ booster:'high', etb:'low',   upc:'out', blisters:'high',  bundle:'high' } },
-
-  { id:'sv7',   name:'Stellar Crown',        code:'SV7',   release:'2024-09-13', color:'#0088cc', hot:false,
-    stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high' } },
-
-  { id:'sv65',  name:'Shrouded Fissure',     code:'SV6.5', release:'2024-08-02', color:'#774400', hot:false,
-    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'  } },
-
-  { id:'sv6',   name:'Twilight Masquerade',  code:'SV6',   release:'2024-05-24', color:'#aa8800', hot:false,
-    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'  } },
-
-  { id:'sv5',   name:'Temporal Forces',      code:'SV5',   release:'2024-03-22', color:'#228833', hot:false,
-    stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high' } },
-
-  { id:'sv45',  name:'Paldean Fates',        code:'SV4.5', release:'2024-01-26', color:'#cc2277', hot:true,
-    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'  } },
-
-  { id:'sv4',   name:'Paradox Rift',         code:'SV4',   release:'2023-11-03', color:'#6611bb', hot:false,
-    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'  } },
-
-  { id:'sv35',  name:'151',                  code:'SV3.5', release:'2023-09-22', color:'#ee9900', hot:true,
-    stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'  } },
-
-  { id:'sv3',   name:'Obsidian Flames',      code:'SV3',   release:'2023-08-11', color:'#ee4400', hot:false,
-    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'  } },
-
-  { id:'sv2',   name:'Paldea Evolved',       code:'SV2',   release:'2023-06-09', color:'#0044bb', hot:false,
-    stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'  } },
-
-  { id:'sv1',   name:'Scarlet & Violet',     code:'SV1',   release:'2023-03-31', color:'#bb1100', hot:false,
-    stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'  } },
+  { id:'sv95',  name:'Destined Rivals',      code:'SV9.5', imgId:'sv9pt5',  release:'2025-05-23', color:'#cc3300', hot:true,
+    stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high'     }},
+  { id:'sv9',   name:'Journey Together',     code:'SV9',   imgId:'sv9',     release:'2025-03-28', color:'#228855', hot:false,
+    stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high'     }},
+  { id:'sv85',  name:'Prismatic Evolutions', code:'SV8.5', imgId:'sv8pt5',  release:'2025-01-17', color:'#bb00bb', hot:true,
+    stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'      }},
+  { id:'sv8',   name:'Surging Sparks',       code:'SV8',   imgId:'sv8',     release:'2024-11-08', color:'#ccaa00', hot:true,
+    stock:{ booster:'high', etb:'low',   upc:'out', blisters:'high',  bundle:'high'     }},
+  { id:'sv7',   name:'Stellar Crown',        code:'SV7',   imgId:'sv7',     release:'2024-09-13', color:'#0088cc', hot:false,
+    stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high'     }},
+  { id:'sv65',  name:'Shrouded Fissure',     code:'SV6.5', imgId:'sv6pt5',  release:'2024-08-02', color:'#774400', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'      }},
+  { id:'sv6',   name:'Twilight Masquerade',  code:'SV6',   imgId:'sv6',     release:'2024-05-24', color:'#aa8800', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'      }},
+  { id:'sv5',   name:'Temporal Forces',      code:'SV5',   imgId:'sv5',     release:'2024-03-22', color:'#228833', hot:false,
+    stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high'     }},
+  { id:'sv45',  name:'Paldean Fates',        code:'SV4.5', imgId:'sv4pt5',  release:'2024-01-26', color:'#cc2277', hot:true,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'      }},
+  { id:'sv4',   name:'Paradox Rift',         code:'SV4',   imgId:'sv4',     release:'2023-11-03', color:'#6611bb', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'      }},
+  { id:'sv35',  name:'151',                  code:'SV3.5', imgId:'sv3pt5',  release:'2023-09-22', color:'#ee9900', hot:true,
+    stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'      }},
+  { id:'sv3',   name:'Obsidian Flames',      code:'SV3',   imgId:'sv3',     release:'2023-08-11', color:'#ee4400', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'      }},
+  { id:'sv2',   name:'Paldea Evolved',       code:'SV2',   imgId:'sv2',     release:'2023-06-09', color:'#0044bb', hot:false,
+    stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'      }},
+  { id:'sv1',   name:'Scarlet & Violet',     code:'SV1',   imgId:'sv1',     release:'2023-03-31', color:'#bb1100', hot:false,
+    stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'      }},
 ];
 
-// ── Agregar nuevos sets aquí arriba (al inicio del array) ──────────
-
-
 // ────────────────────────────────────────────────────────────────────
-//  ALGORITMO DE FECHA
+//  CONSTANTES
 // ────────────────────────────────────────────────────────────────────
-var PROD_LABELS = {
-  booster: 'Booster', etb: 'ETB', upc: 'UPC', blisters: 'Blisters', bundle: 'Bundle'
-};
+var PROD_SHORT  = { booster:'BOOSTER', etb:'ETB', upc:'UPC', blisters:'BLISTERS', bundle:'BUNDLE' };
+var PROD_LONG   = { booster:'Booster Box', etb:'Elite Trainer Box', upc:'Ultra Premium', blisters:'Blisters 3-Pack', bundle:'Booster Bundle' };
+var IMG_BASE    = 'https://images.pokemontcg.io/';
 
 var STOCK_META = {
-  high:     { cls:'dot-high', label:'Disponible' },
-  low:      { cls:'dot-low',  label:'Pocas' },
-  out:      { cls:'dot-out',  label:'Agotado' },
-  incoming: { cls:'dot-inc',  label:'En camino' },
+  high:     { label:'DISPONIBLE', cls:'st-high',     priority:0 },
+  low:      { label:'POCAS',      cls:'st-low',      priority:1 },
+  incoming: { label:'EN CAMINO',  cls:'st-incoming', priority:2 },
+  out:      { label:'AGOTADO',    cls:'st-out',      priority:3 },
 };
 
-var CAT_META = {
-  proximo:  { label:'Próximo',  badgeCls:'badge-proximo' },
-  nuevo:    { label:'Nuevo',    badgeCls:'badge-nuevo' },
-  reciente: { label:'Reciente', badgeCls:'badge-reciente' },
-  clasico:  { label:'Clásico',  badgeCls:'badge-clasico' },
-};
+var FILTER_DEFS = [
+  { f:'todos',    label:'Todos'     },
+  { f:'high',     label:'Disponible'},
+  { f:'low',      label:'Pocas'     },
+  { f:'incoming', label:'En camino' },
+  { f:'out',      label:'Agotado'   },
+];
 
-function today0() {
-  var d = new Date(); d.setHours(0,0,0,0); return d;
-}
+// ────────────────────────────────────────────────────────────────────
+//  ALGORITHM
+// ────────────────────────────────────────────────────────────────────
+function today0() { var d=new Date();d.setHours(0,0,0,0);return d; }
 
 function categorize(rel) {
-  var days = (today0() - new Date(rel + 'T12:00:00')) / 86400000;
+  var days = (today0() - new Date(rel+'T12:00:00')) / 86400000;
   if (days < 0)   return 'proximo';
   if (days < 90)  return 'nuevo';
   if (days < 365) return 'reciente';
@@ -272,118 +311,169 @@ function categorize(rel) {
 }
 
 function daysUntil(rel) {
-  return Math.ceil((new Date(rel + 'T12:00:00') - today0()) / 86400000);
+  return Math.ceil((new Date(rel+'T12:00:00') - today0()) / 86400000);
 }
 
 function fmtDate(rel) {
-  var d = new Date(rel + 'T12:00:00');
-  var M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  return M[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  var d = new Date(rel+'T12:00:00');
+  var M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return M[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
 }
 
-// Enrich sets
-SETS.forEach(function(s) { s.cat = categorize(s.release); });
-
-// Sort: future sets first (ascending by date), then past sets newest→oldest
-SETS.sort(function(a, b) {
-  var aFut = new Date(a.release) > today0();
-  var bFut = new Date(b.release) > today0();
-  if (aFut && bFut) return new Date(a.release) - new Date(b.release); // upcoming: soonest first
-  if (aFut) return -1;
-  if (bFut) return 1;
-  return new Date(b.release) - new Date(a.release); // past: newest first
+// Build flat product list
+var ALL = [];
+SETS.forEach(function(s) {
+  s.cat = categorize(s.release);
+  Object.keys(s.stock).forEach(function(pk) {
+    if (s.stock[pk] === null) return;
+    ALL.push({
+      setId:s.id, setName:s.name, setCode:s.code, imgId:s.imgId,
+      color:s.color, release:s.release, cat:s.cat, hot:s.hot,
+      pk:pk, stock:s.stock[pk],
+    });
+  });
 });
 
+// Sort: by stock priority, then newest set first
+ALL.sort(function(a,b){
+  var sp = STOCK_META[a.stock].priority - STOCK_META[b.stock].priority;
+  return sp !== 0 ? sp : new Date(b.release) - new Date(a.release);
+});
+
+// Upcoming sets
+var UPCOMING = SETS.filter(function(s){ return s.cat === 'proximo'; })
+  .sort(function(a,b){ return new Date(a.release)-new Date(b.release); });
+
+// State
+var activeFilter = 'todos';
+
 // ────────────────────────────────────────────────────────────────────
-//  RENDER HELPERS
+//  IMAGE HELPER
 // ────────────────────────────────────────────────────────────────────
-function prodDot(state) {
-  if (!state || !STOCK_META[state]) return '';
-  var m = STOCK_META[state];
-  return '<div class="prod-dot '+m.cls+'"></div>';
-}
-
-function prodRows(stock) {
-  var keys = Object.keys(stock).filter(function(k){ return stock[k] !== null; });
-  return keys.map(function(k) {
-    var m = STOCK_META[stock[k]] || STOCK_META.out;
-    return '<div class="prod-item">'+
-      prodDot(stock[k])+
-      '<span class="prod-label">'+PROD_LABELS[k]+'</span>'+
-      '<span class="prod-status">'+m.label+'</span>'+
-    '</div>';
-  }).join('');
-}
-
-// ── Trending cards ────────────────────────────────────────────────
-function makeTrendCard(s) {
-  var meta = STOCK_META;
-  var avail = Object.keys(s.stock)
-    .filter(function(k){ return s.stock[k] === 'high' || s.stock[k] === 'low'; })
-    .map(function(k){ return PROD_LABELS[k]; }).join(' · ') || 'Sin stock';
-
-  return '<div class="tcard">'+
-    '<div class="tcard-hdr" style="background:linear-gradient(145deg,'+s.color+'cc,'+s.color+'55)">'+
-      '<div class="tcard-wm">'+s.code+'</div>'+
-      '<div class="tcard-code">'+s.code+'</div>'+
-      '<div class="tcard-name">'+s.name+'</div>'+
-    '</div>'+
-    '<div class="tcard-body">'+
-      '<div class="hot-badge">🔥 TRENDING</div>'+
-      '<div class="tcard-avail">'+avail+'</div>'+
-    '</div>'+
-  '</div>';
-}
-
-// ── Main set card ────────────────────────────────────────────────
-function makeSetCard(s) {
-  var cat  = CAT_META[s.cat];
-  var isProximo = s.cat === 'proximo';
-
-  var countdown = isProximo
-    ? '<div class="scard-countdown">⏳ Llega en '+daysUntil(s.release)+' días · Próximo lanzamiento</div>'
-    : '';
-
-  return '<div class="scard">'+
-    '<div class="scard-hdr" style="background:linear-gradient(150deg,'+s.color+'cc 0%,'+s.color+'44 100%)">'+
-      '<div class="scard-wm">'+s.code+'</div>'+
-      '<div class="scard-top-row">'+
-        '<div class="scard-code">'+s.code+'</div>'+
-        '<span class="scard-badge '+cat.badgeCls+'">'+cat.label+'</span>'+
-      '</div>'+
-      '<div class="scard-name">'+s.name+'</div>'+
-    '</div>'+
-    '<div class="scard-body">'+
-      countdown+
-      '<div class="prod-grid">'+prodRows(s.stock)+'</div>'+
-      '<div class="scard-date">'+fmtDate(s.release)+'</div>'+
-    '</div>'+
-  '</div>';
+function imgErrHandler(el, color, code) {
+  el.style.display = 'none';
+  var fb = el.nextSibling;
+  if (fb) { fb.style.display = 'flex'; fb.style.background = color; }
 }
 
 // ────────────────────────────────────────────────────────────────────
-//  RENDER PAGE
+//  RENDER
 // ────────────────────────────────────────────────────────────────────
+
+// Header date
 var now = new Date();
 document.getElementById('hdr-date').textContent =
   now.toLocaleDateString('es-PR',{weekday:'short',year:'numeric',month:'short',day:'numeric'}).toUpperCase();
 
-// Trending
-var hotSets = SETS.filter(function(s){ return s.hot; });
-var trendTitle = document.getElementById('trend-title');
-var trendRow   = document.getElementById('trend-row');
-
-if (hotSets.length) {
-  trendTitle.textContent = '🔥 TRENDING';
-  trendRow.innerHTML = hotSets.map(makeTrendCard).join('');
-} else {
-  trendTitle.style.display = 'none';
-  trendRow.style.display   = 'none';
+// Upcoming sets
+function renderUpcoming() {
+  if (!UPCOMING.length) return;
+  var html = '<div class="sec-hdr" style="margin-bottom:10px">⏳ PRÓXIMO LANZAMIENTO</div>';
+  UPCOMING.forEach(function(s) {
+    html +=
+      '<div class="ucard">'+
+      '<div class="ucard-inner">'+
+      '<div class="ucard-img-wrap">'+
+      '<img class="ucard-img" src="'+IMG_BASE+s.imgId+'/logo.png" alt="'+s.name+'" '+
+      'onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\';this.nextSibling.style.background=\''+s.color+'\'" >'+
+      '<div class="ucard-fallback">'+s.code+'</div>'+
+      '</div>'+
+      '<div class="ucard-info">'+
+      '<div class="ucard-badge">PRÓXIMO</div>'+
+      '<div class="ucard-name">'+s.name+'</div>'+
+      '<div class="ucard-code">'+s.code+' · '+fmtDate(s.release)+'</div>'+
+      '<div class="ucard-countdown">⏳ '+daysUntil(s.release)+' días</div>'+
+      '</div>'+
+      '</div>'+
+      '</div>';
+  });
+  document.getElementById('upcoming-section').innerHTML = html;
 }
 
-// All sets newest → oldest
-document.getElementById('sets-title').textContent = 'TODOS LOS SETS';
-document.getElementById('sets-list').innerHTML = SETS.map(makeSetCard).join('');
+// Trending
+function renderTrending() {
+  var hotSets = SETS.filter(function(s){ return s.hot && s.cat !== 'proximo'; });
+  if (!hotSets.length) { document.getElementById('trend-row').style.display='none'; return; }
+
+  document.getElementById('trend-row').innerHTML = hotSets.map(function(s) {
+    var avail = Object.keys(s.stock)
+      .filter(function(k){ return s.stock[k]==='high'||s.stock[k]==='low'; })
+      .map(function(k){ return PROD_SHORT[k]; }).join(' · ') || '— Agotado';
+
+    return '<div class="tcard">'+
+      '<div class="tcard-img-wrap" style="background:'+s.color+'18">'+
+      '<img class="tcard-img" src="'+IMG_BASE+s.imgId+'/logo.png" alt="'+s.name+'" '+
+      'onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\';this.nextSibling.style.background=\''+s.color+'\'" >'+
+      '<div class="tcard-fallback">'+s.code+'</div>'+
+      '<div class="tcard-hot">🔥 TRENDING</div>'+
+      '</div>'+
+      '<div class="tcard-body">'+
+      '<div class="tcard-name">'+s.name+'</div>'+
+      '<div class="tcard-avail">'+avail+'</div>'+
+      '</div>'+
+      '</div>';
+  }).join('');
+}
+
+// Filter chips
+function renderFilters() {
+  var counts = { todos: ALL.length };
+  ['high','low','incoming','out'].forEach(function(f){
+    counts[f] = ALL.filter(function(p){ return p.stock===f; }).length;
+  });
+
+  document.getElementById('filter-row').innerHTML = FILTER_DEFS.map(function(fd){
+    return '<button class="fchip'+(fd.f===activeFilter?' active':'')+'" data-f="'+fd.f+'">'+
+      fd.label+'<span class="cnt">'+counts[fd.f]+'</span>'+
+    '</button>';
+  }).join('');
+
+  document.getElementById('filter-row').querySelectorAll('.fchip').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      activeFilter = this.dataset.f;
+      renderFilters();
+      renderGrid();
+    });
+  });
+}
+
+// Product grid
+function renderGrid() {
+  var list = activeFilter === 'todos'
+    ? ALL
+    : ALL.filter(function(p){ return p.stock === activeFilter; });
+
+  if (!list.length) {
+    document.getElementById('pgrid').innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:rgba(255,255,255,0.2);font-size:13px">'+
+      'Sin productos en esta categoría<br><br>🎴</div>';
+    return;
+  }
+
+  document.getElementById('pgrid').innerHTML = list.map(function(p) {
+    var sm   = STOCK_META[p.stock];
+    var isOut = p.stock === 'out';
+    return '<div class="pcard'+(isOut?' pcard-out':'')+'">'+
+      '<div class="pcard-strip" style="background:'+p.color+'"></div>'+
+      '<div class="pcard-img-wrap" style="background:'+p.color+'12">'+
+      '<img class="pcard-img" src="'+IMG_BASE+p.imgId+'/logo.png" alt="'+p.setName+'" '+
+      'onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\';this.nextSibling.style.background=\''+p.color+'\'" >'+
+      '<div class="pcard-fallback">'+p.setCode+'</div>'+
+      '<div class="pcard-status '+sm.cls+'">'+sm.label+'</div>'+
+      '</div>'+
+      '<div class="pcard-body">'+
+      '<span class="pcard-type">'+PROD_SHORT[p.pk]+'</span>'+
+      '<div class="pcard-name">'+p.setName+'</div>'+
+      '<div class="pcard-product">'+PROD_LONG[p.pk]+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+renderUpcoming();
+renderTrending();
+renderFilters();
+renderGrid();
 </script>
 </body>
 </html>
