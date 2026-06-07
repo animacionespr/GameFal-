@@ -8,390 +8,382 @@
 <title>Restock · Pokémon TCG</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;min-height:100%;background:#0f0f1a;color:#fff;font-family:'Courier New',monospace;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+html,body{
+  width:100%;min-height:100%;
+  background:#0c0c1a;color:#fff;
+  font-family:'Courier New',monospace;
+  overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
 
-/* ── Header ── */
-.header{
-  position:sticky;top:0;z-index:100;
-  background:linear-gradient(135deg,#cc0000 0%,#990000 100%);
-  padding:10px 14px 10px;
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:200;
+  background:linear-gradient(135deg,#cc0000,#880000);
+  padding:12px 16px 10px;
   display:flex;align-items:center;gap:10px;
-  box-shadow:0 3px 16px rgba(0,0,0,0.6);
+  box-shadow:0 4px 20px rgba(0,0,0,0.7);
 }
-.back-btn{
-  background:rgba(0,0,0,0.35);border:2px solid rgba(255,255,255,0.35);
+.hdr-back{
+  background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.3);
   color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:900;
-  cursor:pointer;font-family:inherit;flex-shrink:0;text-decoration:none;
-  display:flex;align-items:center;gap:4px;white-space:nowrap;
+  cursor:pointer;font-family:inherit;flex-shrink:0;
+  text-decoration:none;white-space:nowrap;
 }
-.header-center{flex:1;text-align:center}
-.header-title{font-size:17px;font-weight:900;color:#ffcb05;text-shadow:1px 1px 0 #000;letter-spacing:1px}
-.header-sub{font-size:9px;color:rgba(255,203,5,0.65);letter-spacing:2px;margin-top:1px}
+.hdr-info{flex:1;min-width:0}
+.hdr-title{font-size:18px;font-weight:900;color:#ffcb05;letter-spacing:1px;line-height:1}
+.hdr-date{font-size:9px;color:rgba(255,203,5,0.55);letter-spacing:1px;margin-top:3px}
+.hdr-ball{width:34px;height:34px;flex-shrink:0}
 
-/* ── Pokéball icon ── */
-.pball-icon{width:32px;height:32px;flex-shrink:0}
+/* ── CONTENT ── */
+.page{padding:14px 12px 24px}
 
-/* ── Date strip ── */
-.date-strip{
-  background:#1a1a2e;border-bottom:1px solid #2a2a40;
-  padding:6px 16px;font-size:10px;color:rgba(255,255,255,0.4);
-  text-align:center;letter-spacing:0.5px;
+/* ── TRENDING SECTION ── */
+.sec-title{
+  font-size:11px;font-weight:900;letter-spacing:2px;color:rgba(255,255,255,0.45);
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
 }
+.sec-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
 
-/* ── Filter bar ── */
-.filters{
-  display:flex;overflow-x:auto;gap:6px;padding:10px 12px;
-  scrollbar-width:none;background:#12122a;
-  border-bottom:2px solid #1e1e38;
-  position:sticky;top:58px;z-index:99;
+.trend-row{
+  display:flex;overflow-x:auto;gap:10px;padding-bottom:6px;
+  scrollbar-width:none;margin-bottom:22px;
 }
-.filters::-webkit-scrollbar{display:none}
-.filter-btn{
-  flex-shrink:0;background:#1e1e38;border:2px solid #2e2e50;
-  color:rgba(255,255,255,0.45);
-  border-radius:20px;padding:5px 13px;font-size:11px;font-weight:900;
-  cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s;
-}
-.filter-btn .cnt{
-  display:inline-block;background:rgba(255,255,255,0.15);
-  border-radius:10px;padding:0 6px;font-size:9px;margin-left:4px;
-}
-.filter-btn[data-f="todos"].active   {border-color:#ffcb05;color:#ffcb05;background:#1e1c00}
-.filter-btn[data-f="proximo"].active {border-color:#a855f7;color:#a855f7;background:#1a0f2a}
-.filter-btn[data-f="nuevo"].active   {border-color:#22c55e;color:#22c55e;background:#0a1e12}
-.filter-btn[data-f="reciente"].active{border-color:#3b82f6;color:#3b82f6;background:#0a1222}
-.filter-btn[data-f="clasico"].active {border-color:#78716c;color:#a8a29e;background:#161412}
+.trend-row::-webkit-scrollbar{display:none}
 
-/* ── Content area ── */
-.content{padding:10px 10px 90px}
+/* Trending card (compact, horizontal scroll) */
+.tcard{
+  flex-shrink:0;width:148px;border-radius:12px;overflow:hidden;
+  border:2px solid rgba(255,255,255,0.08);
+  background:#14142a;cursor:default;transition:transform .1s;
+}
+.tcard:active{transform:scale(.95)}
+.tcard-hdr{
+  height:78px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;padding:8px 9px;
+}
+.tcard-wm{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:44px;font-weight:900;color:rgba(255,255,255,0.12);
+  white-space:nowrap;pointer-events:none;letter-spacing:-2px;
+}
+.tcard-code{font-size:8px;font-weight:900;color:rgba(255,255,255,0.5);letter-spacing:1px}
+.tcard-name{font-size:12px;font-weight:900;color:#fff;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,0.6)}
+.tcard-body{padding:8px 9px 9px}
+.hot-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(255,80,0,0.25);border:1px solid rgba(255,80,0,0.4);
+  color:#ff9955;border-radius:5px;padding:2px 7px;font-size:8px;font-weight:900;
+  letter-spacing:0.5px;margin-bottom:6px;
+}
+.tcard-avail{font-size:9px;color:rgba(255,255,255,0.35);line-height:1.7}
 
-/* ── Update note ── */
-.update-note{
-  background:#1e1c00;border:1px solid #ffcb0533;border-radius:8px;
-  padding:8px 12px;margin:0 0 14px;font-size:10px;color:rgba(255,203,5,0.6);
-  line-height:1.5;display:flex;align-items:flex-start;gap:6px;
-}
-.update-note b{color:#ffcb05}
+/* ── MAIN SET LIST ── */
+.sets-list{display:flex;flex-direction:column;gap:10px}
 
-/* ── Section header ── */
-.sec-hdr{
-  display:flex;align-items:center;gap:8px;margin:14px 0 8px;
+/* Main card */
+.scard{
+  border-radius:12px;overflow:hidden;
+  border:2px solid rgba(255,255,255,0.06);
+  background:#13132a;transition:transform .1s;
 }
-.sec-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
-.sec-label{font-size:12px;font-weight:900;letter-spacing:2px}
-.sec-count{font-size:10px;color:rgba(255,255,255,0.3);margin-left:auto}
+.scard:active{transform:scale(.99)}
 
-/* ── Cards grid ── */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-
-/* ── Card ── */
-.card{
-  background:#16162a;border-radius:10px;overflow:hidden;
-  border:2px solid #2a2a42;transition:transform .1s;
+.scard-hdr{
+  height:82px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:10px 14px;
 }
-.card:active{transform:scale(.96)}
-.card-stripe{height:5px}
-.card-code{font-size:8px;font-weight:900;color:rgba(255,255,255,0.28);padding:6px 8px 0;letter-spacing:1px}
-.card-name{font-size:12px;font-weight:900;color:#fff;padding:2px 8px 3px;line-height:1.25}
-.card-date{font-size:9px;color:rgba(255,255,255,0.38);padding:0 8px 5px}
-.card-badge{
-  display:inline-block;border-radius:5px;padding:2px 7px;
-  font-size:9px;font-weight:900;letter-spacing:0.5px;margin:0 8px 5px;
+.scard-wm{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:58px;font-weight:900;color:rgba(255,255,255,0.10);
+  white-space:nowrap;pointer-events:none;letter-spacing:-3px;
 }
-.card-countdown{
-  display:inline-block;background:rgba(168,85,247,0.18);border:1px solid #a855f755;
-  border-radius:5px;padding:2px 7px;font-size:8px;color:#c084fc;
-  margin:0 8px 6px;
+.scard-top-row{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:8px;
 }
-.card-prods{padding:0 6px 8px;display:flex;flex-wrap:wrap;gap:3px}
-.prod-tag{
-  background:#202040;border:1px solid #2e2e50;
-  border-radius:4px;padding:2px 5px;font-size:8px;color:rgba(255,255,255,0.5);
+.scard-code{font-size:9px;font-weight:900;color:rgba(255,255,255,0.5);letter-spacing:1px;flex-shrink:0}
+.scard-badge{
+  border-radius:5px;padding:2px 8px;font-size:8px;font-weight:900;
+  letter-spacing:0.5px;flex-shrink:0;margin-top:1px;
 }
-.card-placeholder{
-  margin:0 8px 6px;font-size:8px;color:rgba(255,200,0,0.4);
-  font-style:italic;
+.scard-name{
+  font-size:17px;font-weight:900;color:#fff;line-height:1.15;
+  text-shadow:0 1px 4px rgba(0,0,0,0.5);
 }
 
-/* ── Empty state ── */
-.empty-state{
-  text-align:center;padding:50px 20px;
-  color:rgba(255,255,255,0.25);font-size:13px;line-height:1.8;
+/* Product grid */
+.scard-body{padding:10px 12px 12px}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.prod-item{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,0.04);border-radius:6px;
+  padding:5px 8px;
+}
+.prod-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.prod-label{font-size:9px;font-weight:900;color:rgba(255,255,255,0.7);flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.prod-status{font-size:8px;color:rgba(255,255,255,0.35);white-space:nowrap;flex-shrink:0}
+
+/* Countdown (for upcoming sets) */
+.scard-countdown{
+  margin:0 12px 10px;
+  background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.3);
+  border-radius:8px;padding:7px 10px;
+  font-size:11px;color:#c084fc;font-weight:900;letter-spacing:0.5px;
+  display:flex;align-items:center;gap:6px;
 }
 
-/* ── Stats bar ── */
-.stats-bar{
-  background:#12122a;border-top:2px solid #1e1e38;
-  position:fixed;bottom:0;left:0;right:0;padding:8px 16px;
-  display:flex;justify-content:space-around;z-index:100;
-}
-.stat-item{text-align:center}
-.stat-num{font-size:18px;font-weight:900;line-height:1}
-.stat-lbl{font-size:8px;color:rgba(255,255,255,0.35);margin-top:2px;letter-spacing:1px}
+/* Release date line */
+.scard-date{font-size:10px;color:rgba(255,255,255,0.28);margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.05)}
+
+/* Stock dot colors */
+.dot-high{background:#22c55e}
+.dot-low{background:#f59e0b}
+.dot-out{background:#ef4444}
+.dot-inc{background:#3b82f6}
+
+/* Category badge colors */
+.badge-proximo{background:rgba(168,85,247,0.2);color:#c084fc}
+.badge-nuevo{background:rgba(34,197,94,0.2);color:#4ade80}
+.badge-reciente{background:rgba(59,130,246,0.2);color:#60a5fa}
+.badge-clasico{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.35)}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <a href="pokemon.html" class="back-btn">← Pokémon</a>
-  <div class="header-center">
-    <div class="header-title">RESTOCK TCG</div>
-    <div class="header-sub">POKÉMON TRADING CARD GAME</div>
+<div class="hdr">
+  <a href="pokemon.html" class="hdr-back">← Pokémon</a>
+  <div class="hdr-info">
+    <div class="hdr-title">RESTOCK TCG</div>
+    <div class="hdr-date" id="hdr-date"></div>
   </div>
-  <svg class="pball-icon" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <svg class="hdr-ball" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
     <circle cx="30" cy="30" r="27" fill="#fff" stroke="#111" stroke-width="3.5"/>
     <path d="M3 30 Q3 3 30 3 Q57 3 57 30Z" fill="#cc0000"/>
     <rect x="3" y="26.5" width="54" height="7" fill="#111"/>
-    <circle cx="30" cy="30" r="9" fill="#f0f0f0" stroke="#111" stroke-width="3.5"/>
+    <circle cx="30" cy="30" r="9" fill="#eee" stroke="#111" stroke-width="3.5"/>
     <circle cx="30" cy="30" r="4.5" fill="#fff"/>
-    <circle cx="26" cy="26" r="2" fill="rgba(255,255,255,0.6)"/>
+    <circle cx="25.5" cy="25.5" r="2.2" fill="rgba(255,255,255,0.55)"/>
   </svg>
 </div>
 
-<div class="date-strip" id="date-strip"></div>
-<div class="filters" id="filters"></div>
-<div class="content" id="content"></div>
+<div class="page">
+  <div class="sec-title" id="trend-title"></div>
+  <div class="trend-row" id="trend-row"></div>
 
-<div class="stats-bar" id="stats-bar"></div>
+  <div class="sec-title" id="sets-title"></div>
+  <div class="sets-list" id="sets-list"></div>
+</div>
 
 <script>
 'use strict';
 
-// ────────────────────────────────────────────────────────────────
-//  DATOS DE SETS
-//  Actualiza esta lista cuando salgan nuevos sets.
-//  release: 'YYYY-MM-DD'  (fecha de lanzamiento en inglés/EEUU)
-//  placeholder: true  →  añade aviso de "confirmar datos"
-// ────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────
+//  SETS — Edita release, stock y hot para reflejar tu inventario real.
+//
+//  stock por producto:
+//    'high'     → ✅ Disponible
+//    'low'      → ⚠ Pocas
+//    'out'      → ❌ Agotado
+//    'incoming' → 🚚 En camino
+//    null       → producto no existe para este set
+//
+//  hot: true  → aparece en la sección Trending
+// ────────────────────────────────────────────────────────────────────
 var SETS = [
+  { id:'sv95',  name:'Destined Rivals',      code:'SV9.5', release:'2025-05-23', color:'#cc3300', hot:true,
+    stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high' } },
 
-  // ── Scarlet & Violet ── (2023)
-  { id:'sv1',   name:'Scarlet & Violet',      code:'SV1',    release:'2023-03-31', color:'#cc2200',
-    products:['Booster','ETB','Build&Battle','Blisters'] },
-  { id:'sv2',   name:'Paldea Evolved',         code:'SV2',    release:'2023-06-09', color:'#0055cc',
-    products:['Booster','ETB','Blisters'] },
-  { id:'sv3',   name:'Obsidian Flames',        code:'SV3',    release:'2023-08-11', color:'#ff5500',
-    products:['Booster','ETB','Blisters'] },
-  { id:'sv35',  name:'151',                    code:'SV3.5',  release:'2023-09-22', color:'#ffaa00',
-    products:['Booster','ETB','UPC','Blisters'] },
-  { id:'sv4',   name:'Paradox Rift',           code:'SV4',    release:'2023-11-03', color:'#7722cc',
-    products:['Booster','ETB','Blisters'] },
+  { id:'sv9',   name:'Journey Together',     code:'SV9',   release:'2025-03-28', color:'#228855', hot:false,
+    stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high' } },
 
-  // ── Scarlet & Violet ── (2024)
-  { id:'sv45',  name:'Paldean Fates',          code:'SV4.5',  release:'2024-01-26', color:'#dd3388',
-    products:['Booster','ETB','Blisters'] },
-  { id:'sv5',   name:'Temporal Forces',        code:'SV5',    release:'2024-03-22', color:'#229933',
-    products:['Booster','ETB','Build&Battle','Blisters'] },
-  { id:'sv6',   name:'Twilight Masquerade',    code:'SV6',    release:'2024-05-24', color:'#cc9900',
-    products:['Booster','ETB','Blisters'] },
-  { id:'sv65',  name:'Shrouded Fissure',       code:'SV6.5',  release:'2024-08-02', color:'#884400',
-    products:['Booster','ETB','Blisters'] },
-  { id:'sv7',   name:'Stellar Crown',          code:'SV7',    release:'2024-09-13', color:'#0099cc',
-    products:['Booster','ETB','Build&Battle','Blisters'] },
-  { id:'sv8',   name:'Surging Sparks',         code:'SV8',    release:'2024-11-08', color:'#ddcc00',
-    products:['Booster','ETB','UPC','Blisters'] },
+  { id:'sv85',  name:'Prismatic Evolutions', code:'SV8.5', release:'2025-01-17', color:'#bb00bb', hot:true,
+    stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'  } },
 
-  // ── Scarlet & Violet ── (2025)
-  { id:'sv85',  name:'Prismatic Evolutions',   code:'SV8.5',  release:'2025-01-17', color:'#cc00bb',
-    products:['Booster','ETB','UPC','Blisters'] },
-  { id:'sv9',   name:'Journey Together',        code:'SV9',    release:'2025-03-28', color:'#339966',
-    products:['Booster','ETB','Blisters'] },
-  { id:'sv95',  name:'Destined Rivals',         code:'SV9.5',  release:'2025-05-23', color:'#cc3300',
-    products:['Booster','ETB','Build&Battle','Blisters'] },
+  { id:'sv8',   name:'Surging Sparks',       code:'SV8',   release:'2024-11-08', color:'#ccaa00', hot:true,
+    stock:{ booster:'high', etb:'low',   upc:'out', blisters:'high',  bundle:'high' } },
 
-  // ── Actualiza desde aquí con los sets más recientes ────────────
-  // Reemplaza nombre, código, fecha y productos con los datos reales.
+  { id:'sv7',   name:'Stellar Crown',        code:'SV7',   release:'2024-09-13', color:'#0088cc', hot:false,
+    stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high' } },
 
-  { id:'sv10',  name:'⚠ Set SV10',             code:'SV10',   release:'2025-08-08', color:'#0077aa',
-    products:['Booster','ETB'], placeholder:true },
-  { id:'sv105', name:'⚠ Set SV10.5',           code:'SV10.5', release:'2025-09-26', color:'#aa6600',
-    products:['Booster','ETB'], placeholder:true },
-  { id:'sv11',  name:'⚠ Set SV11',             code:'SV11',   release:'2025-11-07', color:'#447700',
-    products:['Booster','ETB'], placeholder:true },
-  { id:'sv115', name:'⚠ Set SV11.5',           code:'SV11.5', release:'2026-01-23', color:'#880088',
-    products:['Booster','ETB'], placeholder:true },
-  { id:'sv12',  name:'⚠ Set SV12',             code:'SV12',   release:'2026-03-27', color:'#005599',
-    products:['Booster','ETB'], placeholder:true },
-  { id:'sv125', name:'⚠ Set SV12.5',           code:'SV12.5', release:'2026-05-22', color:'#994400',
-    products:['Booster','ETB'], placeholder:true },
-  { id:'sv13',  name:'⚠ Set SV13',             code:'SV13',   release:'2026-08-07', color:'#006644',
-    products:['Booster','ETB'], placeholder:true },
+  { id:'sv65',  name:'Shrouded Fissure',     code:'SV6.5', release:'2024-08-02', color:'#774400', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'  } },
 
+  { id:'sv6',   name:'Twilight Masquerade',  code:'SV6',   release:'2024-05-24', color:'#aa8800', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'  } },
+
+  { id:'sv5',   name:'Temporal Forces',      code:'SV5',   release:'2024-03-22', color:'#228833', hot:false,
+    stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high' } },
+
+  { id:'sv45',  name:'Paldean Fates',        code:'SV4.5', release:'2024-01-26', color:'#cc2277', hot:true,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'  } },
+
+  { id:'sv4',   name:'Paradox Rift',         code:'SV4',   release:'2023-11-03', color:'#6611bb', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'  } },
+
+  { id:'sv35',  name:'151',                  code:'SV3.5', release:'2023-09-22', color:'#ee9900', hot:true,
+    stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'  } },
+
+  { id:'sv3',   name:'Obsidian Flames',      code:'SV3',   release:'2023-08-11', color:'#ee4400', hot:false,
+    stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'  } },
+
+  { id:'sv2',   name:'Paldea Evolved',       code:'SV2',   release:'2023-06-09', color:'#0044bb', hot:false,
+    stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'  } },
+
+  { id:'sv1',   name:'Scarlet & Violet',     code:'SV1',   release:'2023-03-31', color:'#bb1100', hot:false,
+    stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'  } },
 ];
 
-// ────────────────────────────────────────────────────────────────
-//  ALGORITMO DE CATEGORIZACIÓN
-//  Basado en días desde el lanzamiento (se calcula hoy automático)
-// ────────────────────────────────────────────────────────────────
-var CATS = {
-  proximo:  { key:'proximo',  label:'Próximo',  labelUp:'PRÓXIMO',  color:'#a855f7', bg:'rgba(168,85,247,0.18)',  dot:'#a855f7' },
-  nuevo:    { key:'nuevo',    label:'Nuevo',    labelUp:'NUEVO',    color:'#22c55e', bg:'rgba(34,197,94,0.18)',   dot:'#22c55e' },
-  reciente: { key:'reciente', label:'Reciente', labelUp:'RECIENTE', color:'#3b82f6', bg:'rgba(59,130,246,0.18)', dot:'#3b82f6' },
-  clasico:  { key:'clasico',  label:'Clásico',  labelUp:'CLÁSICO',  color:'#78716c', bg:'rgba(120,113,108,0.15)',dot:'#78716c' },
+// ── Agregar nuevos sets aquí arriba (al inicio del array) ──────────
+
+
+// ────────────────────────────────────────────────────────────────────
+//  ALGORITMO DE FECHA
+// ────────────────────────────────────────────────────────────────────
+var PROD_LABELS = {
+  booster: 'Booster', etb: 'ETB', upc: 'UPC', blisters: 'Blisters', bundle: 'Bundle'
+};
+
+var STOCK_META = {
+  high:     { cls:'dot-high', label:'Disponible' },
+  low:      { cls:'dot-low',  label:'Pocas' },
+  out:      { cls:'dot-out',  label:'Agotado' },
+  incoming: { cls:'dot-inc',  label:'En camino' },
+};
+
+var CAT_META = {
+  proximo:  { label:'Próximo',  badgeCls:'badge-proximo' },
+  nuevo:    { label:'Nuevo',    badgeCls:'badge-nuevo' },
+  reciente: { label:'Reciente', badgeCls:'badge-reciente' },
+  clasico:  { label:'Clásico',  badgeCls:'badge-clasico' },
 };
 
 function today0() {
-  var d = new Date();
-  d.setHours(0,0,0,0);
-  return d;
+  var d = new Date(); d.setHours(0,0,0,0); return d;
 }
 
-function categorize(releaseStr) {
-  var release = new Date(releaseStr + 'T12:00:00');
-  var days = (today0() - release) / 86400000;
-  if (days < 0)   return 'proximo';  // lanzamiento futuro
-  if (days < 90)  return 'nuevo';    // últimos 3 meses
-  if (days < 365) return 'reciente'; // último año
-  return 'clasico';                  // más de 1 año
+function categorize(rel) {
+  var days = (today0() - new Date(rel + 'T12:00:00')) / 86400000;
+  if (days < 0)   return 'proximo';
+  if (days < 90)  return 'nuevo';
+  if (days < 365) return 'reciente';
+  return 'clasico';
 }
 
-function daysUntil(releaseStr) {
-  var release = new Date(releaseStr + 'T12:00:00');
-  return Math.ceil((release - today0()) / 86400000);
+function daysUntil(rel) {
+  return Math.ceil((new Date(rel + 'T12:00:00') - today0()) / 86400000);
 }
 
-function daysAgo(releaseStr) {
-  var release = new Date(releaseStr + 'T12:00:00');
-  return Math.floor((today0() - release) / 86400000);
-}
-
-function fmtDate(releaseStr) {
-  var d = new Date(releaseStr + 'T12:00:00');
+function fmtDate(rel) {
+  var d = new Date(rel + 'T12:00:00');
   var M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   return M[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
 }
 
-// ── Classify all sets ────────────────────────────────────────
-var byCat = { proximo:[], nuevo:[], reciente:[], clasico:[] };
-SETS.forEach(function(s) {
-  s.cat = categorize(s.release);
-  byCat[s.cat].push(s);
+// Enrich sets
+SETS.forEach(function(s) { s.cat = categorize(s.release); });
+
+// Sort: future sets first (ascending by date), then past sets newest→oldest
+SETS.sort(function(a, b) {
+  var aFut = new Date(a.release) > today0();
+  var bFut = new Date(b.release) > today0();
+  if (aFut && bFut) return new Date(a.release) - new Date(b.release); // upcoming: soonest first
+  if (aFut) return -1;
+  if (bFut) return 1;
+  return new Date(b.release) - new Date(a.release); // past: newest first
 });
-byCat.proximo.sort(function(a,b){ return new Date(a.release)-new Date(b.release); });
-['nuevo','reciente','clasico'].forEach(function(k){
-  byCat[k].sort(function(a,b){ return new Date(b.release)-new Date(a.release); });
-});
 
-// ── State ────────────────────────────────────────────────────
-var activeFilter = 'todos';
+// ────────────────────────────────────────────────────────────────────
+//  RENDER HELPERS
+// ────────────────────────────────────────────────────────────────────
+function prodDot(state) {
+  if (!state || !STOCK_META[state]) return '';
+  var m = STOCK_META[state];
+  return '<div class="prod-dot '+m.cls+'"></div>';
+}
 
-// ── Date strip ───────────────────────────────────────────────
-var now = new Date();
-document.getElementById('date-strip').textContent =
-  'Actualizado: ' + now.toLocaleDateString('es-PR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-// ── Stats bar ────────────────────────────────────────────────
-function renderStats() {
-  var el = document.getElementById('stats-bar');
-  var stats = [
-    { num: byCat.proximo.length,  lbl:'Próximos',  color:'#a855f7' },
-    { num: byCat.nuevo.length,    lbl:'Nuevos',    color:'#22c55e' },
-    { num: byCat.reciente.length, lbl:'Recientes', color:'#3b82f6' },
-    { num: byCat.clasico.length,  lbl:'Clásicos',  color:'#78716c' },
-  ];
-  el.innerHTML = stats.map(function(s){
-    return '<div class="stat-item">'+
-      '<div class="stat-num" style="color:'+s.color+'">'+s.num+'</div>'+
-      '<div class="stat-lbl">'+s.lbl+'</div>'+
+function prodRows(stock) {
+  var keys = Object.keys(stock).filter(function(k){ return stock[k] !== null; });
+  return keys.map(function(k) {
+    var m = STOCK_META[stock[k]] || STOCK_META.out;
+    return '<div class="prod-item">'+
+      prodDot(stock[k])+
+      '<span class="prod-label">'+PROD_LABELS[k]+'</span>'+
+      '<span class="prod-status">'+m.label+'</span>'+
     '</div>';
   }).join('');
 }
 
-// ── Filters ──────────────────────────────────────────────────
-var FILTER_DEFS = [
-  { f:'todos',    label:'Todos'    },
-  { f:'proximo',  label:'Próximo'  },
-  { f:'nuevo',    label:'Nuevo'    },
-  { f:'reciente', label:'Reciente' },
-  { f:'clasico',  label:'Clásico'  },
-];
+// ── Trending cards ────────────────────────────────────────────────
+function makeTrendCard(s) {
+  var meta = STOCK_META;
+  var avail = Object.keys(s.stock)
+    .filter(function(k){ return s.stock[k] === 'high' || s.stock[k] === 'low'; })
+    .map(function(k){ return PROD_LABELS[k]; }).join(' · ') || 'Sin stock';
 
-function countFor(f) {
-  if (f==='todos') return SETS.length;
-  return byCat[f].length;
-}
-
-function renderFilters() {
-  var el = document.getElementById('filters');
-  el.innerHTML = FILTER_DEFS.map(function(fd){
-    var cnt = countFor(fd.f);
-    return '<button class="filter-btn'+(fd.f===activeFilter?' active':'')+'" data-f="'+fd.f+'">'+
-      fd.label+'<span class="cnt">'+cnt+'</span></button>';
-  }).join('');
-  el.querySelectorAll('.filter-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      activeFilter = this.dataset.f;
-      renderFilters();
-      renderContent();
-    });
-  });
-}
-
-// ── Card ─────────────────────────────────────────────────────
-function makeCard(s) {
-  var cat = CATS[s.cat];
-  var prods = s.products.map(function(p){
-    return '<span class="prod-tag">'+p+'</span>';
-  }).join('');
-
-  var extra = '';
-  if (s.cat === 'proximo') {
-    extra = '<div class="card-countdown">⏳ '+daysUntil(s.release)+' días</div>';
-  }
-  if (s.placeholder) {
-    extra += '<div class="card-placeholder">⚠ Confirmar datos</div>';
-  }
-
-  return '<div class="card" style="border-color:'+s.color+'44">'+
-    '<div class="card-stripe" style="background:'+s.color+'"></div>'+
-    '<div class="card-code">'+s.code+'</div>'+
-    '<div class="card-name">'+s.name+'</div>'+
-    '<div class="card-date">'+fmtDate(s.release)+'</div>'+
-    '<span class="card-badge" style="background:'+cat.bg+';color:'+cat.color+'">'+cat.label+'</span>'+
-    extra+
-    '<div class="card-prods">'+prods+'</div>'+
+  return '<div class="tcard">'+
+    '<div class="tcard-hdr" style="background:linear-gradient(145deg,'+s.color+'cc,'+s.color+'55)">'+
+      '<div class="tcard-wm">'+s.code+'</div>'+
+      '<div class="tcard-code">'+s.code+'</div>'+
+      '<div class="tcard-name">'+s.name+'</div>'+
+    '</div>'+
+    '<div class="tcard-body">'+
+      '<div class="hot-badge">🔥 TRENDING</div>'+
+      '<div class="tcard-avail">'+avail+'</div>'+
+    '</div>'+
   '</div>';
 }
 
-// ── Content ──────────────────────────────────────────────────
-var CAT_ORDER = ['proximo','nuevo','reciente','clasico'];
+// ── Main set card ────────────────────────────────────────────────
+function makeSetCard(s) {
+  var cat  = CAT_META[s.cat];
+  var isProximo = s.cat === 'proximo';
 
-function renderContent() {
-  var el = document.getElementById('content');
-  var hasAny = false;
-
-  var hasPlaceholders = SETS.some(function(s){ return s.placeholder && s.cat !== 'clasico'; });
-  var noteHtml = hasPlaceholders
-    ? '<div class="update-note">📋 <div><b>Actualizar datos:</b> Los sets marcados con ⚠ usan fechas estimadas. '+
-      'Edita <code>restock.html</code> → array SETS para añadir nombres y fechas reales.</div></div>'
+  var countdown = isProximo
+    ? '<div class="scard-countdown">⏳ Llega en '+daysUntil(s.release)+' días · Próximo lanzamiento</div>'
     : '';
 
-  var html = noteHtml;
-
-  CAT_ORDER.forEach(function(key){
-    var sets = (activeFilter === 'todos' || activeFilter === key) ? byCat[key] : [];
-    if (!sets.length) return;
-    hasAny = true;
-    var cat = CATS[key];
-    html +=
-      '<div class="sec-hdr">'+
-        '<div class="sec-dot" style="background:'+cat.dot+';color:'+cat.dot+'"></div>'+
-        '<div class="sec-label" style="color:'+cat.color+'">'+cat.labelUp+'</div>'+
-        '<div class="sec-count">'+sets.length+' set'+(sets.length===1?'':'s')+'</div>'+
+  return '<div class="scard">'+
+    '<div class="scard-hdr" style="background:linear-gradient(150deg,'+s.color+'cc 0%,'+s.color+'44 100%)">'+
+      '<div class="scard-wm">'+s.code+'</div>'+
+      '<div class="scard-top-row">'+
+        '<div class="scard-code">'+s.code+'</div>'+
+        '<span class="scard-badge '+cat.badgeCls+'">'+cat.label+'</span>'+
       '</div>'+
-      '<div class="grid">'+sets.map(makeCard).join('')+'</div>';
-  });
-
-  if (!hasAny) {
-    html += '<div class="empty-state">No hay sets en esta categoría.<br><br>🎴</div>';
-  }
-
-  el.innerHTML = html;
+      '<div class="scard-name">'+s.name+'</div>'+
+    '</div>'+
+    '<div class="scard-body">'+
+      countdown+
+      '<div class="prod-grid">'+prodRows(s.stock)+'</div>'+
+      '<div class="scard-date">'+fmtDate(s.release)+'</div>'+
+    '</div>'+
+  '</div>';
 }
 
-renderStats();
-renderFilters();
-renderContent();
+// ────────────────────────────────────────────────────────────────────
+//  RENDER PAGE
+// ────────────────────────────────────────────────────────────────────
+var now = new Date();
+document.getElementById('hdr-date').textContent =
+  now.toLocaleDateString('es-PR',{weekday:'short',year:'numeric',month:'short',day:'numeric'}).toUpperCase();
+
+// Trending
+var hotSets = SETS.filter(function(s){ return s.hot; });
+var trendTitle = document.getElementById('trend-title');
+var trendRow   = document.getElementById('trend-row');
+
+if (hotSets.length) {
+  trendTitle.textContent = '🔥 TRENDING';
+  trendRow.innerHTML = hotSets.map(makeTrendCard).join('');
+} else {
+  trendTitle.style.display = 'none';
+  trendRow.style.display   = 'none';
+}
+
+// All sets newest → oldest
+document.getElementById('sets-title').textContent = 'TODOS LOS SETS';
+document.getElementById('sets-list').innerHTML = SETS.map(makeSetCard).join('');
 </script>
 </body>
 </html>
