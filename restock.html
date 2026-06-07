@@ -18,85 +18,133 @@ html,body{
 .hdr{
   position:sticky;top:0;z-index:200;
   background:linear-gradient(135deg,#cc0000,#880000);
-  padding:11px 14px 9px;
-  display:flex;align-items:center;gap:10px;
+  padding:11px 14px 9px;display:flex;align-items:center;gap:10px;
   box-shadow:0 4px 20px rgba(0,0,0,0.7);
 }
 .hdr-back{
   background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.3);
   color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:900;
-  cursor:pointer;font-family:inherit;flex-shrink:0;
-  text-decoration:none;white-space:nowrap;
+  text-decoration:none;white-space:nowrap;font-family:inherit;flex-shrink:0;
 }
 .hdr-info{flex:1;min-width:0}
 .hdr-title{font-size:18px;font-weight:900;color:#ffcb05;letter-spacing:1px;line-height:1}
 .hdr-date{font-size:9px;color:rgba(255,203,5,0.55);letter-spacing:1px;margin-top:3px}
 .hdr-ball{width:34px;height:34px;flex-shrink:0}
 
-/* ── PAGE ── */
-.page{padding:14px 11px 28px}
-
-/* ── SECTION TITLE ── */
+/* ── LAYOUT ── */
+.page{padding:12px 10px 30px}
 .sec-hdr{
   font-size:10px;font-weight:900;letter-spacing:2px;
-  color:rgba(255,255,255,0.4);margin-bottom:10px;
+  color:rgba(255,255,255,0.35);margin-bottom:10px;
   display:flex;align-items:center;gap:8px;
 }
-.sec-hdr::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.07)}
+.sec-hdr::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
 
-/* ── TRENDING ROW ── */
+/* ── INFO STRIP ── */
+.info-strip{
+  background:#161628;border:1px solid rgba(255,203,5,0.15);border-radius:8px;
+  padding:7px 12px;margin-bottom:16px;font-size:9px;color:rgba(255,203,5,0.5);
+  display:flex;align-items:center;gap:6px;line-height:1.5;letter-spacing:0.3px;
+}
+
+/* ── CARD ART (always visible, image on top if loads) ── */
+.card-art{
+  position:relative;overflow:hidden;
+  display:flex;align-items:flex-end;
+}
+/* Decorative design always visible behind the photo */
+.card-deco{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:8px 10px;pointer-events:none;
+}
+/* Decorative pokéball ring top-right */
+.card-deco::before{
+  content:'';position:absolute;
+  top:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;
+  border:14px solid rgba(255,255,255,0.07);
+}
+.card-deco::after{
+  content:'';position:absolute;
+  top:12px;right:12px;
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(255,255,255,0.06);
+  border:3px solid rgba(255,255,255,0.08);
+}
+.deco-code{
+  font-size:8px;font-weight:900;color:rgba(255,255,255,0.35);
+  letter-spacing:2px;line-height:1;
+}
+.deco-name{
+  font-size:13px;font-weight:900;color:rgba(255,255,255,0.8);
+  line-height:1.2;margin-top:3px;text-shadow:0 1px 4px rgba(0,0,0,0.5);
+}
+.deco-tcg{
+  font-size:7px;color:rgba(255,255,255,0.25);letter-spacing:2px;margin-top:3px;
+}
+/* External image floats above deco */
+.card-art-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;padding:8px;z-index:2;
+  opacity:0;transition:opacity .3s;
+}
+.card-art-img.loaded{opacity:1}
+/* Agotado overlay */
+.card-out .card-art{filter:grayscale(.85) brightness(.65)}
+
+/* ── STATUS BADGE (always on top) ── */
+.status-badge{
+  position:absolute;top:7px;left:7px;z-index:10;
+  border-radius:5px;padding:3px 9px;font-size:8px;font-weight:900;
+  letter-spacing:.5px;box-shadow:0 2px 6px rgba(0,0,0,.5);
+}
+.sb-high    {background:#16a34a;color:#fff}
+.sb-low     {background:#b45309;color:#fff}
+.sb-incoming{background:#1d4ed8;color:#fff}
+.sb-out     {background:rgba(140,10,10,.9);color:rgba(255,255,255,.75)}
+
+/* ── TRENDING ── */
 .trend-row{
   display:flex;overflow-x:auto;gap:10px;padding-bottom:4px;
   scrollbar-width:none;margin-bottom:22px;
 }
 .trend-row::-webkit-scrollbar{display:none}
-
 .tcard{
-  flex-shrink:0;width:140px;border-radius:11px;overflow:hidden;
+  flex-shrink:0;width:148px;border-radius:11px;overflow:hidden;
   border:2px solid rgba(255,255,255,0.07);background:#14142a;
 }
-.tcard-img-wrap{
-  height:70px;position:relative;overflow:hidden;
-  background:#0c0c22;
-  display:flex;align-items:center;justify-content:center;
-}
-.tcard-img{width:100%;height:100%;object-fit:contain;padding:6px}
-.tcard-fallback{
-  display:none;width:100%;height:100%;
-  align-items:center;justify-content:center;
-  font-size:20px;font-weight:900;color:rgba(255,255,255,0.75);
-  letter-spacing:-1px;
-}
-.tcard-hot{
-  position:absolute;top:5px;left:5px;
-  background:rgba(255,80,0,0.85);border-radius:5px;
-  padding:2px 7px;font-size:7px;font-weight:900;color:#fff;letter-spacing:0.5px;
-}
+.tcard .card-art{height:72px}
 .tcard-body{padding:7px 9px 9px}
-.tcard-name{font-size:11px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:4px}
-.tcard-avail{font-size:8px;color:rgba(255,255,255,0.35);line-height:1.6}
+.tcard-name{font-size:11px;font-weight:900;color:#fff;margin-bottom:4px;line-height:1.2}
+.tcard-avail{font-size:8px;color:rgba(255,255,255,0.32);line-height:1.7}
+.hot-pill{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(255,80,0,.2);border:1px solid rgba(255,80,0,.3);
+  color:#ff9955;border-radius:4px;padding:1px 6px;font-size:7px;font-weight:900;
+  margin-bottom:4px;letter-spacing:.5px;
+}
 
 /* ── FILTER CHIPS ── */
 .filter-row{
   display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;
-  scrollbar-width:none;margin-bottom:14px;
+  scrollbar-width:none;margin-bottom:12px;
 }
 .filter-row::-webkit-scrollbar{display:none}
 .fchip{
-  flex-shrink:0;padding:5px 13px;border-radius:20px;font-size:10px;font-weight:900;
+  flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:10px;font-weight:900;
   font-family:inherit;cursor:pointer;border:2px solid transparent;
-  background:#1a1a30;color:rgba(255,255,255,0.4);transition:all .15s;
-  white-space:nowrap;
+  background:#1a1a30;color:rgba(255,255,255,.4);white-space:nowrap;
 }
 .fchip .cnt{
-  background:rgba(255,255,255,0.12);border-radius:8px;
-  padding:0 5px;font-size:8px;margin-left:4px;
+  background:rgba(255,255,255,.1);border-radius:8px;
+  padding:0 5px;font-size:8px;margin-left:3px;
 }
-.fchip.active[data-f="todos"]     {background:#1e1e00;border-color:#ffcb05;color:#ffcb05}
-.fchip.active[data-f="high"]      {background:#052010;border-color:#22c55e;color:#22c55e}
-.fchip.active[data-f="low"]       {background:#1a1000;border-color:#f59e0b;color:#f59e0b}
-.fchip.active[data-f="incoming"]  {background:#050e20;border-color:#3b82f6;color:#3b82f6}
-.fchip.active[data-f="out"]       {background:#160606;border-color:#ef4444;color:#ef4444}
+.fchip.active[data-f="todos"]    {background:#1e1d00;border-color:#ffcb05;color:#ffcb05}
+.fchip.active[data-f="high"]     {background:#031a0a;border-color:#22c55e;color:#22c55e}
+.fchip.active[data-f="low"]      {background:#1a1000;border-color:#f59e0b;color:#f59e0b}
+.fchip.active[data-f="incoming"] {background:#030d1a;border-color:#3b82f6;color:#3b82f6}
+.fchip.active[data-f="out"]      {background:#160404;border-color:#ef4444;color:#ef4444}
 
 /* ── PRODUCT GRID ── */
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -104,99 +152,37 @@ html,body{
 /* ── PRODUCT CARD ── */
 .pcard{
   border-radius:11px;overflow:hidden;
-  border:2px solid rgba(255,255,255,0.06);
-  background:#13132a;transition:transform .1s;
+  border:2px solid rgba(255,255,255,.06);
+  background:#13132a;
 }
-.pcard:active{transform:scale(.96)}
-
-/* Top color strip */
-.pcard-strip{height:4px}
-
-/* Image area */
-.pcard-img-wrap{
-  height:110px;position:relative;overflow:hidden;
-  background:#0c0c1e;
-  display:flex;align-items:center;justify-content:center;
-}
-.pcard-img{
-  width:100%;height:100%;object-fit:contain;padding:10px;
-  transition:filter .3s;
-}
-.pcard-fallback{
-  display:none;width:100%;height:100%;
-  align-items:center;justify-content:center;
-  font-size:22px;font-weight:900;letter-spacing:-1px;
-  color:rgba(255,255,255,0.8);
-}
-
-/* Status overlay (top-left of image) */
-.pcard-status{
-  position:absolute;top:7px;left:7px;
-  border-radius:5px;padding:3px 8px;
-  font-size:8px;font-weight:900;letter-spacing:0.5px;
-  text-transform:uppercase;white-space:nowrap;
-  box-shadow:0 2px 6px rgba(0,0,0,0.5);
-}
-.st-high    {background:#16a34a;color:#fff}
-.st-low     {background:#b45309;color:#fff}
-.st-incoming{background:#1d4ed8;color:#fff}
-.st-out     {background:rgba(150,20,20,0.9);color:rgba(255,255,255,0.8)}
-
-/* Grayscale for out of stock */
-.pcard-out .pcard-img    {filter:grayscale(1) opacity(0.3)}
-.pcard-out .pcard-fallback{filter:grayscale(1) opacity(0.3)}
-.pcard-out              {border-color:rgba(255,50,50,0.1)}
-
-/* Card body */
-.pcard-body{padding:7px 9px 9px}
+.pcard .card-art{height:112px}
+.pcard-body{padding:7px 9px 10px}
 .pcard-type{
   display:inline-block;
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
-  border-radius:4px;padding:2px 6px;
-  font-size:7px;font-weight:900;color:rgba(255,255,255,0.45);
-  letter-spacing:1px;margin-bottom:4px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;padding:2px 6px;font-size:7px;font-weight:900;
+  color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:4px;
 }
-.pcard-name{
-  font-size:11px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:2px;
-}
-.pcard-product{font-size:9px;color:rgba(255,255,255,0.3);line-height:1.3}
-.pcard-out .pcard-name{color:rgba(255,255,255,0.4)}
+.pcard-name{font-size:12px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:2px}
+.pcard-product{font-size:9px;color:rgba(255,255,255,.28)}
+.card-out .pcard-name{color:rgba(255,255,255,.4)}
 
-/* ── SECTION DIVIDER ── */
-.sdiv{
-  display:flex;align-items:center;gap:8px;
-  margin:20px 0 10px;font-size:10px;font-weight:900;
-  letter-spacing:2px;
-}
-.sdiv-line{flex:1;height:1px;background:rgba(255,255,255,0.07)}
-
-/* ── UPCOMING card (full width) ── */
+/* ── UPCOMING ── */
 .ucard{
-  border-radius:11px;overflow:hidden;margin-bottom:10px;
-  border:2px solid rgba(168,85,247,0.3);background:#18132a;
+  border-radius:11px;overflow:hidden;margin-bottom:12px;
+  border:2px solid rgba(168,85,247,.3);background:#150f28;
+  display:flex;
 }
-.ucard-inner{
-  padding:14px;display:flex;align-items:center;gap:12px;
-}
-.ucard-img-wrap{
-  width:80px;height:70px;flex-shrink:0;overflow:hidden;border-radius:8px;
-  background:#0c0a1e;display:flex;align-items:center;justify-content:center;
-}
-.ucard-img{width:100%;height:100%;object-fit:contain;padding:6px}
-.ucard-fallback{
-  display:none;width:100%;height:100%;
-  align-items:center;justify-content:center;
-  font-size:16px;font-weight:900;color:rgba(255,255,255,0.7);
-}
-.ucard-info{flex:1;min-width:0}
+.ucard .card-art{width:90px;flex-shrink:0;height:90px}
+.ucard-body{flex:1;min-width:0;padding:10px 12px 10px 10px;display:flex;flex-direction:column;justify-content:center}
 .ucard-badge{
-  display:inline-block;background:rgba(168,85,247,0.25);border:1px solid #a855f755;
+  display:inline-block;background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.4);
   color:#c084fc;border-radius:5px;padding:2px 8px;font-size:8px;font-weight:900;
-  letter-spacing:0.5px;margin-bottom:5px;
+  letter-spacing:.5px;margin-bottom:5px;width:fit-content;
 }
-.ucard-name{font-size:15px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:3px}
-.ucard-code{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:5px}
-.ucard-countdown{font-size:12px;color:#c084fc;font-weight:900}
+.ucard-name{font-size:15px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:2px}
+.ucard-sub{font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px}
+.ucard-countdown{font-size:13px;font-weight:900;color:#c084fc}
 </style>
 </head>
 <body>
@@ -218,6 +204,12 @@ html,body{
 </div>
 
 <div class="page">
+
+  <!-- Stock manual — editar SETS en el script para actualizar -->
+  <div class="info-strip" id="info-strip">
+    ⚡ Stock actualizado manualmente · Las categorías (Nuevo / Reciente) se recalculan solas cada visita
+  </div>
+
   <div id="upcoming-section"></div>
 
   <div class="sec-hdr">🔥 TRENDING</div>
@@ -226,67 +218,69 @@ html,body{
   <div class="sec-hdr">PRODUCTOS</div>
   <div class="filter-row" id="filter-row"></div>
   <div class="pgrid" id="pgrid"></div>
+
 </div>
 
 <script>
 'use strict';
 
-// ────────────────────────────────────────────────────────────────────
-//  PRODUCTOS — edita stock y hot para reflejar tu inventario.
+// ═══════════════════════════════════════════════════════════════════
+//  SETS — Edita stock para reflejar tu inventario real.
 //
 //  stock por producto:
-//    'high'     → DISPONIBLE   (verde)
-//    'low'      → POCAS        (ámbar)
-//    'incoming' → EN CAMINO    (azul)
-//    'out'      → AGOTADO      (rojo + gris)
-//    null       → no existe este producto para el set
+//    'high'     → DISPONIBLE   🟢
+//    'low'      → POCAS        🟡
+//    'incoming' → EN CAMINO    🔵
+//    'out'      → AGOTADO      🔴
+//    null       → producto no existe para este set
 //
-//  hot: true  → aparece en Trending
-//  imgId      → ID del set en pokemontcg.io (para cargar la imagen automática)
-// ────────────────────────────────────────────────────────────────────
+//  hot:true  → aparece en Trending (máx 6 sets)
+//  imgId     → ID en pokemontcg.io para intentar cargar imagen real
+// ═══════════════════════════════════════════════════════════════════
 var SETS = [
-  { id:'sv95',  name:'Destined Rivals',      code:'SV9.5', imgId:'sv9pt5',  release:'2025-05-23', color:'#cc3300', hot:true,
+  { name:'Destined Rivals',      code:'SV9.5', imgId:'sv9pt5',  release:'2025-05-23', color:'#cc3300', hot:true,
     stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high'     }},
-  { id:'sv9',   name:'Journey Together',     code:'SV9',   imgId:'sv9',     release:'2025-03-28', color:'#228855', hot:false,
+  { name:'Journey Together',     code:'SV9',   imgId:'sv9',     release:'2025-03-28', color:'#228855', hot:false,
     stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high'     }},
-  { id:'sv85',  name:'Prismatic Evolutions', code:'SV8.5', imgId:'sv8pt5',  release:'2025-01-17', color:'#bb00bb', hot:true,
+  { name:'Prismatic Evolutions', code:'SV8.5', imgId:'sv8pt5',  release:'2025-01-17', color:'#bb00bb', hot:true,
     stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'      }},
-  { id:'sv8',   name:'Surging Sparks',       code:'SV8',   imgId:'sv8',     release:'2024-11-08', color:'#ccaa00', hot:true,
+  { name:'Surging Sparks',       code:'SV8',   imgId:'sv8',     release:'2024-11-08', color:'#ccaa00', hot:true,
     stock:{ booster:'high', etb:'low',   upc:'out', blisters:'high',  bundle:'high'     }},
-  { id:'sv7',   name:'Stellar Crown',        code:'SV7',   imgId:'sv7',     release:'2024-09-13', color:'#0088cc', hot:false,
+  { name:'Stellar Crown',        code:'SV7',   imgId:'sv7',     release:'2024-09-13', color:'#0088cc', hot:false,
     stock:{ booster:'high', etb:'high',  upc:null,  blisters:'high',  bundle:'high'     }},
-  { id:'sv65',  name:'Shrouded Fissure',     code:'SV6.5', imgId:'sv6pt5',  release:'2024-08-02', color:'#774400', hot:false,
+  { name:'Shrouded Fissure',     code:'SV6.5', imgId:'sv6pt5',  release:'2024-08-02', color:'#774400', hot:false,
     stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'      }},
-  { id:'sv6',   name:'Twilight Masquerade',  code:'SV6',   imgId:'sv6',     release:'2024-05-24', color:'#aa8800', hot:false,
+  { name:'Twilight Masquerade',  code:'SV6',   imgId:'sv6',     release:'2024-05-24', color:'#aa8800', hot:false,
     stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'      }},
-  { id:'sv5',   name:'Temporal Forces',      code:'SV5',   imgId:'sv5',     release:'2024-03-22', color:'#228833', hot:false,
+  { name:'Temporal Forces',      code:'SV5',   imgId:'sv5',     release:'2024-03-22', color:'#228833', hot:false,
     stock:{ booster:'high', etb:'low',   upc:null,  blisters:'high',  bundle:'high'     }},
-  { id:'sv45',  name:'Paldean Fates',        code:'SV4.5', imgId:'sv4pt5',  release:'2024-01-26', color:'#cc2277', hot:true,
+  { name:'Paldean Fates',        code:'SV4.5', imgId:'sv4pt5',  release:'2024-01-26', color:'#cc2277', hot:true,
     stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'low',   bundle:'low'      }},
-  { id:'sv4',   name:'Paradox Rift',         code:'SV4',   imgId:'sv4',     release:'2023-11-03', color:'#6611bb', hot:false,
+  { name:'Paradox Rift',         code:'SV4',   imgId:'sv4',     release:'2023-11-03', color:'#6611bb', hot:false,
     stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'      }},
-  { id:'sv35',  name:'151',                  code:'SV3.5', imgId:'sv3pt5',  release:'2023-09-22', color:'#ee9900', hot:true,
+  { name:'151',                  code:'SV3.5', imgId:'sv3pt5',  release:'2023-09-22', color:'#ee9900', hot:true,
     stock:{ booster:'low',  etb:'out',   upc:'out', blisters:'low',   bundle:'low'      }},
-  { id:'sv3',   name:'Obsidian Flames',      code:'SV3',   imgId:'sv3',     release:'2023-08-11', color:'#ee4400', hot:false,
+  { name:'Obsidian Flames',      code:'SV3',   imgId:'sv3',     release:'2023-08-11', color:'#ee4400', hot:false,
     stock:{ booster:'low',  etb:'out',   upc:null,  blisters:'out',   bundle:'low'      }},
-  { id:'sv2',   name:'Paldea Evolved',       code:'SV2',   imgId:'sv2',     release:'2023-06-09', color:'#0044bb', hot:false,
+  { name:'Paldea Evolved',       code:'SV2',   imgId:'sv2',     release:'2023-06-09', color:'#0044bb', hot:false,
     stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'      }},
-  { id:'sv1',   name:'Scarlet & Violet',     code:'SV1',   imgId:'sv1',     release:'2023-03-31', color:'#bb1100', hot:false,
+  { name:'Scarlet & Violet',     code:'SV1',   imgId:'sv1',     release:'2023-03-31', color:'#bb1100', hot:false,
     stock:{ booster:'out',  etb:'out',   upc:null,  blisters:'out',   bundle:'out'      }},
 ];
+// ← Agrega nuevos sets AQUÍ ARRIBA (al inicio del array)
 
-// ────────────────────────────────────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════════════════
 //  CONSTANTES
-// ────────────────────────────────────────────────────────────────────
-var PROD_SHORT  = { booster:'BOOSTER', etb:'ETB', upc:'UPC', blisters:'BLISTERS', bundle:'BUNDLE' };
-var PROD_LONG   = { booster:'Booster Box', etb:'Elite Trainer Box', upc:'Ultra Premium', blisters:'Blisters 3-Pack', bundle:'Booster Bundle' };
-var IMG_BASE    = 'https://images.pokemontcg.io/';
+// ═══════════════════════════════════════════════════════════════════
+var PROD_SHORT = { booster:'BOOSTER', etb:'ETB', upc:'UPC', blisters:'BLISTERS', bundle:'BUNDLE' };
+var PROD_LONG  = { booster:'Booster Box', etb:'Elite Trainer Box', upc:'Ultra Premium Collection', blisters:'Blisters 3-Pack', bundle:'Booster Bundle' };
 
-var STOCK_META = {
-  high:     { label:'DISPONIBLE', cls:'st-high',     priority:0 },
-  low:      { label:'POCAS',      cls:'st-low',      priority:1 },
-  incoming: { label:'EN CAMINO',  cls:'st-incoming', priority:2 },
-  out:      { label:'AGOTADO',    cls:'st-out',      priority:3 },
+var SM = {
+  high:     { label:'DISPONIBLE', cls:'sb-high',     pri:0 },
+  low:      { label:'POCAS',      cls:'sb-low',      pri:1 },
+  incoming: { label:'EN CAMINO',  cls:'sb-incoming', pri:2 },
+  out:      { label:'AGOTADO',    cls:'sb-out',      pri:3 },
 };
 
 var FILTER_DEFS = [
@@ -297,177 +291,188 @@ var FILTER_DEFS = [
   { f:'out',      label:'Agotado'   },
 ];
 
-// ────────────────────────────────────────────────────────────────────
-//  ALGORITHM
-// ────────────────────────────────────────────────────────────────────
-function today0() { var d=new Date();d.setHours(0,0,0,0);return d; }
+var IMG_BASE = 'https://images.pokemontcg.io/';
 
-function categorize(rel) {
-  var days = (today0() - new Date(rel+'T12:00:00')) / 86400000;
-  if (days < 0)   return 'proximo';
-  if (days < 90)  return 'nuevo';
-  if (days < 365) return 'reciente';
+// ═══════════════════════════════════════════════════════════════════
+//  ALGORITMO DE FECHAS
+// ═══════════════════════════════════════════════════════════════════
+function today0(){ var d=new Date();d.setHours(0,0,0,0);return d; }
+
+function catDate(rel){
+  var days=(today0()-new Date(rel+'T12:00:00'))/86400000;
+  if(days<0)   return 'proximo';
+  if(days<90)  return 'nuevo';
+  if(days<365) return 'reciente';
   return 'clasico';
 }
 
-function daysUntil(rel) {
-  return Math.ceil((new Date(rel+'T12:00:00') - today0()) / 86400000);
+function daysUntil(rel){
+  return Math.ceil((new Date(rel+'T12:00:00')-today0())/86400000);
 }
 
-function fmtDate(rel) {
-  var d = new Date(rel+'T12:00:00');
+function fmtDate(rel){
+  var d=new Date(rel+'T12:00:00');
   var M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   return M[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
 }
 
-// Build flat product list
-var ALL = [];
-SETS.forEach(function(s) {
-  s.cat = categorize(s.release);
-  Object.keys(s.stock).forEach(function(pk) {
-    if (s.stock[pk] === null) return;
+// Enriquecer sets
+SETS.forEach(function(s){ s.cat=catDate(s.release); });
+
+// Lista plana de productos
+var ALL=[];
+SETS.forEach(function(s){
+  Object.keys(s.stock).forEach(function(pk){
+    if(s.stock[pk]===null) return;
     ALL.push({
-      setId:s.id, setName:s.name, setCode:s.code, imgId:s.imgId,
+      name:s.name, code:s.code, imgId:s.imgId,
       color:s.color, release:s.release, cat:s.cat, hot:s.hot,
       pk:pk, stock:s.stock[pk],
     });
   });
 });
 
-// Sort: by stock priority, then newest set first
+// Ordenar: disponibles primero, luego por set más nuevo
 ALL.sort(function(a,b){
-  var sp = STOCK_META[a.stock].priority - STOCK_META[b.stock].priority;
-  return sp !== 0 ? sp : new Date(b.release) - new Date(a.release);
+  var d=SM[a.stock].pri-SM[b.stock].pri;
+  return d!==0?d:new Date(b.release)-new Date(a.release);
 });
 
-// Upcoming sets
-var UPCOMING = SETS.filter(function(s){ return s.cat === 'proximo'; })
-  .sort(function(a,b){ return new Date(a.release)-new Date(b.release); });
+var UPCOMING=SETS.filter(function(s){return s.cat==='proximo';})
+  .sort(function(a,b){return new Date(a.release)-new Date(b.release);});
 
-// State
-var activeFilter = 'todos';
+var activeFilter='todos';
 
-// ────────────────────────────────────────────────────────────────────
-//  IMAGE HELPER
-// ────────────────────────────────────────────────────────────────────
-function imgErrHandler(el, color, code) {
-  el.style.display = 'none';
-  var fb = el.nextSibling;
-  if (fb) { fb.style.display = 'flex'; fb.style.background = color; }
+// ═══════════════════════════════════════════════════════════════════
+//  HELPERS DE IMAGEN
+//  El diseño del set (gradiente + deco) es SIEMPRE visible.
+//  La imagen de pokemontcg.io se carga encima — si falla, el diseño
+//  del set se queda visible y se ve bien de todas formas.
+// ═══════════════════════════════════════════════════════════════════
+var _imgQ=[]; // queue to attach handlers after render
+
+function cardArt(name, code, imgId, color, height, statusLabel, statusCls){
+  var uid='img-'+Math.random().toString(36).slice(2);
+  _imgQ.push(uid);
+  var grad='linear-gradient(145deg,'+color+'dd 0%,'+color+'66 100%)';
+  return '<div class="card-art" style="height:'+height+'px;background:'+grad+'">'+
+    '<div class="card-deco">'+
+      '<div class="deco-code">'+code+'</div>'+
+      '<div class="deco-name">'+name+'</div>'+
+      '<div class="deco-tcg">POKÉMON TCG</div>'+
+    '</div>'+
+    '<img id="'+uid+'" class="card-art-img" src="'+IMG_BASE+imgId+'/logo.png" alt="'+name+'">'+
+    '<div class="status-badge '+statusCls+'">'+statusLabel+'</div>'+
+  '</div>';
 }
 
-// ────────────────────────────────────────────────────────────────────
-//  RENDER
-// ────────────────────────────────────────────────────────────────────
+function attachImgHandlers(){
+  _imgQ.forEach(function(uid){
+    var img=document.getElementById(uid);
+    if(!img) return;
+    img.addEventListener('load',function(){img.classList.add('loaded');});
+    img.addEventListener('error',function(){img.style.display='none';});
+    if(img.complete){
+      if(img.naturalWidth>0) img.classList.add('loaded');
+      else img.style.display='none';
+    }
+  });
+  _imgQ=[];
+}
 
-// Header date
-var now = new Date();
-document.getElementById('hdr-date').textContent =
+// ═══════════════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════════════
+
+// Fecha header
+var now=new Date();
+document.getElementById('hdr-date').textContent=
   now.toLocaleDateString('es-PR',{weekday:'short',year:'numeric',month:'short',day:'numeric'}).toUpperCase();
 
-// Upcoming sets
-function renderUpcoming() {
-  if (!UPCOMING.length) return;
-  var html = '<div class="sec-hdr" style="margin-bottom:10px">⏳ PRÓXIMO LANZAMIENTO</div>';
-  UPCOMING.forEach(function(s) {
-    html +=
+// Próximos
+function renderUpcoming(){
+  if(!UPCOMING.length) return;
+  var html='<div class="sec-hdr" style="margin-bottom:10px">⏳ PRÓXIMO LANZAMIENTO</div>';
+  UPCOMING.forEach(function(s){
+    html+=
       '<div class="ucard">'+
-      '<div class="ucard-inner">'+
-      '<div class="ucard-img-wrap">'+
-      '<img class="ucard-img" src="'+IMG_BASE+s.imgId+'/logo.png" alt="'+s.name+'" '+
-      'onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\';this.nextSibling.style.background=\''+s.color+'\'" >'+
-      '<div class="ucard-fallback">'+s.code+'</div>'+
-      '</div>'+
-      '<div class="ucard-info">'+
-      '<div class="ucard-badge">PRÓXIMO</div>'+
-      '<div class="ucard-name">'+s.name+'</div>'+
-      '<div class="ucard-code">'+s.code+' · '+fmtDate(s.release)+'</div>'+
-      '<div class="ucard-countdown">⏳ '+daysUntil(s.release)+' días</div>'+
-      '</div>'+
-      '</div>'+
+        cardArt(s.name,s.code,s.imgId,s.color,90,'PRÓXIMO','sb-incoming')+
+        '<div class="ucard-body">'+
+          '<div class="ucard-badge">PRÓXIMO</div>'+
+          '<div class="ucard-name">'+s.name+'</div>'+
+          '<div class="ucard-sub">'+s.code+' · '+fmtDate(s.release)+'</div>'+
+          '<div class="ucard-countdown">⏳ '+daysUntil(s.release)+' días</div>'+
+        '</div>'+
       '</div>';
   });
-  document.getElementById('upcoming-section').innerHTML = html;
+  document.getElementById('upcoming-section').innerHTML=html;
+  attachImgHandlers();
 }
 
 // Trending
-function renderTrending() {
-  var hotSets = SETS.filter(function(s){ return s.hot && s.cat !== 'proximo'; });
-  if (!hotSets.length) { document.getElementById('trend-row').style.display='none'; return; }
-
-  document.getElementById('trend-row').innerHTML = hotSets.map(function(s) {
-    var avail = Object.keys(s.stock)
-      .filter(function(k){ return s.stock[k]==='high'||s.stock[k]==='low'; })
-      .map(function(k){ return PROD_SHORT[k]; }).join(' · ') || '— Agotado';
-
+function renderTrending(){
+  var hotSets=SETS.filter(function(s){return s.hot&&s.cat!=='proximo';});
+  var row=document.getElementById('trend-row');
+  if(!hotSets.length){row.style.display='none';return;}
+  row.innerHTML=hotSets.map(function(s){
+    var avail=Object.keys(s.stock)
+      .filter(function(k){return s.stock[k]==='high'||s.stock[k]==='low';})
+      .map(function(k){return PROD_SHORT[k];}).join(' · ')||'— Ver stock';
+    var sbCls=Object.values(s.stock).some(function(v){return v==='high';})?'sb-high':
+              Object.values(s.stock).some(function(v){return v==='low';}) ?'sb-low':'sb-out';
+    var sbLbl=sbCls==='sb-high'?'DISPONIBLE':sbCls==='sb-low'?'POCAS':'AGOTADO';
     return '<div class="tcard">'+
-      '<div class="tcard-img-wrap" style="background:'+s.color+'18">'+
-      '<img class="tcard-img" src="'+IMG_BASE+s.imgId+'/logo.png" alt="'+s.name+'" '+
-      'onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\';this.nextSibling.style.background=\''+s.color+'\'" >'+
-      '<div class="tcard-fallback">'+s.code+'</div>'+
-      '<div class="tcard-hot">🔥 TRENDING</div>'+
-      '</div>'+
+      cardArt(s.name,s.code,s.imgId,s.color,72,sbLbl,sbCls)+
       '<div class="tcard-body">'+
-      '<div class="tcard-name">'+s.name+'</div>'+
-      '<div class="tcard-avail">'+avail+'</div>'+
+        '<div class="hot-pill">🔥 TRENDING</div>'+
+        '<div class="tcard-name">'+s.name+'</div>'+
+        '<div class="tcard-avail">'+avail+'</div>'+
       '</div>'+
-      '</div>';
+    '</div>';
   }).join('');
+  attachImgHandlers();
 }
 
-// Filter chips
-function renderFilters() {
-  var counts = { todos: ALL.length };
+// Filtros
+function renderFilters(){
+  var counts={todos:ALL.length};
   ['high','low','incoming','out'].forEach(function(f){
-    counts[f] = ALL.filter(function(p){ return p.stock===f; }).length;
+    counts[f]=ALL.filter(function(p){return p.stock===f;}).length;
   });
-
-  document.getElementById('filter-row').innerHTML = FILTER_DEFS.map(function(fd){
+  document.getElementById('filter-row').innerHTML=FILTER_DEFS.map(function(fd){
     return '<button class="fchip'+(fd.f===activeFilter?' active':'')+'" data-f="'+fd.f+'">'+
-      fd.label+'<span class="cnt">'+counts[fd.f]+'</span>'+
-    '</button>';
+      fd.label+'<span class="cnt">'+counts[fd.f]+'</span></button>';
   }).join('');
-
   document.getElementById('filter-row').querySelectorAll('.fchip').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      activeFilter = this.dataset.f;
-      renderFilters();
-      renderGrid();
+    btn.addEventListener('click',function(){
+      activeFilter=this.dataset.f;
+      renderFilters();renderGrid();
     });
   });
 }
 
-// Product grid
-function renderGrid() {
-  var list = activeFilter === 'todos'
-    ? ALL
-    : ALL.filter(function(p){ return p.stock === activeFilter; });
-
-  if (!list.length) {
-    document.getElementById('pgrid').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:rgba(255,255,255,0.2);font-size:13px">'+
-      'Sin productos en esta categoría<br><br>🎴</div>';
+// Grid de productos
+function renderGrid(){
+  var list=activeFilter==='todos'?ALL:ALL.filter(function(p){return p.stock===activeFilter;});
+  if(!list.length){
+    document.getElementById('pgrid').innerHTML=
+      '<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:rgba(255,255,255,.2);font-size:13px">Sin productos en esta categoría<br><br>🎴</div>';
     return;
   }
-
-  document.getElementById('pgrid').innerHTML = list.map(function(p) {
-    var sm   = STOCK_META[p.stock];
-    var isOut = p.stock === 'out';
-    return '<div class="pcard'+(isOut?' pcard-out':'')+'">'+
-      '<div class="pcard-strip" style="background:'+p.color+'"></div>'+
-      '<div class="pcard-img-wrap" style="background:'+p.color+'12">'+
-      '<img class="pcard-img" src="'+IMG_BASE+p.imgId+'/logo.png" alt="'+p.setName+'" '+
-      'onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\';this.nextSibling.style.background=\''+p.color+'\'" >'+
-      '<div class="pcard-fallback">'+p.setCode+'</div>'+
-      '<div class="pcard-status '+sm.cls+'">'+sm.label+'</div>'+
-      '</div>'+
+  var s=list.map(function(p){
+    var m=SM[p.stock];
+    var isOut=p.stock==='out';
+    return '<div class="pcard'+(isOut?' card-out':'')+'">'+
+      cardArt(p.name,p.code,p.imgId,p.color,112,m.label,m.cls)+
       '<div class="pcard-body">'+
-      '<span class="pcard-type">'+PROD_SHORT[p.pk]+'</span>'+
-      '<div class="pcard-name">'+p.setName+'</div>'+
-      '<div class="pcard-product">'+PROD_LONG[p.pk]+'</div>'+
+        '<span class="pcard-type">'+PROD_SHORT[p.pk]+'</span>'+
+        '<div class="pcard-name">'+p.name+'</div>'+
+        '<div class="pcard-product">'+PROD_LONG[p.pk]+'</div>'+
       '</div>'+
     '</div>';
   }).join('');
+  document.getElementById('pgrid').innerHTML=s;
+  attachImgHandlers();
 }
 
 renderUpcoming();
