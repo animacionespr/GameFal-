@@ -440,18 +440,36 @@ const DP ={x:VW*.13,y:VH*.80};  // d-pad center
 const BTN={punch:{x:VW*.84,y:VH*.72}, kick:{x:VW*.93,y:VH*.88}, special:{x:VW*.73,y:VH*.60}};
 const BTN_R=50; // hit radius
 
+// Prevent iOS synthetic click from double-triggering after touchstart
+let lastTouchStamp = 0;
+
 function onTS(e){
   e.preventDefault();
+  lastTouchStamp = Date.now();
+
+  // Menu state transitions only on touchstart (not move)
+  if(e.type==='touchstart'){
+    if(STATE==='title'){initAudio();startDembow();STATE='select';return;}
+    if(STATE==='select'){
+      const tx=e.touches[0].clientX/sc;
+      if(tx<VW/4) selChar=(selChar-1+CHARS.length)%CHARS.length;
+      else if(tx>VW*3/4) selChar=(selChar+1)%CHARS.length;
+      else startGame();
+      return;
+    }
+    if(STATE==='gameover'||STATE==='victory'){resetGame();return;}
+  }
+
+  // In-game controls only
+  if(STATE!=='game') return;
   tL=tR=tU=tD=tP=tK=tSp=false;
   for(const t of e.touches){
     const tx=t.clientX/sc, ty=t.clientY/sc;
-    // d-pad: left half of screen
     if(tx < VW/2){
       const dx=tx-DP.x, dy=ty-DP.y;
       if(Math.abs(dx)>Math.abs(dy)){if(dx<0)tL=true;else tR=true;}
       else{if(dy<0)tU=true;else tD=true;}
     } else {
-      // buttons: hit test by closest
       const dP=Math.hypot(tx-BTN.punch.x,   ty-BTN.punch.y);
       const dK=Math.hypot(tx-BTN.kick.x,    ty-BTN.kick.y);
       const dS=Math.hypot(tx-BTN.special.x, ty-BTN.special.y);
@@ -463,13 +481,15 @@ function onTS(e){
       }
     }
   }
-  if(STATE==='title'&&e.type==='touchstart'){initAudio();startDembow();STATE='select';}
 }
 function onTE(e){if(e.touches.length===0) tL=tR=tU=tD=tP=tK=tSp=false;}
+
+// Desktop mouse clicks only — skip if a touch fired recently (iOS ghost click guard)
 cv.addEventListener('click',e=>{
+  if(Date.now()-lastTouchStamp < 700) return;
   initAudio();
   if(STATE==='title'){startDembow();STATE='select';return;}
-  const tx=e.clientX/sc, ty=e.clientY/sc;
+  const tx=e.clientX/sc;
   if(STATE==='select'){
     if(tx<VW/4) selChar=(selChar-1+CHARS.length)%CHARS.length;
     else if(tx>VW*3/4) selChar=(selChar+1)%CHARS.length;
