@@ -2,17 +2,30 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>CALLE DURA</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;background:#050510;overflow:hidden;user-select:none;-webkit-user-select:none}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;background:#050510;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none}
 body{display:flex;justify-content:center;align-items:center}
-canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none}
+#orient{position:fixed;inset:0;background:#050510;z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:16px;display:none}
+#orient .ico{font-size:72px;animation:spin 1.4s ease-in-out infinite alternate}
+@keyframes spin{from{transform:rotate(-25deg)}to{transform:rotate(25deg)}}
+@media(orientation:portrait){#orient{display:flex!important}}
+@media(orientation:landscape){#orient{display:none!important}}
 </style>
 </head>
 <body>
+<div id="orient">
+  <div class="ico">📱</div>
+  <div style="color:#FFD700;font-family:monospace;font-size:24px;font-weight:bold">GIRA EL CELULAR</div>
+  <div style="color:#aaa;font-family:monospace;font-size:14px">para jugar CALLE DURA</div>
+  <div style="color:#FF6600;font-family:monospace;font-size:12px;margin-top:4px">★ Beat Em Up Boricua ★</div>
+</div>
 <canvas id="g"></canvas>
 <script>
 'use strict';
@@ -422,20 +435,32 @@ let tL=false,tR=false,tU=false,tD=false,tP=false,tK=false,tSp=false;
 cv.addEventListener('touchstart',onTS,{passive:false});
 cv.addEventListener('touchend',onTE,{passive:false});
 cv.addEventListener('touchmove',onTS,{passive:false});
+// Touch button centers in virtual coords
+const DP ={x:VW*.13,y:VH*.80};  // d-pad center
+const BTN={punch:{x:VW*.84,y:VH*.72}, kick:{x:VW*.93,y:VH*.88}, special:{x:VW*.73,y:VH*.60}};
+const BTN_R=50; // hit radius
+
 function onTS(e){
   e.preventDefault();
   tL=tR=tU=tD=tP=tK=tSp=false;
   for(const t of e.touches){
     const tx=t.clientX/sc, ty=t.clientY/sc;
-    if(tx<VW/2){
-      const dpx=VW*.14, dpy=VH*.76;
-      const dx=tx-dpx, dy=ty-dpy;
+    // d-pad: left half of screen
+    if(tx < VW/2){
+      const dx=tx-DP.x, dy=ty-DP.y;
       if(Math.abs(dx)>Math.abs(dy)){if(dx<0)tL=true;else tR=true;}
       else{if(dy<0)tU=true;else tD=true;}
     } else {
-      if(ty>VH*.56&&ty<VH*.76) tP=true;
-      else if(ty>=VH*.76) tK=true;
-      else if(ty>VH*.36&&ty<VH*.56) tSp=true;
+      // buttons: hit test by closest
+      const dP=Math.hypot(tx-BTN.punch.x,   ty-BTN.punch.y);
+      const dK=Math.hypot(tx-BTN.kick.x,    ty-BTN.kick.y);
+      const dS=Math.hypot(tx-BTN.special.x, ty-BTN.special.y);
+      const mn=Math.min(dP,dK,dS);
+      if(mn<BTN_R*1.5){
+        if(mn===dP) tP=true;
+        else if(mn===dK) tK=true;
+        else tSp=true;
+      }
     }
   }
   if(STATE==='title'&&e.type==='touchstart'){initAudio();startDembow();STATE='select';}
@@ -715,38 +740,67 @@ function drawHUD(){
   cx.fillStyle='#FFD700'; cx.font='bold 24px monospace'; cx.textAlign='right';
   cx.fillText(score,VW-16,33);
   cx.fillStyle='#aaa'; cx.font='11px monospace'; cx.fillText('RÉCORD: '+hiScore,VW-16,49);
-  // controls hint
-  cx.fillStyle='rgba(0,0,0,.4)'; cx.fillRect(VW/2-210,VH-22,420,20);
-  cx.fillStyle='rgba(255,255,255,.45)'; cx.font='10px monospace'; cx.textAlign='center';
-  cx.fillText('FLECHAS:mover  Z:golpe  X:patada  C/ESPACIO:especial',VW/2,VH-8);
+  // controls hint — only on desktop
+  if(!('ontouchstart' in window)){
+    cx.fillStyle='rgba(0,0,0,.4)'; cx.fillRect(VW/2-210,VH-22,420,20);
+    cx.fillStyle='rgba(255,255,255,.45)'; cx.font='10px monospace'; cx.textAlign='center';
+    cx.fillText('FLECHAS:mover  Z:golpe  X:patada  C/ESPACIO:especial',VW/2,VH-8);
+  }
 }
 
 function drawTouchUI(){
-  const a=0.55;
-  // D-pad
-  const dpx=VW*.14, dpy=VH*.76, ds=52;
-  cx.fillStyle=`rgba(255,255,255,${a*.4})`;
+  cx.save();
+  const a=0.62;
+  // ── D-pad ──
+  const {x:dpx,y:dpy}=DP;
+  const ds=68;
+  // outer ring
+  cx.globalAlpha=a*.35;
+  cx.fillStyle='#ffffff';
   cx.beginPath(); cx.arc(dpx,dpy,ds,0,Math.PI*2); cx.fill();
-  cx.fillStyle=`rgba(255,255,255,${a})`;
-  cx.font='bold 22px monospace'; cx.textAlign='center';
-  cx.fillText('◀',dpx-ds*.65,dpy+8); cx.fillText('▶',dpx+ds*.65,dpy+8);
-  cx.fillText('▲',dpx,dpy-ds*.55); cx.fillText('▼',dpx,dpy+ds*.65);
-  // action buttons
-  const bts=[{x:VW*.82,y:VH*.64,l:'Z\nGOLPE',c:'#ff8800'},
-             {x:VW*.92,y:VH*.82,l:'X\nPATADA',c:'#ff3366'},
-             {x:VW*.72,y:VH*.45,l:'C\nESPECIAL',c:'#FFD700'}];
-  for(const b of bts){
-    cx.globalAlpha=a;
-    cx.fillStyle=b.c;
-    cx.beginPath(); cx.arc(b.x,b.y,30,0,Math.PI*2); cx.fill();
-    cx.fillStyle='rgba(0,0,0,.5)';
-    cx.beginPath(); cx.arc(b.x,b.y,30,0,Math.PI*2); cx.fill();
-    cx.fillStyle=b.c;
-    cx.font='bold 11px monospace'; cx.textAlign='center';
-    const lines=b.l.split('\n');
-    cx.fillText(lines[0],b.x,b.y-2); cx.fillText(lines[1],b.x,b.y+12);
-    cx.globalAlpha=1;
+  // directional arrows
+  cx.globalAlpha=a;
+  cx.fillStyle='rgba(255,255,255,0.9)';
+  cx.font='bold 28px monospace'; cx.textAlign='center';
+  cx.fillText('◀',dpx-ds*.62,dpy+10);
+  cx.fillText('▶',dpx+ds*.62,dpy+10);
+  cx.fillText('▲',dpx,dpy-ds*.52+4);
+  cx.fillText('▼',dpx,dpy+ds*.68);
+  // center dot
+  cx.globalAlpha=a*.5;
+  cx.fillStyle='#fff';
+  cx.beginPath(); cx.arc(dpx,dpy,10,0,Math.PI*2); cx.fill();
+  // ── Action buttons ──
+  const btns=[
+    {pos:BTN.punch,   label:'GOLPE',  key:'Z', col:'#FF8800', active:tP},
+    {pos:BTN.kick,    label:'PATADA', key:'X', col:'#FF3366', active:tK},
+    {pos:BTN.special, label:'ESP.',   key:'⚡', col:'#FFD700', active:tSp&&spCool===0},
+  ];
+  for(const b of btns){
+    const {x,y}=b.pos;
+    const r=BTN_R;
+    // shadow
+    cx.globalAlpha=a*.4;
+    cx.fillStyle='#000';
+    cx.beginPath(); cx.arc(x+3,y+3,r,0,Math.PI*2); cx.fill();
+    // fill
+    cx.globalAlpha=b.active?0.95:a;
+    cx.fillStyle=b.active?b.col:'rgba(0,0,0,0.55)';
+    cx.beginPath(); cx.arc(x,y,r,0,Math.PI*2); cx.fill();
+    // ring
+    cx.strokeStyle=b.col;
+    cx.lineWidth=b.active?4:2.5;
+    cx.beginPath(); cx.arc(x,y,r,0,Math.PI*2); cx.stroke();
+    // label
+    cx.globalAlpha=b.active?1:a;
+    cx.fillStyle=b.active?'#000':b.col;
+    cx.font='bold 13px monospace'; cx.textAlign='center';
+    cx.fillText(b.key,x,y-4);
+    cx.font='bold 10px monospace';
+    cx.fillText(b.label,x,y+12);
   }
+  cx.globalAlpha=1;
+  cx.restore();
 }
 
 function drawGameOver(){
