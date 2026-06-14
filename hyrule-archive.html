@@ -1,1856 +1,2197 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hyrule Archive — The Legend of Zelda</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════════════════════════
-   RESET & VARIABLES
-═══════════════════════════════════════════════════════════════ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold:#d4af37;--gold-light:#f5e27a;--gold-dark:#b8922a;
-  --bg:#04040a;--bg2:#06060f;--bg3:#0a0a14;
-  --adult:#1e3a5f;--adult-glow:#60a5fa;
-  --child:#1a4731;--child-glow:#34d399;
-  --fallen:#4a1942;--fallen-glow:#c4b5fd;
-  --sheikah:#22d3ee;--sheikah-dark:#0e7490;
-  --text:#e8e8f0;--text-dim:#8888aa;
-  --radius:12px;
-  --glow-gold:0 0 30px rgba(212,175,55,.35);
-  --glow-adult:0 0 25px rgba(96,165,250,.35);
-  --glow-child:0 0 25px rgba(52,211,153,.35);
-  --glow-fallen:0 0 25px rgba(196,181,253,.35);
-}
-html{scroll-behavior:smooth}
-body{
-  font-family:'Inter',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  overflow-x:hidden;
-  min-height:100vh;
-}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:3px}
-::selection{background:rgba(212,175,55,.3)}
-
-/* ═══════════════════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════════════════ */
-#nav{
-  position:fixed;top:0;left:0;right:0;z-index:1000;
-  background:rgba(4,4,10,.92);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(212,175,55,.15);
-  height:60px;
-  display:flex;align-items:center;
-}
-.nav-inner{
-  max-width:1300px;margin:0 auto;padding:0 24px;
-  display:flex;align-items:center;gap:8px;width:100%;
-}
-.nav-logo{
-  font-family:'Cinzel Decorative',serif;
-  font-size:1.1rem;
-  color:var(--gold);
-  text-decoration:none;
-  margin-right:16px;
-  display:flex;align-items:center;gap:8px;
-  white-space:nowrap;
-  flex-shrink:0;
-}
-.nav-logo span{font-size:1.2rem}
-.nav-links{
-  display:flex;align-items:center;gap:4px;
-  list-style:none;flex:1;
-}
-.nav-links a{
-  font-family:'Cinzel',serif;
-  font-size:.75rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  color:var(--text-dim);
-  text-decoration:none;
-  padding:6px 12px;
-  border-radius:6px;
-  transition:all .25s;
-  position:relative;
-}
-.nav-links a::after{
-  content:'';
-  position:absolute;bottom:-2px;left:50%;right:50%;
-  height:2px;background:var(--gold);
-  transition:all .25s;
-  border-radius:1px;
-}
-.nav-links a:hover{color:var(--gold-light)}
-.nav-links a.active{color:var(--gold)}
-.nav-links a.active::after{left:12px;right:12px}
-.nav-search-wrap{
-  position:relative;margin-left:auto;
-}
-.nav-search-input{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(212,175,55,.2);
-  border-radius:20px;
-  color:var(--text);
-  font-size:.8rem;
-  padding:6px 14px 6px 32px;
-  width:200px;
-  transition:all .3s;
-  outline:none;
-}
-.nav-search-input:focus{
-  border-color:var(--gold);
-  box-shadow:0 0 15px rgba(212,175,55,.2);
-  width:260px;
-}
-.nav-search-icon{
-  position:absolute;left:10px;top:50%;transform:translateY(-50%);
-  color:var(--text-dim);font-size:.85rem;pointer-events:none;
-}
-.search-dropdown{
-  position:absolute;top:calc(100% + 8px);right:0;
-  min-width:320px;
-  background:var(--bg2);
-  border:1px solid rgba(212,175,55,.2);
-  border-radius:12px;
-  display:none;
-  z-index:2000;
-  overflow:hidden;
-  box-shadow:0 20px 40px rgba(0,0,0,.6);
-}
-.search-dropdown.visible{display:block}
-.search-result-item{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 16px;
-  cursor:pointer;
-  border-bottom:1px solid rgba(255,255,255,.05);
-  transition:background .2s;
-}
-.search-result-item:last-child{border-bottom:none}
-.search-result-item:hover{background:rgba(212,175,55,.08)}
-.sr-icon{font-size:1.2rem;width:28px;text-align:center}
-.sr-name{font-family:'Cinzel',serif;font-size:.8rem;color:var(--gold-light)}
-.sr-type{font-size:.7rem;color:var(--text-dim);margin-top:1px}
-.sr-empty{padding:16px;text-align:center;color:var(--text-dim);font-size:.8rem}
-
-/* ═══════════════════════════════════════════════════════════════
-   SPA PAGE SYSTEM
-═══════════════════════════════════════════════════════════════ */
-.page{
-  display:none;
-  opacity:0;
-  transition:opacity .3s ease;
-  min-height:100vh;
-  padding-top:60px;
-}
-.page.active{
-  display:block;
-  animation:pageIn .35s ease forwards;
-}
-@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* ═══════════════════════════════════════════════════════════════
-   HOME PAGE — HERO + CANVAS
-═══════════════════════════════════════════════════════════════ */
-#page-home{padding-top:0}
-.hero{
-  position:relative;
-  min-height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
-}
-#hero-canvas{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  pointer-events:none;z-index:0;
-}
-.hero-content{
-  position:relative;z-index:2;
-  text-align:center;
-  padding:80px 24px 60px;
-  max-width:800px;margin:0 auto;
-}
-.hero-triforce{
-  width:100px;height:90px;
-  margin:0 auto 32px;
-  filter:drop-shadow(0 0 30px rgba(212,175,55,.6));
-  animation:float 4s ease-in-out infinite;
-}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-.hero-title{
-  font-family:'Cinzel Decorative',serif;
-  font-size:clamp(2.5rem,7vw,5rem);
-  font-weight:900;
-  letter-spacing:.06em;
-  background:linear-gradient(135deg,var(--gold-light) 0%,var(--gold) 40%,var(--gold-dark) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:16px;
-  line-height:1.1;
-  text-shadow:none;
-}
-.hero-sub{
-  font-size:1.05rem;
-  color:var(--text-dim);
-  max-width:560px;margin:0 auto 36px;
-  line-height:1.7;
-}
-.hero-search-bar{
-  display:flex;align-items:center;gap:0;
-  max-width:540px;margin:0 auto 32px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(212,175,55,.3);
-  border-radius:50px;
-  overflow:hidden;
-  transition:box-shadow .3s;
-}
-.hero-search-bar:focus-within{
-  box-shadow:0 0 30px rgba(212,175,55,.3);
-  border-color:var(--gold);
-}
-.hero-search-bar input{
-  flex:1;background:transparent;border:none;outline:none;
-  padding:14px 20px;
-  color:var(--text);
-  font-size:.95rem;
-}
-.hero-search-bar input::placeholder{color:var(--text-dim)}
-.hero-search-btn{
-  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
-  border:none;color:#04040a;
-  padding:12px 24px;
-  font-family:'Cinzel',serif;
-  font-size:.8rem;font-weight:700;
-  cursor:pointer;
-  transition:opacity .2s;
-  white-space:nowrap;
-}
-.hero-search-btn:hover{opacity:.9}
-.hero-ctas{
-  display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;
-  margin-bottom:48px;
-}
-.btn-gold{
-  display:inline-flex;align-items:center;gap:8px;
-  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
-  color:#04040a;
-  font-family:'Cinzel',serif;
-  font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  border:none;border-radius:8px;
-  padding:12px 24px;
-  cursor:pointer;text-decoration:none;
-  transition:all .25s;
-  box-shadow:0 4px 20px rgba(212,175,55,.3);
-}
-.btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(212,175,55,.5)}
-.btn-ghost{
-  display:inline-flex;align-items:center;gap:8px;
-  background:transparent;
-  color:var(--gold);
-  font-family:'Cinzel',serif;
-  font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  border:1px solid var(--gold);border-radius:8px;
-  padding:12px 24px;
-  cursor:pointer;text-decoration:none;
-  transition:all .25s;
-}
-.btn-ghost:hover{background:rgba(212,175,55,.1);transform:translateY(-2px)}
-.hero-stats{
-  display:flex;justify-content:center;gap:40px;flex-wrap:wrap;
-}
-.hero-stat .num{
-  font-family:'Cinzel Decorative',serif;
-  font-size:2rem;
-  color:var(--gold);
-  filter:drop-shadow(0 0 10px rgba(212,175,55,.5));
-}
-.hero-stat .lbl{font-size:.75rem;color:var(--text-dim);margin-top:4px;letter-spacing:.05em}
-.scroll-hint{
-  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
-  color:var(--text-dim);font-size:.75rem;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  animation:fadeUpDown 2s ease-in-out infinite;
-}
-@keyframes fadeUpDown{0%,100%{opacity:.4;transform:translateX(-50%) translateY(0)}50%{opacity:1;transform:translateX(-50%) translateY(4px)}}
-.scroll-hint::after{
-  content:'';width:1px;height:30px;
-  background:linear-gradient(to bottom,var(--gold),transparent);
+:root {
+  --gold: #d4af37;
+  --gold-light: #f5e27a;
+  --gold-dark: #b8922a;
+  --bg: #04040a;
+  --bg2: #06060f;
+  --adult: #1e3a5f;
+  --adult-glow: #60a5fa;
+  --child: #1a4731;
+  --child-glow: #34d399;
+  --fallen: #4a1942;
+  --fallen-glow: #c4b5fd;
+  --sheikah: #22d3ee;
 }
 
-/* HOME FEATURES GRID */
-.home-features{padding:80px 24px;max-width:1200px;margin:0 auto}
-.home-features-title{
-  font-family:'Cinzel Decorative',serif;
-  font-size:1.8rem;
-  text-align:center;
-  background:linear-gradient(135deg,var(--gold-light),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:48px;
-}
-.features-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:20px;
-}
-.feature-card{
-  background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(212,175,55,.02));
-  border:1px solid rgba(212,175,55,.15);
-  border-radius:16px;
-  padding:28px 24px;
-  text-align:center;
-  transition:all .3s;
-  cursor:pointer;
-}
-.feature-card:hover{
-  border-color:rgba(212,175,55,.4);
-  box-shadow:var(--glow-gold);
-  transform:translateY(-4px);
-}
-.feature-card .fc-icon{font-size:2.5rem;margin-bottom:12px;display:block}
-.feature-card h3{font-family:'Cinzel',serif;font-size:.95rem;color:var(--gold-light);margin-bottom:8px}
-.feature-card p{font-size:.82rem;color:var(--text-dim);line-height:1.6}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
-/* ═══════════════════════════════════════════════════════════════
-   SECTION COMMON STYLES
-═══════════════════════════════════════════════════════════════ */
-.section-wrap{max-width:1200px;margin:0 auto;padding:60px 24px}
-.section-title{
-  font-family:'Cinzel Decorative',serif;
-  font-size:clamp(1.5rem,4vw,2.2rem);
-  text-align:center;
-  background:linear-gradient(135deg,var(--gold-light),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:8px;
-}
-.section-subtitle{text-align:center;color:var(--text-dim);font-size:.9rem;margin-bottom:40px}
-.section-divider{
-  width:120px;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent);
-  margin:12px auto 40px;
+body {
+  background: var(--bg);
+  color: #e2e8f0;
+  font-family: 'Cinzel', serif;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   FILTER TABS
-═══════════════════════════════════════════════════════════════ */
-.filter-tabs{
-  display:flex;gap:8px;flex-wrap:wrap;
-  justify-content:center;margin-bottom:36px;
-}
-.filter-tab{
-  font-family:'Cinzel',serif;
-  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;
-  padding:7px 16px;border-radius:20px;
-  border:1px solid rgba(212,175,55,.25);
-  background:transparent;color:var(--text-dim);
-  cursor:pointer;transition:all .25s;
-}
-.filter-tab:hover{border-color:var(--gold);color:var(--gold-light)}
-.filter-tab.active{
-  background:rgba(212,175,55,.15);
-  border-color:var(--gold);
-  color:var(--gold);
-  box-shadow:0 0 12px rgba(212,175,55,.2);
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+/* ===== NAV ===== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(4,4,10,0.95);
+  border-bottom: 1px solid var(--gold-dark);
+  backdrop-filter: blur(12px);
+  padding: 0 2rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   GAME CARDS
-═══════════════════════════════════════════════════════════════ */
-.games-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
-  gap:20px;
-}
-.game-card{
-  background:var(--bg2);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:16px;
-  overflow:hidden;
-  cursor:pointer;
-  transition:all .3s;
-  transform-style:preserve-3d;
-}
-.game-card:hover{
-  border-color:rgba(212,175,55,.35);
-  transform:translateY(-6px);
-  box-shadow:0 16px 40px rgba(0,0,0,.5),var(--glow-gold);
-}
-.card-image-wrap{
-  position:relative;width:100%;
-  padding-top:56.25%; /* 16:9 */
-  overflow:hidden;
-  background:var(--bg3);
-}
-.card-image-wrap img{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  object-fit:cover;
-  transition:transform .5s;
-}
-.game-card:hover .card-image-wrap img{transform:scale(1.06)}
-.game-cover-fallback{
-  position:absolute;inset:0;
-  display:none;
-  align-items:center;justify-content:center;
-  font-size:3rem;
-}
-.card-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(4,4,10,.95) 0%,rgba(4,4,10,.3) 50%,transparent 100%);
-}
-.timeline-badge{
-  position:absolute;top:10px;right:10px;
-  font-family:'Cinzel',serif;
-  font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
-  padding:3px 8px;border-radius:4px;
-  font-weight:700;
-}
-.timeline-badge.fallen{background:rgba(74,25,66,.8);color:var(--fallen-glow);border:1px solid rgba(196,181,253,.3)}
-.timeline-badge.adult{background:rgba(30,58,95,.8);color:var(--adult-glow);border:1px solid rgba(96,165,250,.3)}
-.timeline-badge.child{background:rgba(26,71,49,.8);color:var(--child-glow);border:1px solid rgba(52,211,153,.3)}
-.timeline-badge.split{background:rgba(180,130,20,.8);color:var(--gold-light);border:1px solid rgba(212,175,55,.4)}
-.timeline-badge.origin{background:rgba(30,30,70,.8);color:#a5b4fc;border:1px solid rgba(165,180,252,.3)}
-.card-body{padding:16px}
-.card-body h3{
-  font-family:'Cinzel',serif;
-  font-size:.9rem;
-  color:var(--gold-light);
-  margin-bottom:8px;
-  line-height:1.3;
-}
-.card-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.card-meta span{
-  font-size:.7rem;color:var(--text-dim);
-  background:rgba(255,255,255,.05);
-  border-radius:4px;padding:2px 7px;
-}
-.rating-display{
-  font-size:.75rem;
-  color:var(--gold);
-  letter-spacing:.03em;
+.nav-brand {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 2px;
+  white-space: nowrap;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   GAME MODAL
-═══════════════════════════════════════════════════════════════ */
-.modal{
-  display:none;
-  position:fixed;inset:0;z-index:9000;
-  background:rgba(0,0,0,.85);
-  backdrop-filter:blur(8px);
-  align-items:center;justify-content:center;
-  padding:20px;
-}
-.modal.open{display:flex;animation:fadeModal .25s ease}
-@keyframes fadeModal{from{opacity:0}to{opacity:1}}
-.modal-content{
-  background:var(--bg2);
-  border:1px solid rgba(212,175,55,.2);
-  border-radius:20px;
-  overflow:hidden;
-  max-width:700px;width:100%;
-  max-height:90vh;
-  overflow-y:auto;
-  position:relative;
-  animation:slideUpModal .3s ease;
-}
-@keyframes slideUpModal{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-close{
-  position:absolute;top:14px;right:16px;z-index:10;
-  background:rgba(0,0,0,.6);
-  border:1px solid rgba(255,255,255,.15);
-  color:#fff;border-radius:50%;
-  width:36px;height:36px;
-  font-size:1.2rem;line-height:1;
-  cursor:pointer;transition:all .2s;
-}
-.modal-close:hover{background:rgba(212,175,55,.3);border-color:var(--gold)}
-.modal-img-wrap{
-  position:relative;width:100%;height:300px;overflow:hidden;
-}
-.modal-img-wrap img{width:100%;height:100%;object-fit:cover}
-.modal-img-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to top,var(--bg2) 0%,transparent 60%);
-}
-.modal-body{padding:28px}
-.modal-game-title{
-  font-family:'Cinzel Decorative',serif;
-  font-size:1.8rem;
-  background:linear-gradient(135deg,var(--gold-light),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:12px;
-}
-.modal-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.modal-badge{
-  font-family:'Cinzel',serif;
-  font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;
-  padding:4px 12px;border-radius:6px;
-  border:1px solid rgba(212,175,55,.3);
-  color:var(--gold-light);
-  background:rgba(212,175,55,.08);
-}
-.modal-desc{
-  color:var(--text-dim);
-  line-height:1.75;
-  font-size:.92rem;
-  margin-bottom:24px;
-}
-.rating-bar-label{
-  font-family:'Cinzel',serif;font-size:.75rem;
-  color:var(--text-dim);margin-bottom:8px;
-  display:flex;justify-content:space-between;
-}
-.rating-bar-track{
-  height:6px;background:rgba(255,255,255,.08);
-  border-radius:3px;overflow:hidden;
-}
-.rating-bar-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-light));
-  border-radius:3px;
-  transition:width 1s ease;
-  width:0%;
+.nav-links {
+  display: flex;
+  gap: 0;
+  list-style: none;
+  align-items: center;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   TIMELINE PAGE
-═══════════════════════════════════════════════════════════════ */
-.timeline-origin{
-  text-align:center;margin-bottom:48px;
-}
-.timeline-origin-label{
-  font-family:'Cinzel',serif;
-  font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:16px;
-  display:flex;align-items:center;gap:12px;justify-content:center;
-}
-.timeline-origin-label::before,.timeline-origin-label::after{
-  content:'';flex:1;max-width:60px;height:1px;background:var(--gold);
-}
-.timeline-origin-games{
-  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
-  margin-bottom:32px;
-}
-.tl-origin-item{
-  background:rgba(212,175,55,.08);
-  border:1px solid rgba(212,175,55,.25);
-  border-radius:10px;padding:12px 16px;
-  display:flex;align-items:center;gap:10px;
-  min-width:180px;
-}
-.tl-origin-thumb{
-  width:48px;height:32px;object-fit:cover;border-radius:4px;
-  flex-shrink:0;
-  background:rgba(212,175,55,.2);
-}
-.tl-origin-info h4{font-family:'Cinzel',serif;font-size:.75rem;color:var(--gold-light)}
-.tl-origin-info span{font-size:.68rem;color:var(--text-dim)}
-.split-badge{
-  background:rgba(212,175,55,.2);
-  border:1px solid var(--gold);
-  color:var(--gold);
-  font-family:'Cinzel',serif;
-  font-size:.65rem;letter-spacing:.1em;
-  padding:2px 8px;border-radius:4px;
-  margin-top:3px;display:inline-block;
-}
-.timeline-fork{
-  display:flex;justify-content:center;gap:0;
-  margin-bottom:24px;
-  position:relative;
-}
-.timeline-fork::before{
-  content:'';
-  position:absolute;top:0;left:50%;transform:translateX(-50%);
-  width:1px;height:24px;
-  background:var(--gold);
-}
-.fork-arrows{
-  display:flex;justify-content:center;gap:80px;
-  padding-top:24px;
-}
-.fork-arrow{
-  font-size:1.4rem;
-  animation:pulseArrow 1.5s ease-in-out infinite;
-}
-.fork-arrow:nth-child(2){animation-delay:.2s}
-.fork-arrow:nth-child(3){animation-delay:.4s}
-@keyframes pulseArrow{0%,100%{opacity:.5;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
-.timelines-columns{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:20px;
-}
-.tl-column{
-  background:rgba(255,255,255,.02);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:16px;
-  padding:24px;
-}
-.tl-column.adult{border-color:rgba(96,165,250,.25);box-shadow:0 0 20px rgba(96,165,250,.08)}
-.tl-column.child{border-color:rgba(52,211,153,.25);box-shadow:0 0 20px rgba(52,211,153,.08)}
-.tl-column.fallen{border-color:rgba(196,181,253,.25);box-shadow:0 0 20px rgba(196,181,253,.08)}
-.tl-col-header{
-  font-family:'Cinzel',serif;
-  font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;
-  margin-bottom:20px;
-  padding-bottom:12px;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  display:flex;align-items:center;gap:8px;
-}
-.tl-col-header .dot{width:10px;height:10px;border-radius:50%}
-.tl-col-header.adult-header{color:var(--adult-glow)}.tl-col-header.adult-header .dot{background:var(--adult-glow)}
-.tl-col-header.child-header{color:var(--child-glow)}.tl-col-header.child-header .dot{background:var(--child-glow)}
-.tl-col-header.fallen-header{color:var(--fallen-glow)}.tl-col-header.fallen-header .dot{background:var(--fallen-glow)}
-.tl-game-entry{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 0;
-  border-bottom:1px solid rgba(255,255,255,.04);
-  cursor:pointer;transition:background .2s;
-  border-radius:6px;padding:8px 6px;
-}
-.tl-game-entry:hover{background:rgba(255,255,255,.04)}
-.tl-thumb{
-  width:50px;height:33px;
-  object-fit:cover;border-radius:4px;
-  flex-shrink:0;
-  background:rgba(255,255,255,.05);
-}
-.tl-game-info{flex:1;min-width:0}
-.tl-game-info h4{
-  font-family:'Cinzel',serif;font-size:.72rem;
-  color:var(--text);line-height:1.3;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.tl-game-info span{font-size:.65rem;color:var(--text-dim)}
-
-/* ═══════════════════════════════════════════════════════════════
-   CHARACTERS PAGE
-═══════════════════════════════════════════════════════════════ */
-.characters-list{display:flex;flex-direction:column;gap:24px}
-.char-card{
-  background:rgba(255,255,255,.02);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:20px;
-  padding:28px;
-  display:flex;gap:24px;
-  align-items:flex-start;
-  transition:all .35s;
-  position:relative;
-  overflow:hidden;
-}
-.char-card::before{
-  content:'';
-  position:absolute;inset:0;
-  opacity:0;
-  transition:opacity .35s;
-  pointer-events:none;
-  border-radius:20px;
-}
-.char-card:hover{transform:translateY(-3px)}
-.char-avatar{
-  width:80px;height:80px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Cinzel Decorative',serif;
-  font-size:1.4rem;
-  color:#fff;
-  flex-shrink:0;
-  box-shadow:0 4px 20px rgba(0,0,0,.4);
-}
-.char-info{flex:1;min-width:0}
-.char-name{
-  font-family:'Cinzel',serif;
-  font-size:1.2rem;
-  margin-bottom:6px;
-}
-.char-role{
-  display:inline-block;
-  font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
-  padding:3px 10px;border-radius:4px;
-  margin-bottom:12px;
-  border:1px solid;
-  font-family:'Cinzel',serif;
-}
-.char-desc{
-  color:var(--text-dim);
-  font-size:.88rem;line-height:1.7;
-  margin-bottom:16px;
-}
-.spoiler-toggle{
-  font-family:'Cinzel',serif;
-  font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.12);
-  color:var(--text-dim);
-  padding:6px 14px;border-radius:6px;
-  cursor:pointer;transition:all .25s;
-}
-.spoiler-toggle:hover{color:var(--gold);border-color:var(--gold)}
-.spoiler-text{
-  display:none;
-  margin-top:12px;
-  padding:14px 16px;
-  background:rgba(0,0,0,.3);
-  border-left:3px solid var(--gold);
-  border-radius:0 8px 8px 0;
-  color:var(--text-dim);
-  font-size:.85rem;
-  line-height:1.7;
-  animation:fadeIn .3s ease;
-}
-.spoiler-text.visible{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-
-/* ═══════════════════════════════════════════════════════════════
-   ITEMS PAGE
-═══════════════════════════════════════════════════════════════ */
-.items-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:20px;
-}
-.item-card{
-  background:rgba(255,255,255,.02);
-  border-radius:16px;
-  padding:24px;
-  text-align:center;
-  transition:all .3s;
-  position:relative;
-  overflow:hidden;
-}
-.item-card::before{
-  content:'';
-  position:absolute;inset:0;
-  border-radius:16px;
-  border:1px solid;
-  transition:all .3s;
-}
-.item-card.legendary::before{border-color:rgba(212,175,55,.35)}
-.item-card.epic::before{border-color:rgba(168,85,247,.35)}
-.item-card.rare::before{border-color:rgba(59,130,246,.35)}
-.item-card.common::before{border-color:rgba(107,114,128,.35)}
-.item-card:hover{transform:translateY(-5px)}
-.item-card.legendary:hover{box-shadow:0 12px 40px rgba(212,175,55,.25)}
-.item-card.epic:hover{box-shadow:0 12px 40px rgba(168,85,247,.25)}
-.item-card.rare:hover{box-shadow:0 12px 40px rgba(59,130,246,.25)}
-.item-card.common:hover{box-shadow:0 12px 40px rgba(107,114,128,.2)}
-.item-icon{
-  font-size:3rem;margin-bottom:16px;display:block;
-  filter:drop-shadow(0 0 15px currentColor);
-}
-.item-card.legendary .item-icon{filter:drop-shadow(0 0 15px rgba(212,175,55,.7))}
-.item-card.epic .item-icon{filter:drop-shadow(0 0 15px rgba(168,85,247,.7))}
-.item-card.rare .item-icon{filter:drop-shadow(0 0 15px rgba(59,130,246,.7))}
-.item-rarity-badge{
-  display:inline-block;
-  font-family:'Cinzel',serif;
-  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
-  padding:3px 10px;border-radius:4px;
-  margin-bottom:10px;font-weight:700;
-}
-.item-rarity-badge.legendary{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid rgba(212,175,55,.3)}
-.item-rarity-badge.epic{background:rgba(168,85,247,.15);color:#a855f7;border:1px solid rgba(168,85,247,.3)}
-.item-rarity-badge.rare{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
-.item-rarity-badge.common{background:rgba(107,114,128,.15);color:#9ca3af;border:1px solid rgba(107,114,128,.3)}
-.item-name{font-family:'Cinzel',serif;font-size:1rem;color:var(--text);margin-bottom:10px}
-.item-desc{font-size:.8rem;color:var(--text-dim);line-height:1.6;margin-bottom:14px}
-.item-games{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
-.item-game-tag{
-  font-size:.65rem;padding:2px 7px;border-radius:3px;
-  background:rgba(255,255,255,.06);
-  color:var(--text-dim);
-  font-family:'Cinzel',serif;
-  text-transform:uppercase;
-  letter-spacing:.04em;
+.nav-links li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.3s, border-bottom-color 0.3s;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   SHEIKAH AI PAGE
-═══════════════════════════════════════════════════════════════ */
-#page-ai{background:var(--bg)}
-.ai-section{padding:60px 24px;max-width:900px;margin:0 auto}
-.ai-header{text-align:center;margin-bottom:36px}
-.ai-header h2{
-  font-family:'Cinzel Decorative',serif;
-  font-size:2rem;
-  color:var(--sheikah);
-  text-shadow:0 0 30px rgba(34,211,238,.5);
-  margin-bottom:8px;
+.nav-links li a:hover,
+.nav-links li a.active {
+  color: var(--gold);
+  border-bottom: 2px solid var(--gold);
 }
-.ai-header p{color:var(--text-dim);font-size:.9rem}
-.ai-terminal{
-  background:#020810;
-  border:1px solid rgba(34,211,238,.25);
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 0 60px rgba(34,211,238,.08);
-  position:relative;
+
+/* ===== PAGES ===== */
+.page {
+  display: none;
+  min-height: 100vh;
+  padding-top: 60px;
 }
-.ai-terminal::before{
-  content:'';
-  position:absolute;inset:0;
-  background:repeating-linear-gradient(
-    to bottom,
-    transparent 0px,transparent 2px,
-    rgba(34,211,238,.015) 2px,rgba(34,211,238,.015) 4px
+.page.active { display: block; }
+
+/* ===== HOME ===== */
+#page-home {
+  padding-top: 0;
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#hero-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.triforce-symbol {
+  font-size: 5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 20px var(--gold)) drop-shadow(0 0 40px var(--gold-dark));
+  animation: triforce-pulse 3s ease-in-out infinite;
+  color: var(--gold);
+}
+
+@keyframes triforce-pulse {
+  0%, 100% { filter: drop-shadow(0 0 20px var(--gold)) drop-shadow(0 0 40px var(--gold-dark)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 35px var(--gold-light)) drop-shadow(0 0 70px var(--gold)); transform: scale(1.05); }
+}
+
+.hero-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 40%, var(--gold-light) 60%, var(--gold) 80%, var(--gold-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  filter: drop-shadow(0 0 30px rgba(212,175,55,0.4));
+}
+
+.hero-subtitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(0.75rem, 2vw, 1rem);
+  color: #94a3b8;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.hero-divider {
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.hero-search {
+  position: relative;
+  width: clamp(280px, 50vw, 600px);
+}
+
+.hero-search input {
+  width: 100%;
+  padding: 1rem 3.5rem 1rem 1.5rem;
+  background: rgba(4,4,10,0.8);
+  border: 1px solid var(--gold-dark);
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.hero-search input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(212,175,55,0.2);
+}
+
+.hero-search input::placeholder { color: #475569; }
+
+.search-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gold-dark);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: rgba(6,6,15,0.98);
+  border: 1px solid var(--gold-dark);
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(212,175,55,0.1);
+}
+
+.search-result-item:hover { background: rgba(212,175,55,0.1); }
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item .result-icon { font-size: 1.5rem; }
+
+.search-result-item .result-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+
+.search-result-item .result-type {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #475569;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-header {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+}
+
+.section-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.section-line {
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 1rem auto 0;
+}
+
+/* ===== FILTER TABS ===== */
+.filter-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem 2rem 2rem;
+}
+
+.filter-tab {
+  padding: 0.4rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--gold-dark);
+  color: #94a3b8;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.filter-tab:hover,
+.filter-tab.active {
+  background: var(--gold-dark);
+  border-color: var(--gold);
+  color: var(--bg);
+}
+
+/* ===== GAMES GRID ===== */
+.games-container {
+  padding: 0 2rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.game-card {
+  background: var(--bg2);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  position: relative;
+  will-change: transform;
+}
+
+.game-card:hover {
+  border-color: var(--gold-dark);
+  box-shadow: 0 8px 32px rgba(212,175,55,0.15);
+}
+
+.card-image-wrap {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  background: #0a0a14;
+}
+
+.card-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+  display: block;
+}
+
+.game-card:hover .card-image-wrap img { transform: scale(1.05); }
+
+.game-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(4,4,10,0.9) 0%, rgba(4,4,10,0.1) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.timeline-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.timeline-badge.adult { background: rgba(30,58,95,0.9); color: var(--adult-glow); border: 1px solid var(--adult-glow); }
+.timeline-badge.child { background: rgba(26,71,49,0.9); color: var(--child-glow); border: 1px solid var(--child-glow); }
+.timeline-badge.fallen { background: rgba(74,25,66,0.9); color: var(--fallen-glow); border: 1px solid var(--fallen-glow); }
+.timeline-badge.split { background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid var(--gold); }
+.timeline-badge.origin { background: rgba(255,255,255,0.1); color: #e2e8f0; border: 1px solid #475569; }
+
+.card-body { padding: 1rem; }
+
+.card-body h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 0.5rem;
+}
+
+.card-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-meta .year {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--gold-dark);
+}
+
+.card-meta .platform {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.rating-display {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+/* ===== MODAL ===== */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(4,4,10,0.9);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal.open {
+  display: flex;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-content {
+  background: var(--bg2);
+  border: 1px solid var(--gold-dark);
+  border-radius: 6px;
+  max-width: 700px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  z-index: 10;
+  background: rgba(4,4,10,0.8);
+  border: 1px solid var(--gold-dark);
+  color: var(--gold);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-close:hover { background: var(--gold-dark); color: var(--bg); }
+
+.modal-img-wrap {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  background: #0a0a14;
+  flex-shrink: 0;
+}
+
+.modal-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--bg2) 0%, transparent 60%);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.modal-body h2 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.75rem;
+}
+
+#modal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#modal-desc {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.rating-bar-wrap {
+  background: rgba(212,175,55,0.1);
+  border-radius: 2px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.rating-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+/* ===== TIMELINE ===== */
+.timeline-container {
+  padding: 0 1rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.timeline-origin {
+  text-align: center;
+  padding: 2rem;
+  margin-bottom: 1rem;
+}
+
+.origin-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--gold-dark);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.origin-games {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.origin-game {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 3px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.origin-game:hover {
+  background: rgba(212,175,55,0.15);
+  border-color: var(--gold);
+  box-shadow: 0 0 15px rgba(212,175,55,0.2);
+}
+
+.origin-game img {
+  width: 50px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.origin-game .og-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--gold);
+}
+
+.origin-game .og-year {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+.split-badge {
+  display: inline-block;
+  padding: 0.2rem 0.8rem;
+  background: rgba(212,175,55,0.15);
+  border: 1px solid var(--gold);
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+.timeline-fork {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.timeline-fork svg {
+  width: 100%;
+  max-width: 800px;
+  height: 80px;
+}
+
+.timeline-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.timeline-col {
+  border-radius: 4px;
+  padding: 1.5rem;
+  border: 1px solid;
+}
+
+.timeline-col.adult {
+  background: rgba(30,58,95,0.15);
+  border-color: rgba(96,165,250,0.3);
+  box-shadow: 0 0 20px rgba(96,165,250,0.05);
+}
+
+.timeline-col.child {
+  background: rgba(26,71,49,0.15);
+  border-color: rgba(52,211,153,0.3);
+  box-shadow: 0 0 20px rgba(52,211,153,0.05);
+}
+
+.timeline-col.fallen {
+  background: rgba(74,25,66,0.15);
+  border-color: rgba(196,181,253,0.3);
+  box-shadow: 0 0 20px rgba(196,181,253,0.05);
+}
+
+.timeline-col-header {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.adult .timeline-col-header { color: var(--adult-glow); }
+.child .timeline-col-header { color: var(--child-glow); }
+.fallen .timeline-col-header { color: var(--fallen-glow); }
+
+.timeline-col-line {
+  height: 2px;
+  margin-bottom: 1.5rem;
+  border-radius: 1px;
+}
+
+.adult .timeline-col-line { background: linear-gradient(90deg, transparent, var(--adult-glow), transparent); }
+.child .timeline-col-line { background: linear-gradient(90deg, transparent, var(--child-glow), transparent); }
+.fallen .timeline-col-line { background: linear-gradient(90deg, transparent, var(--fallen-glow), transparent); }
+
+.timeline-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  border-radius: 3px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.timeline-entry:hover { background: rgba(255,255,255,0.05); }
+.adult .timeline-entry:hover { border-color: rgba(96,165,250,0.3); }
+.child .timeline-entry:hover { border-color: rgba(52,211,153,0.3); }
+.fallen .timeline-entry:hover { border-color: rgba(196,181,253,0.3); }
+
+.timeline-entry img {
+  width: 56px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.timeline-entry-thumb-fallback {
+  width: 56px;
+  height: 40px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: rgba(255,255,255,0.05);
+}
+
+.timeline-entry-info .t-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: #e2e8f0;
+  line-height: 1.2;
+}
+
+.timeline-entry-info .t-year {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #64748b;
+  margin-top: 0.15rem;
+}
+
+/* ===== CHARACTERS ===== */
+.characters-container {
+  padding: 0 2rem 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.character-card {
+  background: var(--bg2);
+  border: 1px solid rgba(212,175,55,0.15);
+  border-radius: 6px;
+  padding: 1.5rem;
+  transition: box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.character-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--char-color, var(--gold)), transparent);
+}
+
+.char-main {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.char-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  border: 2px solid;
+  position: relative;
+}
+
+.char-info { flex: 1; }
+
+.char-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 0.4rem;
+}
+
+.char-role {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.75rem;
+  border: 1px solid;
+}
+
+.char-desc {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.7;
+}
+
+.spoiler-btn {
+  margin-top: 1rem;
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(212,175,55,0.3);
+  color: var(--gold-dark);
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.spoiler-btn:hover {
+  background: rgba(212,175,55,0.1);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.spoiler-text {
+  display: none;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(212,175,55,0.05);
+  border-left: 2px solid var(--gold-dark);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  border-radius: 0 3px 3px 0;
+  animation: fadeIn 0.3s ease;
+}
+
+.spoiler-text.visible { display: block; }
+
+/* ===== ITEMS ===== */
+.items-container {
+  padding: 0 2rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.2rem;
+}
+
+.item-card {
+  background: var(--bg2);
+  border: 1px solid rgba(212,175,55,0.15);
+  border-radius: 5px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.item-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.item-card.legendary::before { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.item-card.epic::before { background: linear-gradient(90deg, transparent, #a855f7, transparent); }
+.item-card.rare::before { background: linear-gradient(90deg, transparent, #3b82f6, transparent); }
+.item-card.common::before { background: linear-gradient(90deg, transparent, #6b7280, transparent); }
+
+.item-card:hover { transform: translateY(-4px); }
+
+.item-card.legendary:hover { box-shadow: 0 8px 30px rgba(212,175,55,0.2); border-color: rgba(212,175,55,0.4); }
+.item-card.epic:hover { box-shadow: 0 8px 30px rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.4); }
+.item-card.rare:hover { box-shadow: 0 8px 30px rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.4); }
+.item-card.common:hover { box-shadow: 0 8px 30px rgba(107,114,128,0.2); border-color: rgba(107,114,128,0.4); }
+
+.item-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.item-rarity-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.rarity-legendary { background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid var(--gold-dark); }
+.rarity-epic { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid #7c3aed; }
+.rarity-rare { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid #2563eb; }
+.rarity-common { background: rgba(107,114,128,0.2); color: #9ca3af; border: 1px solid #4b5563; }
+
+.item-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 0.5rem;
+}
+
+.item-desc {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.73rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.item-games {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.item-game-pill {
+  padding: 0.1rem 0.4rem;
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--gold-dark);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.item-game-pill:hover {
+  background: rgba(212,175,55,0.15);
+  color: var(--gold);
+}
+
+.item-games-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #475569;
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+/* ===== AI PAGE ===== */
+#page-ai { background: var(--bg); }
+
+.ai-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.ai-header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+}
+
+.sheikah-eye {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--sheikah);
+  filter: drop-shadow(0 0 15px var(--sheikah));
+  animation: sheikah-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sheikah-pulse {
+  0%, 100% { filter: drop-shadow(0 0 15px var(--sheikah)); }
+  50% { filter: drop-shadow(0 0 30px var(--sheikah)) drop-shadow(0 0 50px var(--sheikah)); }
+}
+
+.ai-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.5rem;
+  color: var(--sheikah);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.ai-subtitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: #475569;
+  letter-spacing: 2px;
+  margin-top: 0.5rem;
+}
+
+.ai-terminal {
+  position: relative;
+  background: #020810;
+  border: 1px solid rgba(34,211,238,0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(34,211,238,0.08);
+}
+
+.ai-terminal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(34,211,238,0.015) 2px,
+    rgba(34,211,238,0.015) 4px
   );
-  pointer-events:none;z-index:1;
-}
-.ai-terminal::after{
-  content:'';
-  position:absolute;inset:0;
-  background:
-    linear-gradient(rgba(34,211,238,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(34,211,238,.03) 1px,transparent 1px);
-  background-size:40px 40px;
-  pointer-events:none;z-index:0;
-}
-.ai-titlebar{
-  background:rgba(34,211,238,.08);
-  border-bottom:1px solid rgba(34,211,238,.15);
-  padding:10px 16px;
-  display:flex;align-items:center;gap:10px;
-  position:relative;z-index:2;
-}
-.ai-titlebar .dot{width:10px;height:10px;border-radius:50%}
-.ai-titlebar .dot-red{background:#f85149}
-.ai-titlebar .dot-yellow{background:#e3b341}
-.ai-titlebar .dot-green{background:#3fb950}
-.ai-titlebar-label{
-  flex:1;text-align:center;
-  font-family:'Share Tech Mono',monospace;
-  font-size:.8rem;color:var(--sheikah);
-  letter-spacing:.1em;
-}
-.ai-status{font-size:.7rem;color:rgba(34,211,238,.6)}
-.ai-messages{
-  height:420px;overflow-y:auto;
-  padding:24px;
-  display:flex;flex-direction:column;gap:16px;
-  position:relative;z-index:2;
-  scrollbar-width:thin;
-  scrollbar-color:rgba(34,211,238,.3) transparent;
-}
-.ai-msg{display:flex;gap:12px;align-items:flex-start}
-.ai-msg.user{flex-direction:row-reverse}
-.ai-msg-avatar{
-  width:36px;height:36px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1rem;flex-shrink:0;
-}
-.ai-msg.ai .ai-msg-avatar{background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.3)}
-.ai-msg.user .ai-msg-avatar{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3)}
-.ai-msg-bubble{
-  max-width:78%;
-  padding:12px 16px;
-  border-radius:12px;
-  font-size:.86rem;
-  line-height:1.65;
-}
-.ai-msg.ai .ai-msg-bubble{
-  background:rgba(34,211,238,.06);
-  border:1px solid rgba(34,211,238,.15);
-  color:var(--text);
-  font-family:'Share Tech Mono',monospace;
-  border-radius:4px 12px 12px 12px;
-}
-.ai-msg.user .ai-msg-bubble{
-  background:rgba(212,175,55,.08);
-  border:1px solid rgba(212,175,55,.2);
-  color:var(--text);
-  border-radius:12px 4px 12px 12px;
-}
-.ai-typing span{
-  display:inline-block;
-  width:7px;height:7px;border-radius:50%;
-  background:var(--sheikah);
-  margin:0 2px;
-  animation:bounce .8s ease infinite;
-}
-.ai-typing span:nth-child(2){animation-delay:.15s}
-.ai-typing span:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
-.ai-suggestions{
-  display:flex;gap:8px;flex-wrap:wrap;
-  padding:16px 24px 0;
-  position:relative;z-index:2;
-}
-.ai-suggestion-pill{
-  font-size:.75rem;
-  padding:6px 14px;
-  border-radius:20px;
-  border:1px solid rgba(34,211,238,.2);
-  background:rgba(34,211,238,.05);
-  color:rgba(34,211,238,.8);
-  cursor:pointer;transition:all .25s;
-  font-family:'Share Tech Mono',monospace;
-}
-.ai-suggestion-pill:hover{
-  background:rgba(34,211,238,.12);
-  border-color:var(--sheikah);
-  color:var(--sheikah);
-}
-.ai-input-area{
-  display:flex;gap:0;
-  padding:16px 24px 24px;
-  position:relative;z-index:2;
-}
-.ai-input{
-  flex:1;
-  background:rgba(34,211,238,.05);
-  border:1px solid rgba(34,211,238,.2);
-  border-right:none;
-  border-radius:8px 0 0 8px;
-  color:var(--sheikah);
-  font-family:'Share Tech Mono',monospace;
-  font-size:.85rem;
-  padding:11px 16px;
-  outline:none;
-  transition:border-color .25s;
-}
-.ai-input:focus{border-color:rgba(34,211,238,.5);box-shadow:-2px 0 20px rgba(34,211,238,.08)}
-.ai-input::placeholder{color:rgba(34,211,238,.3)}
-.ai-send{
-  background:linear-gradient(135deg,var(--sheikah),var(--sheikah-dark));
-  border:none;color:#020810;
-  font-family:'Cinzel',serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;
-  padding:11px 20px;border-radius:0 8px 8px 0;
-  cursor:pointer;transition:opacity .2s;
-  white-space:nowrap;
-}
-.ai-send:hover{opacity:.85}
-
-/* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════════════════════ */
-@media(max-width:900px){
-  .timelines-columns{grid-template-columns:1fr}
-  .nav-links{display:none}
-}
-@media(max-width:600px){
-  .games-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
-  .char-card{flex-direction:column}
-  .nav-search-wrap{display:none}
-  .hero-stats{gap:20px}
-  .hero-stat .num{font-size:1.5rem}
-  .modal-img-wrap{height:200px}
-  .timelines-columns{grid-template-columns:1fr}
-}
-@media(max-width:400px){
-  .games-grid{grid-template-columns:1fr}
+  pointer-events: none;
+  z-index: 1;
+  animation: scanlines 8s linear infinite;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MOBILE NAV TOGGLE
-═══════════════════════════════════════════════════════════════ */
-.mobile-menu-btn{
-  display:none;background:none;border:1px solid rgba(212,175,55,.3);
-  color:var(--gold);border-radius:6px;padding:6px 10px;
-  cursor:pointer;font-size:1rem;margin-left:auto;
-}
-@media(max-width:900px){
-  .mobile-menu-btn{display:block}
-  .nav-search-wrap{display:none}
-  .nav-links.mobile-open{
-    display:flex;flex-direction:column;
-    position:fixed;top:60px;left:0;right:0;
-    background:rgba(4,4,10,.98);backdrop-filter:blur(20px);
-    border-bottom:1px solid rgba(212,175,55,.15);
-    padding:16px 24px;gap:4px;z-index:999;
-  }
-  .nav-links.mobile-open a{padding:10px 12px}
+@keyframes scanlines {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100px; }
 }
 
-/* Utility */
-.hidden{display:none!important}
-.text-center{text-align:center}
+.ai-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(34,211,238,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ai-terminal-header {
+  position: relative;
+  z-index: 2;
+  padding: 0.75rem 1rem;
+  background: rgba(34,211,238,0.05);
+  border-bottom: 1px solid rgba(34,211,238,0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.terminal-dot.red { background: #ef4444; }
+.terminal-dot.yellow { background: var(--gold); }
+.terminal-dot.green { background: #22c55e; }
+
+.terminal-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--sheikah);
+  margin-left: auto;
+  letter-spacing: 2px;
+}
+
+#ai-messages {
+  position: relative;
+  z-index: 2;
+  height: 400px;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ai-msg {
+  display: flex;
+  gap: 0.75rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.ai-msg.user { flex-direction: row-reverse; }
+
+.ai-msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 1px solid;
+}
+
+.ai-msg.assistant .ai-msg-avatar {
+  background: rgba(34,211,238,0.1);
+  border-color: var(--sheikah);
+  color: var(--sheikah);
+}
+
+.ai-msg.user .ai-msg-avatar {
+  background: rgba(212,175,55,0.1);
+  border-color: var(--gold-dark);
+  color: var(--gold);
+}
+
+.ai-msg-bubble {
+  max-width: 75%;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.ai-msg.assistant .ai-msg-bubble {
+  background: rgba(34,211,238,0.07);
+  border: 1px solid rgba(34,211,238,0.2);
+  color: #a5f3fc;
+}
+
+.ai-msg.user .ai-msg-bubble {
+  background: rgba(212,175,55,0.07);
+  border: 1px solid rgba(212,175,55,0.2);
+  color: #fde68a;
+  text-align: right;
+}
+
+.typing-indicator {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 0.75rem 1rem;
+}
+
+.typing-indicator.visible { display: flex; }
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sheikah);
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-8px); opacity: 1; }
+}
+
+.ai-suggestions {
+  position: relative;
+  z-index: 2;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(34,211,238,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.suggestion-pill {
+  padding: 0.3rem 0.8rem;
+  background: rgba(34,211,238,0.05);
+  border: 1px solid rgba(34,211,238,0.2);
+  border-radius: 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #67e8f9;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.suggestion-pill:hover {
+  background: rgba(34,211,238,0.12);
+  border-color: var(--sheikah);
+  color: var(--sheikah);
+}
+
+.ai-input-area {
+  position: relative;
+  z-index: 2;
+  padding: 1rem;
+  border-top: 1px solid rgba(34,211,238,0.15);
+  display: flex;
+  gap: 0.75rem;
+}
+
+#ai-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: rgba(34,211,238,0.05);
+  border: 1px solid rgba(34,211,238,0.25);
+  border-radius: 3px;
+  color: #e2e8f0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#ai-input:focus {
+  border-color: var(--sheikah);
+  box-shadow: 0 0 15px rgba(34,211,238,0.1);
+}
+
+#ai-input::placeholder { color: #1e4a55; }
+
+#ai-send {
+  padding: 0.75rem 1.5rem;
+  background: rgba(34,211,238,0.1);
+  border: 1px solid var(--sheikah);
+  color: var(--sheikah);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+#ai-send:hover {
+  background: rgba(34,211,238,0.2);
+  box-shadow: 0 0 15px rgba(34,211,238,0.2);
+}
+
+.ai-warning {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(234,179,8,0.08);
+  border: 1px solid rgba(234,179,8,0.3);
+  border-radius: 3px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  color: #fde68a;
+  display: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  nav { padding: 0 1rem; }
+  .nav-brand { font-size: 0.75rem; }
+  .nav-links li a { padding: 0.5rem 0.5rem; font-size: 0.65rem; }
+  .timeline-columns { grid-template-columns: 1fr; }
+  .char-main { flex-direction: column; align-items: center; text-align: center; }
+  .hero-title { font-size: 1.8rem; }
+  .ai-msg-bubble { max-width: 90%; }
+}
+
+@media (max-width: 480px) {
+  .nav-links li a { font-size: 0.55rem; letter-spacing: 0; padding: 0.5rem 0.3rem; }
+  .filter-tabs { padding: 0.5rem 1rem 1rem; }
+  .games-container { padding: 0 1rem 4rem; }
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     NAVIGATION
-════════════════════════════════════════════════════════════════ -->
-<nav id="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo" onclick="navigateTo('home');return false">
-      <span>△</span>Hyrule Archive
-    </a>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="#home" data-page="home">Home</a></li>
-      <li><a href="#games" data-page="games">Games</a></li>
-      <li><a href="#timeline" data-page="timeline">Timeline</a></li>
-      <li><a href="#characters" data-page="characters">Characters</a></li>
-      <li><a href="#items" data-page="items">Items</a></li>
-      <li><a href="#ai" data-page="ai">Sheikah AI</a></li>
-    </ul>
-    <div class="nav-search-wrap">
-      <span class="nav-search-icon">🔍</span>
-      <input type="text" class="nav-search-input" id="nav-search" placeholder="Buscar..."/>
-      <div class="search-dropdown" id="search-dropdown"></div>
-    </div>
-    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
-  </div>
+<!-- NAVIGATION -->
+<nav>
+  <div class="nav-brand">⬡ Hyrule Archive</div>
+  <ul class="nav-links">
+    <li><a href="#" data-page="home" class="active" onclick="navigate('home',this);return false">Home</a></li>
+    <li><a href="#" data-page="games" onclick="navigate('games',this);return false">Games</a></li>
+    <li><a href="#" data-page="timeline" onclick="navigate('timeline',this);return false">Timeline</a></li>
+    <li><a href="#" data-page="characters" onclick="navigate('characters',this);return false">Characters</a></li>
+    <li><a href="#" data-page="items" onclick="navigate('items',this);return false">Items</a></li>
+    <li><a href="#" data-page="ai" onclick="navigate('ai',this);return false">Sheikah AI</a></li>
+  </ul>
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     PAGE: HOME
-════════════════════════════════════════════════════════════════ -->
+<!-- HOME PAGE -->
 <section id="page-home" class="page active">
-  <!-- HERO -->
-  <div class="hero">
-    <canvas id="hero-canvas"></canvas>
-    <div class="hero-content">
-      <svg class="hero-triforce" viewBox="0 0 100 90" fill="none">
-        <polygon points="50,3 97,88 3,88" fill="none" stroke="#d4af37" stroke-width="3"/>
-        <polygon points="50,24 73,64 27,64" fill="rgba(212,175,55,.4)" stroke="#d4af37" stroke-width="1.5"/>
-        <polygon points="27,64 50,24 50,64" fill="rgba(212,175,55,.15)"/>
-        <polygon points="50,64 73,24 73,64" fill="rgba(212,175,55,.15)"/>
-      </svg>
-      <h1 class="hero-title">Hyrule Archive</h1>
-      <p class="hero-sub">La enciclopedia definitiva del reino de Hyrule. 40 años de historia, 19 juegos, 3 líneas temporales.</p>
-      <div class="hero-search-bar">
-        <input type="text" id="hero-search-input" placeholder="Busca juegos, personajes, items..."/>
-        <button class="hero-search-btn" onclick="heroSearch()">Buscar</button>
-      </div>
-      <div class="hero-ctas">
-        <button class="btn-gold" onclick="navigateTo('games')">🎮 Ver Juegos</button>
-        <button class="btn-ghost" onclick="navigateTo('timeline')">⏳ Timeline</button>
-        <button class="btn-ghost" onclick="navigateTo('ai')">✨ Sheikah AI</button>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="num">19</div><div class="lbl">Juegos</div></div>
-        <div class="hero-stat"><div class="num">40</div><div class="lbl">Años</div></div>
-        <div class="hero-stat"><div class="num">3</div><div class="lbl">Timelines</div></div>
-        <div class="hero-stat"><div class="num">∞</div><div class="lbl">Horas de aventura</div></div>
-      </div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="triforce-symbol">△</div>
+    <h1 class="hero-title">HYRULE ARCHIVE</h1>
+    <div class="hero-divider"></div>
+    <p class="hero-subtitle">La enciclopedia definitiva del reino de Hyrule</p>
+    <div class="hero-search">
+      <input type="text" id="search-input" placeholder="Busca juegos, personajes, items..." autocomplete="off"
+        oninput="handleSearch(this.value)"
+        onfocus="showSearchResults()"
+        onblur="setTimeout(hideSearchResults,200)">
+      <span class="search-icon">⌕</span>
+      <div class="search-results" id="search-results"></div>
     </div>
-    <div class="scroll-hint">Explorar</div>
   </div>
-  <!-- FEATURES -->
-  <div class="home-features">
-    <h2 class="home-features-title">¿Qué encontrarás aquí?</h2>
-    <div class="features-grid">
-      <div class="feature-card" onclick="navigateTo('games')">
-        <span class="fc-icon">🎮</span>
-        <h3>Biblioteca de Juegos</h3>
-        <p>Los 19 juegos principales con imágenes, fechas, plataformas y ratings detallados.</p>
-      </div>
-      <div class="feature-card" onclick="navigateTo('timeline')">
-        <span class="fc-icon">⏳</span>
-        <h3>Cronología</h3>
-        <p>El complejo timeline de Hyrule visualizado con las 3 ramas Adult, Child y Fallen.</p>
-      </div>
-      <div class="feature-card" onclick="navigateTo('characters')">
-        <span class="fc-icon">🧝</span>
-        <h3>Personajes</h3>
-        <p>Link, Zelda, Ganondorf, Midna y más, con información detallada y spoilers opcionales.</p>
-      </div>
-      <div class="feature-card" onclick="navigateTo('items')">
-        <span class="fc-icon">⚔️</span>
-        <h3>Artefactos</h3>
-        <p>Master Sword, Trifuerza, Hookshot y más, con sistema de rareza y lista de apariciones.</p>
-      </div>
-      <div class="feature-card" onclick="navigateTo('ai')">
-        <span class="fc-icon">🔯</span>
-        <h3>Sheikah AI</h3>
-        <p>Pregunta cualquier cosa sobre Zelda a nuestro asistente terminal con estética Sheikah.</p>
-      </div>
-      <div class="feature-card">
-        <span class="fc-icon">🌐</span>
-        <h3>Todo en Español</h3>
-        <p>Contenido en español pensado para la comunidad hispana de Zelda. ¡Bienvenido!</p>
-      </div>
-    </div>
+  <div class="scroll-hint">
+    <span>EXPLORAR</span>
+    <span>▼</span>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     PAGE: GAMES
-════════════════════════════════════════════════════════════════ -->
+<!-- GAMES PAGE -->
 <section id="page-games" class="page">
-  <div class="section-wrap">
-    <h2 class="section-title">Biblioteca de Juegos</h2>
-    <p class="section-subtitle">Los 19 títulos principales de la franquicia</p>
-    <div class="section-divider"></div>
-    <div class="filter-tabs" id="game-filter-tabs">
-      <button class="filter-tab active" data-era="all">Todos</button>
-      <button class="filter-tab" data-era="switch">Switch Era</button>
-      <button class="filter-tab" data-era="n64">N64 Era</button>
-      <button class="filter-tab" data-era="classic">Classic</button>
-      <button class="filter-tab" data-era="origin">Origin</button>
-      <button class="filter-tab" data-era="handheld">Handheld</button>
-    </div>
+  <div class="section-header">
+    <h2 class="section-title">BIBLIOTECA DE JUEGOS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="filter-tabs" id="era-filters">
+    <button class="filter-tab active" onclick="filterGames('all',this)">All</button>
+    <button class="filter-tab" onclick="filterGames('switch',this)">Switch Era</button>
+    <button class="filter-tab" onclick="filterGames('n64',this)">N64 Era</button>
+    <button class="filter-tab" onclick="filterGames('classic',this)">Classic</button>
+    <button class="filter-tab" onclick="filterGames('origin',this)">Origin</button>
+    <button class="filter-tab" onclick="filterGames('handheld',this)">Handheld</button>
+  </div>
+  <div class="games-container">
     <div class="games-grid" id="games-grid"></div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     PAGE: TIMELINE
-════════════════════════════════════════════════════════════════ -->
+<!-- TIMELINE PAGE -->
 <section id="page-timeline" class="page">
-  <div class="section-wrap">
-    <h2 class="section-title">Cronología de Hyrule</h2>
-    <p class="section-subtitle">El timeline oficial según Hyrule Historia</p>
-    <div class="section-divider"></div>
-
+  <div class="section-header">
+    <h2 class="section-title">CRONOLOGÍA DE HYRULE</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="timeline-container">
     <div class="timeline-origin">
-      <div class="timeline-origin-label">ORIGEN — Antes del punto de quiebre</div>
-      <div class="timeline-origin-games">
-        <div class="tl-origin-item">
-          <img class="tl-origin-thumb" src="https://i.ytimg.com/vi/bGHSSKiQKsA/hqdefault.jpg" alt="Skyward Sword"
-               onerror="this.style.background='#2a3a1a'">
-          <div class="tl-origin-info"><h4>Skyward Sword</h4><span>2011 · Wii</span></div>
+      <div class="origin-label">— Origen de la Saga —</div>
+      <div class="origin-games">
+        <div class="origin-game" onclick="openGameModal('ss')">
+          <img src="https://i.ytimg.com/vi/bGHSSKiQKsA/hqdefault.jpg" alt="Skyward Sword" onerror="this.style.display='none'">
+          <div>
+            <div class="og-title">Skyward Sword</div>
+            <div class="og-year">2011 · Wii</div>
+          </div>
         </div>
-        <div class="tl-origin-item">
-          <img class="tl-origin-thumb" src="" alt="Minish Cap"
-               onerror="this.style.background='#2a3a2a'">
-          <div class="tl-origin-info"><h4>The Minish Cap</h4><span>2004 · GBA</span></div>
+        <div class="origin-game" onclick="openGameModal('mc')">
+          <div style="width:50px;height:36px;background:rgba(255,255,255,0.05);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🎩</div>
+          <div>
+            <div class="og-title">Minish Cap</div>
+            <div class="og-year">2004 · GBA</div>
+          </div>
         </div>
-        <div class="tl-origin-item">
-          <img class="tl-origin-thumb" src="" alt="Four Swords"
-               onerror="this.style.background='#1a2a3a'">
-          <div class="tl-origin-info"><h4>Four Swords</h4><span>2002 · GBA</span></div>
+        <div class="origin-game">
+          <div style="width:50px;height:36px;background:rgba(255,255,255,0.05);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🗡️</div>
+          <div>
+            <div class="og-title">Four Swords</div>
+            <div class="og-year">2002 · GBA</div>
+          </div>
         </div>
-        <div class="tl-origin-item">
-          <img class="tl-origin-thumb" src="https://i.ytimg.com/vi/PPMqhBiifBs/hqdefault.jpg" alt="Ocarina of Time"
-               onerror="this.style.background='#3a2a1a'">
-          <div class="tl-origin-info">
-            <h4>Ocarina of Time</h4><span>1998 · N64</span>
-            <div class="split-badge">SPLIT</div>
+        <div class="origin-game" onclick="openGameModal('oot')">
+          <img src="https://i.ytimg.com/vi/PPMqhBiifBs/hqdefault.jpg" alt="Ocarina of Time" onerror="this.style.display='none'">
+          <div>
+            <div class="og-title">Ocarina of Time</div>
+            <div class="og-year">1998 · N64 &nbsp;<span class="split-badge">SPLIT</span></div>
           </div>
         </div>
       </div>
-      <div class="timeline-fork">
-        <div class="fork-arrows">
-          <span class="fork-arrow" style="color:#60a5fa">↙</span>
-          <span class="fork-arrow" style="color:#34d399">↓</span>
-          <span class="fork-arrow" style="color:#c4b5fd">↘</span>
-        </div>
-      </div>
     </div>
 
-    <div class="timelines-columns">
-      <!-- ADULT TIMELINE -->
-      <div class="tl-column adult">
-        <div class="tl-col-header adult-header">
-          <div class="dot"></div>Adult Timeline
+    <div class="timeline-fork">
+      <svg viewBox="0 0 800 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="400" y1="0" x2="400" y2="30" stroke="#d4af37" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <line x1="400" y1="30" x2="133" y2="70" stroke="#60a5fa" stroke-width="1.5"/>
+        <line x1="400" y1="30" x2="400" y2="70" stroke="#34d399" stroke-width="1.5"/>
+        <line x1="400" y1="30" x2="667" y2="70" stroke="#c4b5fd" stroke-width="1.5"/>
+        <circle cx="133" cy="70" r="4" fill="#60a5fa"/>
+        <circle cx="400" cy="70" r="4" fill="#34d399"/>
+        <circle cx="667" cy="70" r="4" fill="#c4b5fd"/>
+        <text x="133" y="78" text-anchor="middle" font-family="Share Tech Mono" font-size="9" fill="#60a5fa" letter-spacing="1">ADULT</text>
+        <text x="400" y="78" text-anchor="middle" font-family="Share Tech Mono" font-size="9" fill="#34d399" letter-spacing="1">CHILD</text>
+        <text x="667" y="78" text-anchor="middle" font-family="Share Tech Mono" font-size="9" fill="#c4b5fd" letter-spacing="1">FALLEN</text>
+      </svg>
+    </div>
+
+    <div class="timeline-columns">
+      <!-- Adult Timeline -->
+      <div class="timeline-col adult">
+        <div class="timeline-col-header">Adult Timeline</div>
+        <div class="timeline-col-line"></div>
+        <div class="timeline-entry" onclick="openGameModal('ww')">
+          <img src="https://i.ytimg.com/vi/U8yP9JoGTVc/hqdefault.jpg" alt="Wind Waker" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="timeline-entry-thumb-fallback" style="display:none">🌊</div>
+          <div class="timeline-entry-info"><div class="t-title">The Wind Waker</div><div class="t-year">2002</div></div>
         </div>
-        <div id="tl-adult"></div>
+        <div class="timeline-entry" onclick="openGameModal('ph')">
+          <div class="timeline-entry-thumb-fallback">🚢</div>
+          <div class="timeline-entry-info"><div class="t-title">Phantom Hourglass</div><div class="t-year">2007</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('st')">
+          <div class="timeline-entry-thumb-fallback">🚂</div>
+          <div class="timeline-entry-info"><div class="t-title">Spirit Tracks</div><div class="t-year">2009</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('la')">
+          <img src="https://i.ytimg.com/vi/QAHiU_oVTNE/hqdefault.jpg" alt="Link's Awakening" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="timeline-entry-thumb-fallback" style="display:none">🏝️</div>
+          <div class="timeline-entry-info"><div class="t-title">Link's Awakening</div><div class="t-year">1993</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('oos')">
+          <div class="timeline-entry-thumb-fallback">🍂</div>
+          <div class="timeline-entry-info"><div class="t-title">Oracle of Seasons</div><div class="t-year">2001</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('ooa')">
+          <div class="timeline-entry-thumb-fallback">⏳</div>
+          <div class="timeline-entry-info"><div class="t-title">Oracle of Ages</div><div class="t-year">2001</div></div>
+        </div>
       </div>
-      <!-- CHILD TIMELINE -->
-      <div class="tl-column child">
-        <div class="tl-col-header child-header">
-          <div class="dot"></div>Child Timeline
+
+      <!-- Child Timeline -->
+      <div class="timeline-col child">
+        <div class="timeline-col-header">Child Timeline</div>
+        <div class="timeline-col-line"></div>
+        <div class="timeline-entry" onclick="openGameModal('mm')">
+          <img src="https://i.ytimg.com/vi/Xh6J7OAZYJ4/hqdefault.jpg" alt="Majora's Mask" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="timeline-entry-thumb-fallback" style="display:none">🌙</div>
+          <div class="timeline-entry-info"><div class="t-title">Majora's Mask</div><div class="t-year">2000</div></div>
         </div>
-        <div id="tl-child"></div>
+        <div class="timeline-entry" onclick="openGameModal('tp')">
+          <img src="https://i.ytimg.com/vi/LDaUuLY1aqQ/hqdefault.jpg" alt="Twilight Princess" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="timeline-entry-thumb-fallback" style="display:none">🐺</div>
+          <div class="timeline-entry-info"><div class="t-title">Twilight Princess</div><div class="t-year">2006</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('fsa')">
+          <div class="timeline-entry-thumb-fallback">⚔️</div>
+          <div class="timeline-entry-info"><div class="t-title">Four Swords Adventures</div><div class="t-year">2004</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('tfh')">
+          <div class="timeline-entry-thumb-fallback">🔱</div>
+          <div class="timeline-entry-info"><div class="t-title">Tri Force Heroes</div><div class="t-year">2015</div></div>
+        </div>
       </div>
-      <!-- FALLEN TIMELINE -->
-      <div class="tl-column fallen">
-        <div class="tl-col-header fallen-header">
-          <div class="dot"></div>Fallen Timeline
+
+      <!-- Fallen Timeline -->
+      <div class="timeline-col fallen">
+        <div class="timeline-col-header">Fallen Timeline</div>
+        <div class="timeline-col-line"></div>
+        <div class="timeline-entry" onclick="openGameModal('alttp')">
+          <div class="timeline-entry-thumb-fallback">🌑</div>
+          <div class="timeline-entry-info"><div class="t-title">A Link to the Past</div><div class="t-year">1991</div></div>
         </div>
-        <div id="tl-fallen"></div>
+        <div class="timeline-entry" onclick="openGameModal('z2')">
+          <div class="timeline-entry-thumb-fallback">🏰</div>
+          <div class="timeline-entry-info"><div class="t-title">Zelda II: Adventure of Link</div><div class="t-year">1987</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('loz')">
+          <div class="timeline-entry-thumb-fallback">🗡️</div>
+          <div class="timeline-entry-info"><div class="t-title">The Legend of Zelda</div><div class="t-year">1986</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('albw')">
+          <img src="https://i.ytimg.com/vi/8s_HwVzXSR8/hqdefault.jpg" alt="A Link Between Worlds" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="timeline-entry-thumb-fallback" style="display:none">🖼️</div>
+          <div class="timeline-entry-info"><div class="t-title">A Link Between Worlds</div><div class="t-year">2013</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('botw')">
+          <img src="https://i.ytimg.com/vi/1rPxiXXxftE/hqdefault.jpg" alt="Breath of the Wild" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="timeline-entry-thumb-fallback" style="display:none">🌿</div>
+          <div class="timeline-entry-info"><div class="t-title">Breath of the Wild</div><div class="t-year">2017</div></div>
+        </div>
+        <div class="timeline-entry" onclick="openGameModal('totk')">
+          <img src="https://i.ytimg.com/vi/uHGShqcAHlQ/hqdefault.jpg" alt="Tears of the Kingdom" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="timeline-entry-thumb-fallback" style="display:none">👁️</div>
+          <div class="timeline-entry-info"><div class="t-title">Tears of the Kingdom</div><div class="t-year">2023</div></div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     PAGE: CHARACTERS
-════════════════════════════════════════════════════════════════ -->
+<!-- CHARACTERS PAGE -->
 <section id="page-characters" class="page">
-  <div class="section-wrap">
-    <h2 class="section-title">Personajes Legendarios</h2>
-    <p class="section-subtitle">Los héroes, sabias y villanos de Hyrule</p>
-    <div class="section-divider"></div>
-    <div class="characters-list" id="characters-list"></div>
+  <div class="section-header">
+    <h2 class="section-title">PERSONAJES LEGENDARIOS</h2>
+    <div class="section-line"></div>
   </div>
+  <div class="characters-container" id="characters-container"></div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     PAGE: ITEMS
-════════════════════════════════════════════════════════════════ -->
+<!-- ITEMS PAGE -->
 <section id="page-items" class="page">
-  <div class="section-wrap">
-    <h2 class="section-title">Artefactos de Hyrule</h2>
-    <p class="section-subtitle">Las armas y reliquias más poderosas del reino</p>
-    <div class="section-divider"></div>
-    <div class="filter-tabs" id="item-filter-tabs">
-      <button class="filter-tab active" data-rarity="all">Todos</button>
-      <button class="filter-tab" data-rarity="legendary">Legendary</button>
-      <button class="filter-tab" data-rarity="epic">Epic</button>
-      <button class="filter-tab" data-rarity="rare">Rare</button>
-      <button class="filter-tab" data-rarity="common">Common</button>
-    </div>
+  <div class="section-header">
+    <h2 class="section-title">ARTEFACTOS DE HYRULE</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="filter-tabs" id="rarity-filters">
+    <button class="filter-tab active" onclick="filterItems('all',this)">All</button>
+    <button class="filter-tab" onclick="filterItems('legendary',this)">Legendary</button>
+    <button class="filter-tab" onclick="filterItems('epic',this)">Epic</button>
+    <button class="filter-tab" onclick="filterItems('rare',this)">Rare</button>
+    <button class="filter-tab" onclick="filterItems('common',this)">Common</button>
+  </div>
+  <div class="items-container">
     <div class="items-grid" id="items-grid"></div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     PAGE: SHEIKAH AI
-════════════════════════════════════════════════════════════════ -->
+<!-- AI PAGE -->
 <section id="page-ai" class="page">
-  <div class="ai-section">
+  <div class="ai-container">
     <div class="ai-header">
-      <h2>🔯 Sheikah AI</h2>
-      <p>El oráculo del conocimiento Sheikah. Pregunta todo sobre el universo de Zelda.</p>
+      <span class="sheikah-eye">👁</span>
+      <h2 class="ai-title">Sheikah AI</h2>
+      <p class="ai-subtitle">// Sistema de Inteligencia Sheikah — Hyrule Archive //</p>
     </div>
     <div class="ai-terminal">
-      <div class="ai-titlebar">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-        <div class="ai-titlebar-label">SHEIKAH TERMINAL v4.7 — HYRULE ARCHIVE</div>
-        <div class="ai-status">● ONLINE</div>
+      <div class="ai-grid-bg"></div>
+      <div class="ai-terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">SHEIKAH_AI v3.0 — CONNECTED</span>
       </div>
-      <div class="ai-messages" id="ai-messages"></div>
+      <div id="ai-messages">
+        <div class="ai-msg assistant">
+          <div class="ai-msg-avatar">👁</div>
+          <div class="ai-msg-bubble">
+            Saludos, viajero. Soy el Oráculo Sheikah, guardián del conocimiento ancestral de Hyrule.<br><br>
+            Puedo responder tus preguntas sobre la saga The Legend of Zelda: cronología, personajes, items, secretos y más.<br><br>
+            ¿En qué puedo guiarte hoy?
+          </div>
+        </div>
+        <div class="typing-indicator" id="typing-indicator">
+          <div class="ai-msg-avatar" style="width:32px;height:32px;border-radius:50%;border:1px solid #22d3ee;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:#22d3ee;flex-shrink:0;">👁</div>
+          <div style="display:flex;gap:4px;align-items:center;padding:0.5rem 0.75rem;background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:4px;">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      </div>
       <div class="ai-suggestions">
-        <button class="ai-suggestion-pill" onclick="sendAIMessage('¿Cuál es el orden del timeline?')">¿Orden del timeline?</button>
-        <button class="ai-suggestion-pill" onclick="sendAIMessage('¿Qué es la Trifuerza?')">¿Qué es la Trifuerza?</button>
-        <button class="ai-suggestion-pill" onclick="sendAIMessage('¿Quién es Sheik realmente?')">¿Quién es Sheik?</button>
-        <button class="ai-suggestion-pill" onclick="sendAIMessage('¿Cuántos juegos hay en la saga?')">¿Cuántos juegos?</button>
-        <button class="ai-suggestion-pill" onclick="sendAIMessage('¿Cuál es el mejor Zelda?')">¿El mejor Zelda?</button>
+        <button class="suggestion-pill" onclick="askSuggestion('¿Cuál es el orden del timeline?')">¿Cuál es el orden del timeline?</button>
+        <button class="suggestion-pill" onclick="askSuggestion('¿Qué es la Trifuerza?')">¿Qué es la Trifuerza?</button>
+        <button class="suggestion-pill" onclick="askSuggestion('¿Quién es Sheik realmente?')">¿Quién es Sheik realmente?</button>
+        <button class="suggestion-pill" onclick="askSuggestion('¿Cuántos juegos hay?')">¿Cuántos juegos hay?</button>
       </div>
       <div class="ai-input-area">
-        <input type="text" class="ai-input" id="ai-input" placeholder="Escribe tu pregunta sobre Zelda..." onkeydown="if(event.key==='Enter')sendAIMessage()"/>
-        <button class="ai-send" onclick="sendAIMessage()">ENVIAR</button>
+        <input type="text" id="ai-input" placeholder="Escribe tu pregunta sobre Hyrule..." onkeydown="if(event.key==='Enter')sendAIMessage()">
+        <button id="ai-send" onclick="sendAIMessage()">Enviar</button>
       </div>
+    </div>
+    <div class="ai-warning" id="ai-warning">
+      ⚠️ Despliega en Vercel con ANTHROPIC_API_KEY para activar el Sheikah AI real
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     GAME MODAL
-════════════════════════════════════════════════════════════════ -->
+<!-- GAME MODAL -->
 <div id="game-modal" class="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-content">
     <button class="modal-close" onclick="closeModal()">×</button>
     <div class="modal-img-wrap">
-      <img id="modal-img" src="" alt=""
-           onerror="this.style.display='none';document.getElementById('modal-img-fallback').style.display='flex'"/>
-      <div id="modal-img-fallback" style="display:none;width:100%;height:300px;align-items:center;justify-content:center;font-size:5rem;background:#0a0a14;"></div>
+      <img id="modal-img" src="" alt="">
       <div class="modal-img-overlay"></div>
     </div>
     <div class="modal-body">
-      <h2 class="modal-game-title" id="modal-title"></h2>
-      <div class="modal-badges" id="modal-badges"></div>
-      <p class="modal-desc" id="modal-desc"></p>
-      <div class="rating-bar-label">
-        <span>Rating</span><span id="modal-rating-text"></span>
-      </div>
-      <div class="rating-bar-track">
-        <div class="rating-bar-fill" id="modal-rating-bar"></div>
-      </div>
+      <h2 id="modal-title"></h2>
+      <div id="modal-badges"></div>
+      <p id="modal-desc"></p>
+      <div class="rating-bar-wrap"><div id="modal-rating-bar" class="rating-bar" style="width:0%"></div></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════════════════════════════════ -->
 <script>
-/* ── DATA ──────────────────────────────────────────────────────── */
+// ============================================================
+// DATA
+// ============================================================
 const GAME_IMAGES = {
   'botw': 'https://i.ytimg.com/vi/1rPxiXXxftE/hqdefault.jpg',
   'totk': 'https://i.ytimg.com/vi/uHGShqcAHlQ/hqdefault.jpg',
-  'oot':  'https://i.ytimg.com/vi/PPMqhBiifBs/hqdefault.jpg',
-  'mm':   'https://i.ytimg.com/vi/Xh6J7OAZYJ4/hqdefault.jpg',
-  'tp':   'https://i.ytimg.com/vi/LDaUuLY1aqQ/hqdefault.jpg',
-  'ss':   'https://i.ytimg.com/vi/bGHSSKiQKsA/hqdefault.jpg',
-  'ww':   'https://i.ytimg.com/vi/U8yP9JoGTVc/hqdefault.jpg',
-  'la':   'https://i.ytimg.com/vi/QAHiU_oVTNE/hqdefault.jpg',
+  'oot': 'https://i.ytimg.com/vi/PPMqhBiifBs/hqdefault.jpg',
+  'mm': 'https://i.ytimg.com/vi/Xh6J7OAZYJ4/hqdefault.jpg',
+  'tp': 'https://i.ytimg.com/vi/LDaUuLY1aqQ/hqdefault.jpg',
+  'ss': 'https://i.ytimg.com/vi/bGHSSKiQKsA/hqdefault.jpg',
+  'ww': 'https://i.ytimg.com/vi/U8yP9JoGTVc/hqdefault.jpg',
+  'la': 'https://i.ytimg.com/vi/QAHiU_oVTNE/hqdefault.jpg',
   'albw': 'https://i.ytimg.com/vi/8s_HwVzXSR8/hqdefault.jpg',
 };
 
 const GAMES = [
-  { id:'botw',  title:'Breath of the Wild',       year:2017, platform:'Switch / Wii U',  era:'switch',  timeline:'fallen', rating:10, color:'#1a5c3a', desc:'Un mundo abierto revolucionario. Link despierta sin memoria y debe explorar un Hyrule destruido por Calamity Ganon. GOTY universal, redefinió la saga.'},
-  { id:'totk',  title:'Tears of the Kingdom',     year:2023, platform:'Switch',           era:'switch',  timeline:'fallen', rating:10, color:'#2d3a1a', desc:'La secuela de BotW eleva el concepto: las islas del cielo, las profundidades oscuras y poderes como Ultrahand y Fuse redefinen la exploración.'},
-  { id:'oot',   title:'Ocarina of Time',           year:1998, platform:'N64',             era:'n64',     timeline:'split',  rating:10, color:'#3a2a1a', desc:'El punto de quiebre del timeline. Link viaja al futuro para derrotar a Ganondorf. El primer Zelda 3D. Considerado por muchos el mejor videojuego de la historia.'},
-  { id:'mm',    title:"Majora's Mask",             year:2000, platform:'N64',             era:'n64',     timeline:'child',  rating:9,  color:'#1a1a3a', desc:'La secuela oscura de OoT. Link tiene 3 días para salvar Termina antes de que la Luna caiga. Sistema de máscaras y narrativa profunda.'},
-  { id:'ww',    title:'The Wind Waker',            year:2002, platform:'GameCube',        era:'classic', timeline:'adult',  rating:9,  color:'#1a3a4a', desc:'Hyrule inundado siglos después. Link navega el Gran Mar con cel-shading artístico. Arte visual único, historia emotiva sobre un Hyrule perdido.'},
-  { id:'tp',    title:'Twilight Princess',         year:2006, platform:'Wii / GC',        era:'classic', timeline:'child',  rating:9,  color:'#1a1a2a', desc:'El Zelda más oscuro y cinematico. Link se transforma en lobo para explorar el Twilight Realm junto a Midna. Ganondorf en su mejor forma.'},
-  { id:'ss',    title:'Skyward Sword',             year:2011, platform:'Wii',             era:'classic', timeline:'origin', rating:8,  color:'#2a3a1a', desc:'El origen de todo. Link vive en las nubes sobre las Nubes Eternas y desciende a la superficie. Primera vez que Zelda usa su nombre con propósito.'},
-  { id:'la',    title:"Link's Awakening",          year:1993, platform:'Game Boy / Switch',era:'handheld',timeline:'adult', rating:9,  color:'#1a2a3a', desc:'Link naufragado en Koholint Island. Para escapar debe despertar al Wind Fish. Un sueño hecho realidad, remake en Switch con arte diorama.'},
-  { id:'alttp', title:'A Link to the Past',        year:1991, platform:'SNES',            era:'classic', timeline:'fallen', rating:10, color:'#2a1a3a', desc:'El clásico definitivo. Introduce el Dark World, la Master Sword y el formato de mazmorras que definió la serie. Obra maestra del SNES.'},
-  { id:'albw',  title:'A Link Between Worlds',     year:2013, platform:'3DS',             era:'handheld',timeline:'fallen', rating:9,  color:'#3a1a2a', desc:'Secuela de ALttP para 3DS. Link puede fusionarse con las paredes como pintura 2D. Nuevo sistema de alquiler de items, exploración libre.'},
-  { id:'ph',    title:'Phantom Hourglass',         year:2007, platform:'DS',              era:'handheld',timeline:'adult',  rating:7,  color:'#1a3a3a', desc:'Continuación directa de Wind Waker. Link y Tetra navegan nuevos mares. Control táctil exclusivo del DS, Temple of the Ocean King.'},
-  { id:'st',    title:'Spirit Tracks',             year:2009, platform:'DS',              era:'handheld',timeline:'adult',  rating:7,  color:'#1a3a2a', desc:'Zelda como companion activo. Link conduce un tren de espíritu por New Hyrule. Zelda puede poseer Phantom Knights para resolver puzzles.'},
-  { id:'mc',    title:'The Minish Cap',            year:2004, platform:'GBA',             era:'handheld',timeline:'origin', rating:8,  color:'#2a3a2a', desc:'Link reduce su tamaño a escala de ratón con el Minish Cap. Hyrule se vuelve gigante. Introduce al villain Vaati y el Four Sword.'},
-  { id:'fsa',   title:'Four Swords Adventures',    year:2004, platform:'GBA',             era:'handheld',timeline:'child',  rating:7,  color:'#1a2a1a', desc:'Cuatro Links cooperan usando GBA como control individual. Shadow Link como antagonista. Requería 4 GBAs conectadas, experiencia única.'},
-  { id:'oos',   title:'Oracle of Seasons',         year:2001, platform:'GBC',             era:'handheld',timeline:'adult',  rating:8,  color:'#3a2a1a', desc:'Link controla las estaciones para resolver puzzles. Diseñado por Capcom, linked game con Oracle of Ages. Villain: General Onox.'},
-  { id:'ooa',   title:'Oracle of Ages',            year:2001, platform:'GBC',             era:'handheld',timeline:'adult',  rating:8,  color:'#1a2a3a', desc:'Link viaja al pasado y futuro de Labrynna. Puzzle-focused, complementa a Oracle of Seasons. Villain: Sorceress Veran.'},
-  { id:'loz',   title:'The Legend of Zelda',       year:1986, platform:'NES',             era:'classic', timeline:'fallen', rating:8,  color:'#3a3a1a', desc:'El original. Link recolecta los fragmentos de la Trifuerza en dungeons para derrotar a Ganon. Creó el género de aventura-exploración.'},
-  { id:'z2',    title:'Zelda II: Adventure of Link',year:1987, platform:'NES',            era:'classic', timeline:'fallen', rating:7,  color:'#2a3a1a', desc:'El más diferente de la saga. Side-scroller con RPG elements. Link busca las sleeping spells para despertar a la Princesa Zelda durmiente.'},
-  { id:'tfh',   title:'Tri Force Heroes',          year:2015, platform:'3DS',             era:'handheld',timeline:'child',  rating:7,  color:'#3a1a3a', desc:'3 Links cooperativos. Sistema de trajes que dan poderes. Desafío de fashion con Lady Maud como antagonista. Multijugador cooperativo.'},
+  { id:'botw', title:'Breath of the Wild', year:2017, platform:'Switch / Wii U', era:'switch', timeline:'fallen', rating:10, color:'#1a5c3a', desc:'Un mundo abierto revolucionario. Link despierta sin memoria y debe explorar un Hyrule destruido por Calamity Ganon. GOTY universal, redefinió la saga.' },
+  { id:'totk', title:'Tears of the Kingdom', year:2023, platform:'Switch', era:'switch', timeline:'fallen', rating:10, color:'#2d3a1a', desc:'La secuela de BotW eleva el concepto: las islas del cielo, las profundidades oscuras y poderes como Ultrahand y Fuse redefinen la exploración.' },
+  { id:'oot', title:'Ocarina of Time', year:1998, platform:'N64', era:'n64', timeline:'split', rating:10, color:'#3a2a1a', desc:'El punto de quiebre del timeline. Link viaja al futuro para derrotar a Ganondorf. El primer Zelda 3D. Considerado por muchos el mejor videojuego de la historia.' },
+  { id:'mm', title:"Majora's Mask", year:2000, platform:'N64', era:'n64', timeline:'child', rating:9, color:'#1a1a3a', desc:'La secuela oscura de OoT. Link tiene 3 días para salvar Termina antes de que la Luna caiga. Sistema de máscaras y narrativa profunda.' },
+  { id:'ww', title:'The Wind Waker', year:2002, platform:'GameCube', era:'classic', timeline:'adult', rating:9, color:'#1a3a4a', desc:'Hyrule inundado siglos después. Link navega el Gran Mar con cel-shading artístico. Arte visual único, historia emotiva sobre un Hyrule perdido.' },
+  { id:'tp', title:'Twilight Princess', year:2006, platform:'Wii / GC', era:'classic', timeline:'child', rating:9, color:'#1a1a2a', desc:'El Zelda más oscuro y cinematico. Link se transforma en lobo para explorar el Twilight Realm junto a Midna. Ganondorf en su mejor forma.' },
+  { id:'ss', title:'Skyward Sword', year:2011, platform:'Wii', era:'classic', timeline:'origin', rating:8, color:'#2a3a1a', desc:'El origen de todo. Link vive en las nubes sobre las Nubes Eternas y desciende a la superficie. Primera vez que Zelda usa su nombre con propósito.' },
+  { id:'la', title:"Link's Awakening", year:1993, platform:'Game Boy / Switch', era:'handheld', timeline:'adult', rating:9, color:'#1a2a3a', desc:"Link naufragado en Koholint Island. Para escapar debe despertar al Wind Fish. Un sueño hecho realidad, remake en Switch con arte diorama." },
+  { id:'alttp', title:'A Link to the Past', year:1991, platform:'SNES', era:'classic', timeline:'fallen', rating:10, color:'#2a1a3a', desc:'El clásico definitivo. Introduce el Dark World, la Master Sword y el formato de mazmorras que definió la serie. Obra maestra del SNES.' },
+  { id:'albw', title:'A Link Between Worlds', year:2013, platform:'3DS', era:'handheld', timeline:'fallen', rating:9, color:'#3a1a2a', desc:'Secuela de ALttP para 3DS. Link puede fusionarse con las paredes como pintura 2D. Nuevo sistema de alquiler de items, exploración libre.' },
+  { id:'ph', title:'Phantom Hourglass', year:2007, platform:'DS', era:'handheld', timeline:'adult', rating:7, color:'#1a3a3a', desc:'Continuación directa de Wind Waker. Link y Tetra navegan nuevos mares. Control táctil exclusivo del DS, Temple of the Ocean King.' },
+  { id:'st', title:'Spirit Tracks', year:2009, platform:'DS', era:'handheld', timeline:'adult', rating:7, color:'#1a3a2a', desc:'Zelda como companion activo. Link conduce un tren de espíritu por New Hyrule. Zelda puede poseer Phantom Knights para resolver puzzles.' },
+  { id:'mc', title:'The Minish Cap', year:2004, platform:'GBA', era:'handheld', timeline:'origin', rating:8, color:'#2a3a2a', desc:'Link reduce su tamaño a escala de ratón con el Minish Cap. Hyrule se vuelve gigante. Introduce al villain Vaati y el Four Sword.' },
+  { id:'fsa', title:'Four Swords Adventures', year:2004, platform:'GBA', era:'handheld', timeline:'child', rating:7, color:'#1a2a1a', desc:'Cuatro Links cooperan usando GBA como control individual. Shadow Link como antagonista. Requería 4 GBAs conectadas, experiencia única.' },
+  { id:'oos', title:'Oracle of Seasons', year:2001, platform:'GBC', era:'handheld', timeline:'adult', rating:8, color:'#3a2a1a', desc:'Link controla las estaciones para resolver puzzles. Diseñado por Capcom, linked game con Oracle of Ages. Villain: General Onox.' },
+  { id:'ooa', title:'Oracle of Ages', year:2001, platform:'GBC', era:'handheld', timeline:'adult', rating:8, color:'#1a2a3a', desc:'Link viaja al pasado y futuro de Labrynna. Puzzle-focused, complementa a Oracle of Seasons. Villain: Sorceress Veran.' },
+  { id:'loz', title:'The Legend of Zelda', year:1986, platform:'NES', era:'classic', timeline:'fallen', rating:8, color:'#3a3a1a', desc:'El original. Link recolecta los fragmentos de la Trifuerza en dungeons para derrotar a Ganon. Creó el género de aventura-exploración.' },
+  { id:'z2', title:'Zelda II: Adventure of Link', year:1987, platform:'NES', era:'classic', timeline:'fallen', rating:7, color:'#2a3a1a', desc:'El más diferente de la saga. Side-scroller con RPG elements. Link busca las sleeping spells para despertar a la Princesa Zelda durmiente.' },
+  { id:'tfh', title:'Tri Force Heroes', year:2015, platform:'3DS', era:'handheld', timeline:'child', rating:7, color:'#3a1a3a', desc:'3 Links cooperativos. Sistema de trajes que dan poderes. Desafío de fashion con Lady Maud como antagonista. Multijugador cooperativo.' },
 ];
 
 const CHARACTERS = [
-  { id:'link',      name:'Link',                role:'Héroe Elegido',            color:'#34d399', gradient:'linear-gradient(135deg,#1a7a40,#2d9e5c)', initials:'L',  desc:'El héroe eterno reencarnado a través de las eras. Portador del Triforce of Courage, destinado a combatir las fuerzas del mal cuando Hyrule lo necesita. Sin voz pero con un corazón indomable.',                spoiler:'En Breath of the Wild, Link perdió todos sus recuerdos y resucitó 100 años después del desastre. Su verdadera historia es la de un héroe que cargó demasiado solo.' },
-  { id:'zelda',     name:'Princess Zelda',       role:'Sabia Reencarnada',        color:'#60a5fa', gradient:'linear-gradient(135deg,#1e3a8a,#2563eb)', initials:'Z',  desc:'Portadora del Triforce of Wisdom. En cada era renace para guiar al héroe. A la vez princesa, hechicera, guerrera y símbolo de esperanza para el reino de Hyrule.',                                    spoiler:'Zelda sacrifica siglos de su existencia para mantener sellado a Calamity Ganon en BotW. En TotK descubre a Rauru y sacrifica su forma divina para dar poderes a Link.' },
-  { id:'ganondorf', name:'Ganondorf',            role:'Rey del Mal',              color:'#f97316', gradient:'linear-gradient(135deg,#7c2d12,#b45309)', initials:'G',  desc:'El Gerudo que porta el Triforce of Power. Reencarnación de Demise, el primer mal. Su ambición por conquistar Hyrule lo lleva a transformarse en el cerdo bestial Ganon.',                         spoiler:'En OoT fue sellado en el Sacred Realm. Escapó para BotW donde se convirtió en Calamity Ganon. En TotK regresa a su forma original Gerudo como Demon King.' },
-  { id:'midna',     name:'Midna',                role:'Princesa del Crepúsculo',  color:'#c4b5fd', gradient:'linear-gradient(135deg,#4c1d95,#7c3aed)', initials:'M',  desc:'Implike companion de Twilight Princess, sarcástica y misteriosamente poderosa. Se alía con Link para recuperar su reino del Twilight después de ser maldecida por Zant.',                              spoiler:'Midna es en realidad la princesa legítima del Twilight Realm. Al final destruye el Mirror of Twilight, separando para siempre los dos mundos. Su partida es uno de los momentos más emotivos de la saga.' },
-  { id:'sheik',     name:'Sheik',                role:'Guerrero Misterioso',      color:'#2dd4bf', gradient:'linear-gradient(135deg,#0f766e,#0d9488)', initials:'S',  desc:'Enigmático ninja que aparece a lo largo de Ocarina of Time guiando a Link con fragmentos de sabiduría. Maestro del disfraz y el sigilo, siempre un paso adelante.',                                   spoiler:"Sheik es en realidad la Princesa Zelda disfrazada. Después de enviar a Link al futuro, Zelda tomó esta identidad para esconderse de Ganondorf durante 7 años." },
-  { id:'impa',      name:'Impa',                 role:'Guardiana Real Sheikah',   color:'#93c5fd', gradient:'linear-gradient(135deg,#1e3a5f,#2563eb)', initials:'I',  desc:'La leal guardiana Sheikah de la familia real de Hyrule. Aparece en múltiples juegos como protectora de Zelda, guerrera sagaz y transmisora de conocimiento ancestral.',                                  spoiler:'En Skyward Sword se revela que la Impa anciana del presente fue la guerrera Sheikah joven que acompañó a Zelda en el pasado, viviendo milenios para completar el ciclo.' },
-  { id:'fi',        name:'Fi',                   role:'Espíritu de la Master Sword',color:'#bfdbfe',gradient:'linear-gradient(135deg,#1d4ed8,#60a5fa)',initials:'Fi', desc:'El espíritu digital del Goddess Sword / Master Sword en Skyward Sword. Guía a Link con lógica y probabilidades, habla en términos técnicos. Su despedida final es devastadora.',                     spoiler:'Fi es consciente desde el principio de que su propósito terminará cuando Link complete la misión. Elige dormir dentro de la Master Sword para siempre, sacrificando su consciencia.' },
-  { id:'navi',      name:'Navi',                 role:'Hada Guía',                color:'#67e8f9', gradient:'linear-gradient(135deg,#0e7490,#22d3ee)', initials:'N',  desc:'La hada compañera de Link en Ocarina of Time. Asignada por el Gran Árbol Deku, guía al joven Link a través de Hyrule con consejos y el famoso "Hey! Listen!"',                                        spoiler:"Al final de OoT, Navi abandona a Link en silencio mientras él duerme en el Temple of Time. Su partida es lo que motiva a Link a buscarla al inicio de Majora's Mask." },
+  { id:'link', name:'Link', role:'Héroe Elegido', color:'#34d399', gradient:'linear-gradient(135deg,#1a7a40,#2d9e5c)', initials:'LK', desc:'El héroe eterno reencarnado a través de las eras. Portador del Triforce of Courage, destinado a combatir las fuerzas del mal cuando Hyrule lo necesita. Sin voz pero con un corazón indomable.', spoiler:'En Breath of the Wild, Link perdió todos sus recuerdos y resucitó 100 años después del desastre. Su verdadera historia es la de un héroe que cargó demasiado solo.' },
+  { id:'zelda', name:'Princess Zelda', role:'Sabia Reencarnada', color:'#60a5fa', gradient:'linear-gradient(135deg,#1e3a8a,#2563eb)', initials:'PZ', desc:'Portadora del Triforce of Wisdom. En cada era renace para guiar al héroe. A la vez princesa, hechicera, guerrera y símbolo de esperanza para el reino de Hyrule.', spoiler:'Zelda sacrifica siglos de su existencia para mantener sellado a Calamity Ganon en BotW. En TotK descubre a Rauru y sacrifica su forma divina para dar poderes a Link.' },
+  { id:'ganondorf', name:'Ganondorf', role:'Rey del Mal', color:'#f97316', gradient:'linear-gradient(135deg,#7c2d12,#b45309)', initials:'GN', desc:'El Gerudo que porta el Triforce of Power. Reencarnación de Demise, el primer mal. Su ambición por conquistar Hyrule lo lleva a transformarse en el cerdo bestial Ganon.', spoiler:'En OoT fue sellado en el Sacred Realm. Escapó para BotW donde se convirtió en Calamity Ganon. En TotK regresa a su forma original Gerudo como Demon King.' },
+  { id:'midna', name:'Midna', role:'Princesa del Crepúsculo', color:'#c4b5fd', gradient:'linear-gradient(135deg,#4c1d95,#7c3aed)', initials:'MD', desc:'Implike companion de Twilight Princess, sarcástica y misteriosamente poderosa. Se alía con Link para recuperar su reino del Twilight después de ser maldecida por Zant.', spoiler:'Midna es en realidad la princesa legítima del Twilight Realm. Al final destruye el Mirror of Twilight, separando para siempre los dos mundos. Su partida es uno de los momentos más emotivos de la saga.' },
+  { id:'sheik', name:'Sheik', role:'Guerrero Misterioso', color:'#2dd4bf', gradient:'linear-gradient(135deg,#0f766e,#0d9488)', initials:'SH', desc:'Enigmático ninja que aparece a lo largo de Ocarina of Time guiando a Link con fragmentos de sabiduría. Maestro del disfraz y el sigilo, siempre un paso adelante.', spoiler:'Sheik es en realidad la Princesa Zelda disfrazada. Después de enviar a Link al futuro, Zelda tomó esta identidad para esconderse de Ganondorf durante 7 años.' },
+  { id:'impa', name:'Impa', role:'Guardiana Real Sheikah', color:'#93c5fd', gradient:'linear-gradient(135deg,#1e3a5f,#2563eb)', initials:'IM', desc:'La leal guardiana Sheikah de la familia real de Hyrule. Aparece en múltiples juegos como protectora de Zelda, guerrera sagaz y transmisora de conocimiento ancestral.', spoiler:'En Skyward Sword se revela que la Impa anciana del presente fue la guerrera Sheikah joven que acompañó a Zelda en el pasado, viviendo milenios para completar el ciclo.' },
+  { id:'fi', name:'Fi', role:'Espíritu de la Master Sword', color:'#bfdbfe', gradient:'linear-gradient(135deg,#1d4ed8,#60a5fa)', initials:'FI', desc:'El espíritu digital del Goddess Sword / Master Sword en Skyward Sword. Guía a Link con lógica y probabilidades, habla en términos técnicos. Su despedida final es devastadora.', spoiler:'Fi es consciente desde el principio de que su propósito terminará cuando Link complete la misión. Elige dormir dentro de la Master Sword para siempre, sacrificando su consciencia.' },
+  { id:'navi', name:'Navi', role:'Hada Guía', color:'#67e8f9', gradient:'linear-gradient(135deg,#0e7490,#22d3ee)', initials:'NV', desc:'La hada compañera de Link en Ocarina of Time. Asignada por el Gran Árbol Deku, guía al joven Link a través de Hyrule con consejos y el famoso "Hey! Listen!"', spoiler:"Al final de OoT, Navi abandona a Link en silencio mientras él duerme en el Temple of Time. Se especula que su partida es lo que motiva a Link a buscarla al inicio de Majora's Mask." },
 ];
 
 const ITEMS = [
-  { id:'master-sword',  name:'Master Sword',    rarity:'legendary', icon:'⚔️', desc:'La Espada del Mal Eterno. Forjada por la diosa Hylia, solo puede ser empuñada por quien sea digno. En BotW recupera su poder con cada Santuario completado.',  games:['botw','totk','oot','tp','ss','alttp','albw'] },
-  { id:'triforce',      name:'Trifuerza',        rarity:'legendary', icon:'△',  desc:'Las tres reliquias sagradas de las Diosas Din, Nayru y Farore. Quien la reúna completa verá su deseo cumplido. Dividida entre Link (Courage), Zelda (Wisdom) y Ganon (Power).', games:['alttp','oot','loz','albw'] },
-  { id:'ocarina',       name:'Ocarina of Time',  rarity:'legendary', icon:'🎵', desc:'El instrumento sagrado del tiempo. Con las melodías correctas puede abrir templos, cambiar el tiempo, invocar tormentas y teletransportarse. La Ocarina de Zelda era de la familia real.', games:['oot','mm'] },
-  { id:'hookshot',      name:'Hookshot',          rarity:'epic',      icon:'🪝', desc:'Dispositivo con cadena extensible que se ancla en superficies de madera. Permite a Link cruzar abismos, alcanzar tesoros y aturdir enemigos. Aparece en casi todos los juegos 3D.',  games:['oot','mm','tp','ww','albw'] },
-  { id:'bow-of-light',  name:'Bow of Light',     rarity:'legendary', icon:'🏹', desc:'El arma definitiva del juego final de múltiples Zeldas. Flechas de pura luz que dañan entidades divinas y maléficas. Solo puede ser usada por quien porta el Triforce of Wisdom.', games:['oot','tp','botw'] },
-  { id:'hylian-shield', name:'Hylian Shield',    rarity:'epic',      icon:'🛡️', desc:'El escudo definitivo de Hyrule. Hecho de metal volcánico de la Death Mountain. Aparece en múltiples formas a lo largo de la saga. En BotW puede resistir daño infinitamente.', games:['oot','tp','ss','botw','totk'] },
-  { id:'wind-waker',    name:'Wind Waker',        rarity:'legendary', icon:'🌊', desc:'La batuta mágica de The Wind Waker. Heredada del rey Daphnes Nohansen Hyrule. Controla el viento, activa mecanismos y tiene el poder de dispersar la niebla de la oscuridad.', games:['ww','ph'] },
-  { id:'lens-of-truth', name:'Lens of Truth',    rarity:'rare',      icon:'👁️', desc:'Lente mágico heredado del Sheikah. Revela lo invisible: ilusiones, paredes falsas, plataformas ocultas y seres del mundo del espíritu. Esencial para los puzzles más difíciles.', games:['oot','mm'] },
-  { id:'bombs',         name:'Bombas',            rarity:'common',    icon:'💣', desc:'El item más versátil de la saga. Destruyen paredes débiles, aturden enemigos, resuelven puzzles de distancia. Aparecen en prácticamente todos los juegos de la saga.', games:['botw','totk','oot','mm','tp','alttp','la'] },
-  { id:'boomerang',     name:'Boomerang',         rarity:'rare',      icon:'🪃', desc:'Arma y herramienta de vuelo circular. Recupera items a distancia, aturde enemigos y activa switches lejanos. En Wind Waker se puede dirigir libremente en el aire.', games:['oot','mm','ww','alttp','la'] },
+  { id:'master-sword', name:'Master Sword', rarity:'legendary', icon:'⚔️', desc:'La Espada del Mal Eterno. Forjada por la diosa Hylia, solo puede ser empuñada por quien sea digno. En BotW recupera su poder con cada Santuario completado.', games:['botw','totk','oot','tp','ss','alttp','albw'] },
+  { id:'triforce', name:'Trifuerza', rarity:'legendary', icon:'△', desc:'Las tres reliquias sagradas de las Diosas Din, Nayru y Farore. Quien la reúna completa verá su deseo cumplido. Dividida entre Link (Courage), Zelda (Wisdom) y Ganon (Power).', games:['alttp','oot','loz','albw'] },
+  { id:'ocarina', name:'Ocarina of Time', rarity:'legendary', icon:'🎵', desc:'El instrumento sagrado del tiempo. Con las melodías correctas puede abrir templos, cambiar el tiempo, invocar tormentas y teletransportarse. La Ocarina de Zelda era de la familia real.', games:['oot','mm'] },
+  { id:'hookshot', name:'Hookshot', rarity:'epic', icon:'🪝', desc:'Dispositivo con cadena extensible que se ancla en superficies de madera. Permite a Link cruzar abismos, alcanzar tesoros y aturdir enemigos. Aparece en casi todos los juegos 3D.', games:['oot','mm','tp','ww','albw'] },
+  { id:'bow-of-light', name:'Bow of Light', rarity:'legendary', icon:'🏹', desc:'El arma definitiva del juego final de múltiples Zeldas. Flechas de pura luz que dañan entidades divinas y maléficas. Solo puede ser usada por quien porta el Triforce of Wisdom.', games:['oot','tp','botw'] },
+  { id:'hylian-shield', name:'Hylian Shield', rarity:'epic', icon:'🛡️', desc:'El escudo definitivo de Hyrule. Hecho de metal volanic de la Death Mountain. Aparece en múltiples formas a lo largo de la saga. En BotW puede resistir daño infinitamente.', games:['oot','tp','ss','botw','totk'] },
+  { id:'wind-waker', name:'Wind Waker', rarity:'legendary', icon:'🌊', desc:'La batuta mágica de The Wind Waker. Heredada del rey Daphnes Nohansen Hyrule. Controla el viento, activa mecanismos y tiene el poder de dispersar la niebla de la oscuridad.', games:['ww','ph'] },
+  { id:'lens-of-truth', name:'Lens of Truth', rarity:'rare', icon:'👁️', desc:'Lente mágico heredado del Sheikah. Revela lo invisible: ilusiones, paredes falsas, plataformas ocultas y seres del mundo del espíritu. Esencial para los puzzles más difíciles.', games:['oot','mm'] },
+  { id:'bombs', name:'Bombas', rarity:'common', icon:'💣', desc:'El item más versátil de la saga. Destruyen paredes débiles, aturden enemigos, resuelven puzzles de distancia. Aparecen en prácticamente todos los juegos de la saga.', games:['botw','totk','oot','mm','tp','alttp','la'] },
+  { id:'boomerang', name:'Boomerang', rarity:'rare', icon:'🪃', desc:'Arma y herramienta de vuelo circular. Recupera items a distancia, aturde enemigos y activa switches lejanos. En Wind Waker se puede dirigir libremente en el aire.', games:['oot','mm','ww','alttp','la'] },
 ];
 
-const TL_ADULT  = ['ww','ph','st','la','oos','ooa'];
-const TL_CHILD  = ['mm','tp','fsa'];
-const TL_FALLEN = ['alttp','z2','loz','albw','botw','totk'];
-
-/* ── ROUTER ────────────────────────────────────────────────────── */
-const PAGES = ['home','games','timeline','characters','items','ai'];
-let currentPage = 'home';
-
-function navigateTo(page) {
-  if (!PAGES.includes(page)) page = 'home';
-  // Hide all pages
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  // Show target
-  const el = document.getElementById('page-' + page);
-  if (el) el.classList.add('active');
-  // Update nav links
-  document.querySelectorAll('.nav-links a').forEach(a => {
-    a.classList.toggle('active', a.dataset.page === page);
-  });
-  // Update hash
-  window.location.hash = page === 'home' ? '' : page;
-  currentPage = page;
-  // Close mobile menu
-  document.getElementById('nav-links').classList.remove('mobile-open');
-  // Scroll to top
-  window.scrollTo(0,0);
-  // Page-specific init
-  if (page === 'home')      initCanvas();
-  if (page === 'games')     renderGames('all');
-  if (page === 'timeline')  renderTimeline();
-  if (page === 'characters')renderCharacters();
-  if (page === 'items')     renderItems('all');
-  if (page === 'ai')        initAI();
-}
-
-function getHashPage() {
-  const h = window.location.hash.replace('#','').trim();
-  return PAGES.includes(h) ? h : 'home';
-}
-
-// Nav link clicks
-document.querySelectorAll('.nav-links a').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    navigateTo(a.dataset.page);
-  });
-});
-
-window.addEventListener('hashchange', () => navigateTo(getHashPage()));
-
-/* ── CANVAS ANIMATION ──────────────────────────────────────────── */
-let canvasRunning = false;
-let animId;
-
+// ============================================================
+// CANVAS ANIMATION
+// ============================================================
 function initCanvas() {
-  if (canvasRunning) return;
-  canvasRunning = true;
   const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
   function resize() {
-    canvas.width  = canvas.offsetWidth;
+    canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
   }
   resize();
   window.addEventListener('resize', resize);
 
-  // Stars
-  const stars = Array.from({length:200}, () => ({
+  const stars = Array.from({length: 200}, () => ({
     x: Math.random(),
-    y: Math.random() * .8,
-    r: Math.random() * 1.5 + .3,
-    a: Math.random(),
-    da: (Math.random() - .5) * .01,
+    y: Math.random() * 0.85,
+    size: Math.random() * 1.8 + 0.3,
+    opacity: Math.random(),
+    speed: Math.random() * 0.02 + 0.005,
+    phase: Math.random() * Math.PI * 2,
   }));
 
-  // Embers
-  const embers = Array.from({length:30}, () => ({
+  const embers = Array.from({length: 30}, () => ({
     x: Math.random(),
-    y: Math.random(),
-    r: Math.random() * 2 + .5,
-    a: Math.random(),
-    vy: -(Math.random() * .0003 + .0001),
-    vx: (Math.random() - .5) * .0001,
+    y: 0.7 + Math.random() * 0.3,
+    size: Math.random() * 2 + 1,
+    opacity: Math.random() * 0.7 + 0.3,
+    speedX: (Math.random() - 0.5) * 0.001,
+    speedY: -(Math.random() * 0.002 + 0.001),
+    life: Math.random(),
   }));
 
-  // Aurora bands
   const auroras = [
-    {y:.12, color:'rgba(100,50,200,.07)', w:1.5},
-    {y:.18, color:'rgba(50,150,200,.05)', w:1.2},
-    {y:.08, color:'rgba(200,170,50,.04)', w:.8},
+    { y: 0.08, color1: 'rgba(96,165,250,0.05)', speed: 0.0002, offset: 0 },
+    { y: 0.15, color1: 'rgba(196,181,253,0.04)', speed: 0.00015, offset: Math.PI },
+    { y: 0.22, color1: 'rgba(212,175,55,0.03)', speed: 0.00025, offset: Math.PI/2 },
   ];
-  let auOffset = 0;
 
-  function drawCastle(ctx, W, H) {
-    ctx.save();
-    ctx.fillStyle = 'rgba(20,20,35,.9)';
-    // Main tower center
-    const cx = W * .5;
-    const by = H;
-    const tw = W * .08;
-    const th = H * .28;
-    ctx.fillRect(cx - tw/2, by - th, tw, th);
-    // Left tower
-    ctx.fillRect(cx - tw*2.4, by - th*.7, tw*.75, th*.7);
-    // Right tower
-    ctx.fillRect(cx + tw*1.65, by - th*.7, tw*.75, th*.7);
-    // Battlements center
-    const bw = tw/5;
-    for (let i=0;i<5;i++) ctx.fillRect(cx - tw/2 + i*(tw/4.5), by - th - bw*1.5, bw, bw*1.5);
-    // Wall base
-    ctx.fillRect(cx - tw*3, by - H*.06, tw*6, H*.06);
-    // Silhouette gradient overlay
-    const grad = ctx.createLinearGradient(0, by - th, 0, by);
-    grad.addColorStop(0,'rgba(212,175,55,.04)');
-    grad.addColorStop(1,'rgba(4,4,10,.8)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, by - th, W, th);
-    ctx.restore();
+  let time = 0;
+
+  function drawCastle(ctx, w, h) {
+    const cw = Math.min(w * 0.5, 400);
+    const ch = h * 0.28;
+    const cx = w / 2;
+    const cy = h;
+    const dark = '#0d0d18';
+
+    ctx.fillStyle = dark;
+    ctx.fillRect(cx - cw*0.06, cy - ch, cw*0.12, ch);
+    ctx.fillRect(cx - cw*0.28, cy - ch*0.65, cw*0.22, ch*0.65);
+    ctx.fillRect(cx + cw*0.06, cy - ch*0.65, cw*0.22, ch*0.65);
+    ctx.fillRect(cx - cw*0.45, cy - ch*0.45, cw*0.17, ch*0.45);
+    ctx.fillRect(cx + cw*0.28, cy - ch*0.45, cw*0.17, ch*0.45);
+
+    // Battlements
+    for (let i = -2; i <= 2; i++) {
+      ctx.fillRect(cx + i*cw*0.025 - cw*0.01, cy - ch - cw*0.025, cw*0.018, cw*0.025);
+    }
+
+    // Central spire
+    ctx.beginPath();
+    ctx.moveTo(cx - cw*0.015, cy - ch);
+    ctx.lineTo(cx, cy - ch - ch*0.35);
+    ctx.lineTo(cx + cw*0.015, cy - ch);
+    ctx.fill();
+
+    // Castle windows
+    ctx.fillStyle = 'rgba(212,175,55,0.3)';
+    ctx.fillRect(cx - 3, cy - ch*0.5, 6, 8);
+    ctx.fillRect(cx - 3, cy - ch*0.7, 6, 8);
+    ctx.fillRect(cx - cw*0.18, cy - ch*0.4, 4, 6);
+    ctx.fillRect(cx + cw*0.14, cy - ch*0.4, 4, 6);
   }
 
-  function draw() {
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0,0,W,H);
+  function loop() {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
 
     // Background
-    const bg = ctx.createLinearGradient(0,0,0,H);
-    bg.addColorStop(0,'#010108');
-    bg.addColorStop(.5,'#030210');
-    bg.addColorStop(1,'#04040a');
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#02020a');
+    bg.addColorStop(0.6, '#04040e');
+    bg.addColorStop(1, '#06060f');
     ctx.fillStyle = bg;
-    ctx.fillRect(0,0,W,H);
+    ctx.fillRect(0, 0, w, h);
 
-    // Aurora
-    auOffset += .002;
-    auroras.forEach(au => {
-      for (let x=-1;x<2;x++) {
-        const grd = ctx.createRadialGradient(
-          W*((.5+Math.sin(auOffset+x)*.3)),H*au.y,0,
-          W*((.5+Math.sin(auOffset+x)*.3)),H*au.y,W*au.w
-        );
-        grd.addColorStop(0,au.color);
-        grd.addColorStop(1,'transparent');
-        ctx.fillStyle = grd;
-        ctx.fillRect(0,0,W,H);
+    // Aurora bands
+    for (const aurora of auroras) {
+      aurora.offset += aurora.speed;
+      const yPos = aurora.y * h + Math.sin(aurora.offset * 2) * h * 0.02;
+      const grad = ctx.createLinearGradient(0, yPos - 30, 0, yPos + 30);
+      grad.addColorStop(0, 'transparent');
+      grad.addColorStop(0.5, aurora.color1);
+      grad.addColorStop(1, 'transparent');
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(0, yPos);
+      for (let x = 0; x <= w; x += 20) {
+        const y = yPos + Math.sin(x / w * Math.PI * 3 + aurora.offset) * h * 0.015;
+        ctx.lineTo(x, y);
       }
-    });
+      ctx.lineTo(w, yPos + 60);
+      ctx.lineTo(0, yPos + 60);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+    }
 
     // Stars
-    stars.forEach(s => {
-      s.a += s.da;
-      if (s.a <= 0 || s.a >= 1) s.da *= -1;
+    time += 0.016;
+    for (const star of stars) {
+      const tw = Math.sin(time * star.speed * 30 + star.phase);
+      const op = 0.3 + tw * 0.5 * star.opacity;
       ctx.beginPath();
-      ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(255,255,255,${s.a.toFixed(2)})`;
+      ctx.arc(star.x * w, star.y * h, star.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,' + Math.max(0, op) + ')';
       ctx.fill();
-    });
+    }
 
-    // Castle
-    drawCastle(ctx, W, H);
+    // Castle silhouette
+    drawCastle(ctx, w, h);
+
+    // Ground fog
+    const fog = ctx.createLinearGradient(0, h * 0.82, 0, h);
+    fog.addColorStop(0, 'transparent');
+    fog.addColorStop(1, 'rgba(4,4,10,0.9)');
+    ctx.fillStyle = fog;
+    ctx.fillRect(0, h * 0.82, w, h * 0.18);
 
     // Embers
-    embers.forEach(e => {
-      e.y += e.vy; e.x += e.vx;
-      if (e.y < -0.05) { e.y = 1.05; e.x = Math.random(); e.a = 0; }
-      e.a = Math.min(1, e.a + .005);
-      const grd = ctx.createRadialGradient(e.x*W,e.y*H,0,e.x*W,e.y*H,e.r*3);
-      grd.addColorStop(0,`rgba(212,175,55,${e.a * .7})`);
-      grd.addColorStop(1,'transparent');
+    for (const ember of embers) {
+      ember.x += ember.speedX;
+      ember.y += ember.speedY;
+      ember.life -= 0.003;
+      if (ember.life <= 0 || ember.y < 0.3) {
+        ember.x = Math.random();
+        ember.y = 0.85 + Math.random() * 0.15;
+        ember.life = Math.random() * 0.7 + 0.3;
+        ember.opacity = Math.random() * 0.7 + 0.3;
+      }
+      const alpha = ember.life * ember.opacity;
+      ctx.beginPath();
+      ctx.arc(ember.x * w, ember.y * h, ember.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(212,175,55,' + (alpha * 0.8) + ')';
+      ctx.fill();
+      const grd = ctx.createRadialGradient(ember.x*w, ember.y*h, 0, ember.x*w, ember.y*h, ember.size*4);
+      grd.addColorStop(0, 'rgba(212,175,55,' + (alpha*0.3) + ')');
+      grd.addColorStop(1, 'transparent');
       ctx.fillStyle = grd;
       ctx.beginPath();
-      ctx.arc(e.x*W,e.y*H,e.r*3,0,Math.PI*2);
+      ctx.arc(ember.x * w, ember.y * h, ember.size * 4, 0, Math.PI * 2);
       ctx.fill();
-    });
+    }
 
-    animId = requestAnimationFrame(draw);
+    requestAnimationFrame(loop);
   }
-  draw();
+
+  loop();
 }
 
-/* ── GAME CARDS ────────────────────────────────────────────────── */
-function starsHTML(n) {
-  return Array.from({length:10},(_,i)=>`<span style="color:${i<n?'#d4af37':'rgba(255,255,255,.15)'}">★</span>`).join('')+` ${n}/10`;
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
 }
 
-function timelineBadgeColor(t) {
-  if (t==='adult')  return 'adult';
-  if (t==='child')  return 'child';
-  if (t==='fallen') return 'fallen';
-  if (t==='split')  return 'split';
-  return 'origin';
+// ============================================================
+// GAMES
+// ============================================================
+function getStars(rating) {
+  const full = Math.round(rating);
+  return '★'.repeat(full) + '☆'.repeat(10 - full) + ' ' + rating + '/10';
 }
 
-function gameCardHTML(g) {
-  const img = GAME_IMAGES[g.id] || '';
-  const fallbackStyle = `background:${g.color};display:none;width:100%;height:100%;position:absolute;inset:0;align-items:center;justify-content:center;font-size:3rem;`;
-  return `
-  <div class="game-card" data-id="${g.id}" data-era="${g.era}"
-    onclick="openGameModal('${g.id}')"
-    onmousemove="tiltCard(event,this)"
-    onmouseleave="resetTilt(this)">
-    <div class="card-image-wrap">
-      ${img ? `<img src="${img}" alt="${g.title}" loading="lazy"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
-      <div class="game-cover-fallback" style="${fallbackStyle}">🗡️</div>
-      <div class="card-overlay"></div>
-      <span class="timeline-badge ${timelineBadgeColor(g.timeline)}">${g.timeline.toUpperCase()}</span>
-    </div>
-    <div class="card-body">
-      <h3>${g.title}</h3>
-      <div class="card-meta">
-        <span>${g.year}</span>
-        <span>${g.platform}</span>
-      </div>
-      <div class="rating-display">${starsHTML(g.rating)}</div>
-    </div>
-  </div>`;
+function getTimelineLabel(timeline) {
+  const map = { adult:'Adult', child:'Child', fallen:'Fallen', split:'Split', origin:'Origin' };
+  return map[timeline] || timeline;
 }
 
-function renderGames(era) {
+function renderGames() {
   const grid = document.getElementById('games-grid');
-  const filtered = era === 'all' ? GAMES : GAMES.filter(g => g.era === era);
-  grid.innerHTML = filtered.map(gameCardHTML).join('');
-
-  // Filter tabs
-  document.querySelectorAll('#game-filter-tabs .filter-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.era === era);
-    tab.onclick = () => renderGames(tab.dataset.era);
-  });
-
-  // Intersection observer for reveal
-  grid.querySelectorAll('.game-card').forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = `opacity .4s ease ${i*.04}s, transform .4s ease ${i*.04}s`;
-    setTimeout(() => { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 50 + i*40);
+  if (!grid) return;
+  grid.innerHTML = '';
+  GAMES.forEach(g => {
+    const img = GAME_IMAGES[g.id];
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.dataset.id = g.id;
+    card.dataset.era = g.era;
+    card.onclick = function() { openGameModal(g.id); };
+    card.onmousemove = function(e) { tiltCard(e, this); };
+    card.onmouseleave = function() { resetTilt(this); };
+    const imgHtml = img
+      ? '<img src="' + img + '" alt="' + g.title + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
+      : '';
+    const fallbackDisplay = img ? 'none' : 'flex';
+    card.innerHTML =
+      '<div class="card-image-wrap">' +
+        imgHtml +
+        '<div class="game-cover-fallback" style="display:' + fallbackDisplay + ';background:linear-gradient(135deg,' + g.color + ',#04040a);height:100%;align-items:center;justify-content:center;font-size:3rem;">🗡️</div>' +
+        '<div class="card-overlay"></div>' +
+        '<span class="timeline-badge ' + g.timeline + '">' + getTimelineLabel(g.timeline) + '</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<h3>' + g.title + '</h3>' +
+        '<div class="card-meta"><span class="year">' + g.year + '</span><span class="platform">' + g.platform + '</span></div>' +
+        '<div class="rating-display">' + getStars(g.rating) + '</div>' +
+      '</div>';
+    grid.appendChild(card);
   });
 }
 
-/* ── TILT EFFECT ───────────────────────────────────────────────── */
+function filterGames(era, btn) {
+  document.querySelectorAll('#era-filters .filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.game-card').forEach(card => {
+    if (era === 'all' || card.dataset.era === era) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
 function tiltCard(e, card) {
-  const r = card.getBoundingClientRect();
-  const x = (e.clientX - r.left) / r.width  - .5;
-  const y = (e.clientY - r.top)  / r.height - .5;
-  card.style.transform = `translateY(-6px) rotateX(${-y*8}deg) rotateY(${x*8}deg)`;
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const rotX = ((y - cy) / cy) * -8;
+  const rotY = ((x - cx) / cx) * 8;
+  card.style.transform = 'perspective(600px) rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg) scale(1.02)';
 }
+
 function resetTilt(card) {
   card.style.transform = '';
 }
 
-/* ── GAME MODAL ────────────────────────────────────────────────── */
+// ============================================================
+// MODAL
+// ============================================================
 function openGameModal(id) {
-  const g = GAMES.find(x => x.id === id);
-  if (!g) return;
+  const game = GAMES.find(g => g.id === id);
+  if (!game) return;
   const modal = document.getElementById('game-modal');
-  const img   = document.getElementById('modal-img');
-  const fallback = document.getElementById('modal-img-fallback');
+  document.getElementById('modal-title').textContent = game.title;
+  document.getElementById('modal-desc').textContent = game.desc;
 
-  img.src = GAME_IMAGES[g.id] || '';
-  img.style.display = 'block';
-  fallback.style.display = 'none';
-  fallback.innerHTML = '🗡️';
-  fallback.style.background = g.color;
+  const img = document.getElementById('modal-img');
+  if (GAME_IMAGES[id]) {
+    img.src = GAME_IMAGES[id];
+    img.style.display = '';
+  } else {
+    img.src = '';
+    img.style.display = 'none';
+  }
 
-  document.getElementById('modal-title').textContent = g.title;
-  document.getElementById('modal-desc').textContent  = g.desc;
-  document.getElementById('modal-rating-text').textContent = `${g.rating}/10`;
-  document.getElementById('modal-badges').innerHTML = `
-    <span class="modal-badge">${g.year}</span>
-    <span class="modal-badge">${g.platform}</span>
-    <span class="modal-badge">${g.era.toUpperCase()}</span>
-    <span class="modal-badge" style="background:rgba(212,175,55,.15);color:var(--gold)">${g.timeline.toUpperCase()}</span>
-  `;
+  const badges = document.getElementById('modal-badges');
+  badges.innerHTML =
+    '<span class="timeline-badge ' + game.timeline + '" style="position:static;display:inline-block">' + getTimelineLabel(game.timeline) + '</span>' +
+    '<span style="padding:0.2rem 0.6rem;border-radius:2px;font-family:\'Share Tech Mono\',monospace;font-size:0.65rem;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);color:#d4af37;">' + game.year + '</span>' +
+    '<span style="padding:0.2rem 0.6rem;border-radius:2px;font-family:\'Share Tech Mono\',monospace;font-size:0.65rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;">' + game.platform + '</span>';
 
+  const ratingBar = document.getElementById('modal-rating-bar');
+  ratingBar.style.width = '0%';
   modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-
-  // Animate rating bar
-  const bar = document.getElementById('modal-rating-bar');
-  bar.style.width = '0%';
-  setTimeout(() => { bar.style.width = (g.rating * 10) + '%'; }, 100);
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      ratingBar.style.width = (game.rating * 10) + '%';
+    });
+  });
 }
 
 function closeModal() {
   document.getElementById('game-modal').classList.remove('open');
-  document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
 
-/* ── TIMELINE ──────────────────────────────────────────────────── */
-function renderTimeline() {
-  function entryHTML(id) {
-    const g = GAMES.find(x => x.id === id);
-    if (!g) return '';
-    const src = GAME_IMAGES[g.id] || '';
-    return `
-    <div class="tl-game-entry" onclick="openGameModal('${g.id}')">
-      ${src ? `<img class="tl-thumb" src="${src}" alt="${g.title}" loading="lazy" onerror="this.style.background='${g.color}'">` : `<div class="tl-thumb" style="background:${g.color}"></div>`}
-      <div class="tl-game-info">
-        <h4>${g.title}</h4>
-        <span>${g.year}</span>
-      </div>
-    </div>`;
+// ============================================================
+// CHARACTERS
+// ============================================================
+function renderCharacters() {
+  const container = document.getElementById('characters-container');
+  if (!container) return;
+  container.innerHTML = '';
+  CHARACTERS.forEach(function(char) {
+    const card = document.createElement('div');
+    card.className = 'character-card';
+    card.style.setProperty('--char-color', char.color);
+    card.style.boxShadow = '0 0 20px ' + char.color + '18';
+    card.innerHTML =
+      '<div class="char-main">' +
+        '<div class="char-avatar" style="background:' + char.gradient + ';border-color:' + char.color + ';box-shadow:0 0 15px ' + char.color + '40;">' +
+          char.initials +
+        '</div>' +
+        '<div class="char-info">' +
+          '<div class="char-name">' + char.name + '</div>' +
+          '<span class="char-role" style="background:' + char.color + '20;border-color:' + char.color + '60;color:' + char.color + ';">' + char.role + '</span>' +
+          '<p class="char-desc">' + char.desc + '</p>' +
+          '<button class="spoiler-btn" onclick="toggleSpoiler(\'' + char.id + '\',this)">&#9658; Revelar Spoiler</button>' +
+          '<div class="spoiler-text" id="spoiler-' + char.id + '">' + char.spoiler + '</div>' +
+        '</div>' +
+      '</div>';
+    container.appendChild(card);
+  });
+}
+
+function toggleSpoiler(id, btn) {
+  const el = document.getElementById('spoiler-' + id);
+  if (!el) return;
+  const visible = el.classList.contains('visible');
+  el.classList.toggle('visible', !visible);
+  btn.innerHTML = visible ? '&#9658; Revelar Spoiler' : '&#9660; Ocultar Spoiler';
+}
+
+// ============================================================
+// ITEMS
+// ============================================================
+function renderItems() {
+  const grid = document.getElementById('items-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  ITEMS.forEach(function(item) {
+    const rarityLabel = item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1);
+    const card = document.createElement('div');
+    card.className = 'item-card ' + item.rarity;
+    card.dataset.rarity = item.rarity;
+    const pillsHtml = item.games.map(function(gid) {
+      return '<span class="item-game-pill" onclick="openGameModal(\'' + gid + '\')">' + gid + '</span>';
+    }).join('');
+    card.innerHTML =
+      '<span class="item-icon">' + item.icon + '</span>' +
+      '<span class="item-rarity-badge rarity-' + item.rarity + '">' + rarityLabel + '</span>' +
+      '<div class="item-name">' + item.name + '</div>' +
+      '<p class="item-desc">' + item.desc + '</p>' +
+      '<div class="item-games-label">Aparece en:</div>' +
+      '<div class="item-games">' + pillsHtml + '</div>';
+    grid.appendChild(card);
+  });
+}
+
+function filterItems(rarity, btn) {
+  document.querySelectorAll('#rarity-filters .filter-tab').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.item-card').forEach(function(card) {
+    if (rarity === 'all' || card.dataset.rarity === rarity) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function handleSearch(query) {
+  const results = document.getElementById('search-results');
+  const q = query.trim().toLowerCase();
+  if (!q || q.length < 2) {
+    results.style.display = 'none';
+    return;
   }
 
-  document.getElementById('tl-adult').innerHTML  = TL_ADULT.map(entryHTML).join('');
-  document.getElementById('tl-child').innerHTML  = TL_CHILD.map(entryHTML).join('');
-  document.getElementById('tl-fallen').innerHTML = TL_FALLEN.map(entryHTML).join('');
-}
+  const matches = [];
 
-/* ── CHARACTERS ────────────────────────────────────────────────── */
-function renderCharacters() {
-  const list = document.getElementById('characters-list');
-  list.innerHTML = CHARACTERS.map(c => `
-  <div class="char-card" style="box-shadow:0 0 30px ${c.color}22;border-color:${c.color}30" data-id="${c.id}">
-    <div class="char-avatar" style="background:${c.gradient};box-shadow:0 0 20px ${c.color}50">${c.initials}</div>
-    <div class="char-info">
-      <div class="char-name" style="color:${c.color}">${c.name}</div>
-      <span class="char-role" style="color:${c.color};border-color:${c.color}50;background:${c.color}15">${c.role}</span>
-      <p class="char-desc">${c.desc}</p>
-      <button class="spoiler-toggle" onclick="toggleSpoiler('${c.id}')">🔍 Ver Spoiler</button>
-      <div class="spoiler-text" id="spoiler-${c.id}">${c.spoiler}</div>
-    </div>
-  </div>`).join('');
-
-  // Reveal animation
-  list.querySelectorAll('.char-card').forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(-20px)';
-    el.style.transition = `all .5s ease ${i*.08}s`;
-    setTimeout(() => { el.style.opacity='1'; el.style.transform='translateX(0)'; }, 60 + i*80);
-  });
-}
-
-function toggleSpoiler(id) {
-  const el = document.getElementById('spoiler-' + id);
-  const btn = el.previousElementSibling;
-  const visible = el.classList.toggle('visible');
-  btn.textContent = visible ? '🙈 Ocultar Spoiler' : '🔍 Ver Spoiler';
-}
-
-/* ── ITEMS ─────────────────────────────────────────────────────── */
-function renderItems(rarity) {
-  const grid = document.getElementById('items-grid');
-  const filtered = rarity === 'all' ? ITEMS : ITEMS.filter(it => it.rarity === rarity);
-  grid.innerHTML = filtered.map(it => `
-  <div class="item-card ${it.rarity}">
-    <span class="item-icon">${it.icon}</span>
-    <div class="item-rarity-badge ${it.rarity}">${it.rarity.toUpperCase()}</div>
-    <div class="item-name">${it.name}</div>
-    <p class="item-desc">${it.desc}</p>
-    <div class="item-games">
-      ${it.games.map(gid => `<span class="item-game-tag">${gid}</span>`).join('')}
-    </div>
-  </div>`).join('');
-
-  document.querySelectorAll('#item-filter-tabs .filter-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.rarity === rarity);
-    tab.onclick = () => renderItems(tab.dataset.rarity);
+  GAMES.forEach(function(g) {
+    if (g.title.toLowerCase().includes(q) || g.platform.toLowerCase().includes(q)) {
+      matches.push({ type: 'Juego', title: g.title, icon: '🎮', action: 'openGameModal(\'' + g.id + '\')' });
+    }
   });
 
-  grid.querySelectorAll('.item-card').forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(16px)';
-    el.style.transition = `all .4s ease ${i*.05}s`;
-    setTimeout(() => { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 50 + i*50);
+  CHARACTERS.forEach(function(c) {
+    if (c.name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q)) {
+      matches.push({ type: 'Personaje', title: c.name, icon: '⚔️', action: 'navigate(\'characters\',document.querySelector(\'[data-page=characters]\'))' });
+    }
   });
+
+  ITEMS.forEach(function(item) {
+    if (item.name.toLowerCase().includes(q)) {
+      matches.push({ type: 'Item', title: item.name, icon: item.icon, action: 'navigate(\'items\',document.querySelector(\'[data-page=items]\'))' });
+    }
+  });
+
+  if (matches.length === 0) {
+    results.innerHTML = '<div class="search-result-item"><div><div class="result-title" style="color:#64748b">Sin resultados para "' + query + '"</div></div></div>';
+    results.style.display = 'block';
+    return;
+  }
+
+  results.innerHTML = matches.slice(0, 8).map(function(m) {
+    return '<div class="search-result-item" onclick="' + m.action + ';hideSearchResults()">' +
+      '<span class="result-icon">' + m.icon + '</span>' +
+      '<div><div class="result-title">' + m.title + '</div><div class="result-type">' + m.type + '</div></div>' +
+    '</div>';
+  }).join('');
+  results.style.display = 'block';
 }
 
-/* ── SHEIKAH AI ────────────────────────────────────────────────── */
-let aiInited = false;
-
-function initAI() {
-  if (aiInited) return;
-  aiInited = true;
-  addAIMessage('Saludos, viajero. Soy el Oráculo Sheikah, guardián del conocimiento de Hyrule.\n\nPuedes preguntarme sobre juegos, personajes, items, el timeline o cualquier secreto de la saga. ¿Qué deseas saber?');
+function showSearchResults() {
+  var input = document.getElementById('search-input');
+  if (input && input.value.trim().length >= 2) {
+    document.getElementById('search-results').style.display = 'block';
+  }
 }
 
-function addAIMessage(text, isUser = false) {
-  const box = document.getElementById('ai-messages');
-  const div = document.createElement('div');
-  div.className = 'ai-msg ' + (isUser ? 'user' : 'ai');
-  div.innerHTML = `
-    <div class="ai-msg-avatar">${isUser ? '👤' : '🔯'}</div>
-    <div class="ai-msg-bubble">${text.replace(/\n/g,'<br>')}</div>
-  `;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
+function hideSearchResults() {
+  var results = document.getElementById('search-results');
+  if (results) results.style.display = 'none';
 }
 
-function addTypingIndicator() {
-  const box = document.getElementById('ai-messages');
-  const div = document.createElement('div');
-  div.className = 'ai-msg ai';
-  div.id = 'ai-typing';
-  div.innerHTML = `<div class="ai-msg-avatar">🔯</div><div class="ai-msg-bubble"><div class="ai-typing"><span></span><span></span><span></span></div></div>`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-
-function removeTypingIndicator() {
-  const el = document.getElementById('ai-typing');
-  if (el) el.remove();
-}
-
-const LOCAL_ANSWERS = {
-  timeline: 'El timeline oficial de Hyrule se divide en 3 ramas después de Ocarina of Time:\n\n🔵 Adult Timeline: Wind Waker → Phantom Hourglass → Spirit Tracks\n🟢 Child Timeline: Majora\'s Mask → Twilight Princess → Four Swords Adventures\n🟣 Fallen Hero: A Link to the Past → Zelda I & II → A Link Between Worlds → BotW → TotK\n\nBefore that: Skyward Sword → Minish Cap → Four Swords → Ocarina of Time (split point).',
-  triforce: 'La Trifuerza es la reliquia sagrada de las tres diosas creadoras de Hyrule: Din (Power), Nayru (Wisdom) y Farore (Courage).\n\nEn Ocarina of Time se divide entre los tres personajes principales: Ganondorf porta Power, Zelda porta Wisdom y Link porta Courage. Solo un corazón en perfecto equilibrio puede reclamar la trifuerza completa.',
-  sheik: 'Sheik es en realidad la Princesa Zelda disfrazada. Después de enviar al joven Link al futuro usando el Ocarina of Time, Zelda usó su magia Sheikah para ocultar su identidad durante 7 años, protegiéndose de Ganondorf. Su identidad se revela en el Temple of Time al final del juego.',
-  juegos: `La saga principal tiene 19 juegos:\n\nSwitch Era: Breath of the Wild (2017), Tears of the Kingdom (2023)\nN64 Era: Ocarina of Time (1998), Majora's Mask (2000)\nGameCube/Wii: Wind Waker (2002), Twilight Princess (2006), Skyward Sword (2011)\nHandheld: Link's Awakening (1993), ALttP (1991), Oracle of Ages/Seasons (2001), Minish Cap (2004), ALBW (2013), Phantom Hourglass (2007), Spirit Tracks (2009)...\n\n¡Y muchos más!`,
-  mejor: 'Eso depende de a quién preguntes. 😄\n\nSegún Metacritic y muchos críticos: Ocarina of Time (primer Zelda 3D, 99/100)\nSegún el público más moderno: Breath of the Wild (GOTY 2017 universal)\nSecreto mejor guardado: Majora\'s Mask (la narrativa más oscura y profunda)\n\nTodos los Zelda merecen jugarse. Cada uno tiene algo único.',
+// ============================================================
+// SHEIKAH AI
+// ============================================================
+const AI_RESPONSES = {
+  'timeline': 'La cronología oficial de Hyrule comenzó en Skyward Sword y se divide en tres ramas tras Ocarina of Time:\n\n🔵 Adult Timeline: Wind Waker → Phantom Hourglass → Spirit Tracks → Link\'s Awakening → Oracle of Seasons/Ages\n\n🟢 Child Timeline: Majora\'s Mask → Twilight Princess → Four Swords Adventures\n\n🟣 Fallen Hero Timeline: A Link to the Past → Zelda II → The Legend of Zelda → A Link Between Worlds → BotW → TotK',
+  'trifuerza': 'La Trifuerza (△) son tres triángulos sagrados creados por las diosas Din (Poder), Nayru (Sabiduría) y Farore (Coraje) al crear el mundo. Quien reúna las tres piezas puede pedir cualquier deseo al universo. Está dividida entre Ganon (Power), Zelda (Wisdom) y Link (Courage).',
+  'sheik': 'Sheik es en realidad la Princesa Zelda disfrazada. En Ocarina of Time, después de enviar a Link 7 años al futuro dentro del Temple of Time, Zelda adoptó la identidad del guerrero Sheikah para sobrevivir mientras Ganondorf gobernaba Hyrule durante esos 7 años.',
+  'juegos': 'La saga cuenta con ' + GAMES.length + ' juegos en nuestro archivo. Desde The Legend of Zelda (1986) en NES hasta Tears of the Kingdom (2023) en Switch. Los más valorados con 10/10 son: BotW, TotK, Ocarina of Time y A Link to the Past.',
+  'link': 'Link es el héroe eterno reencarnado, portador del Triforce of Courage. No es siempre la misma persona: en cada era nace una reencarnación del héroe destinada a combatir el mal cuando Hyrule lo necesita. Es conocido por su icónica ropa verde (aunque en BotW usa azul).',
+  'ganon': 'Ganondorf es el Gerudo que porta el Triforce of Power y la reencarnación del odio de Demise, el primer gran mal. En su forma bestial se llama Ganon. Sus apariciones más memorables son en Ocarina of Time, Twilight Princess y como Calamity Ganon en BotW. En TotK regresa como Demon King.',
+  'zelda': 'La Princesa Zelda es portadora del Triforce of Wisdom y reencarnación de la Diosa Hylia. Aparece en todos los juegos principales aunque en formas distintas: princesa, guerrera Sheikah (Sheik), viajera del tiempo. En TotK sacrifica su forma divina para salvar a Link.',
+  'default': 'Como guardián del conocimiento Sheikah, puedo decirte que Hyrule guarda innumerables secretos. Para información específica, te invito a explorar las secciones de Juegos, Personajes, Items y la Cronología. También puedes preguntarme sobre el timeline, la Trifuerza, Link, Zelda, Ganon o Sheik.'
 };
 
-function findLocalAnswer(q) {
-  q = q.toLowerCase();
-  if (q.includes('timeline') || q.includes('orden') || q.includes('cronol')) return LOCAL_ANSWERS.timeline;
-  if (q.includes('triforce') || q.includes('trifuerza')) return LOCAL_ANSWERS.triforce;
-  if (q.includes('sheik') || q.includes('quien es sheik')) return LOCAL_ANSWERS.sheik;
-  if (q.includes('juego') || q.includes('cuántos') || q.includes('cuantos') || q.includes('saga')) return LOCAL_ANSWERS.juegos;
-  if (q.includes('mejor') || q.includes('favorito')) return LOCAL_ANSWERS.mejor;
-  // Game search
-  const g = GAMES.find(x => q.includes(x.title.toLowerCase()) || q.includes(x.id));
-  if (g) return `**${g.title}** (${g.year} · ${g.platform})\nTimeline: ${g.timeline.toUpperCase()} · Rating: ${g.rating}/10\n\n${g.desc}`;
-  // Character search
-  const ch = CHARACTERS.find(x => q.includes(x.name.toLowerCase()) || q.includes(x.id));
-  if (ch) return `**${ch.name}** — ${ch.role}\n\n${ch.desc}`;
-  return null;
+function getAIResponse(query) {
+  var q = query.toLowerCase();
+  if (q.includes('timeline') || q.includes('orden') || q.includes('cronolog') || q.includes('rama') || q.includes('linea')) return AI_RESPONSES['timeline'];
+  if (q.includes('trifuerza') || q.includes('triforce') || q.includes('triforca')) return AI_RESPONSES['trifuerza'];
+  if (q.includes('sheik') && !q.includes('sheikah')) return AI_RESPONSES['sheik'];
+  if (q.includes('cuántos') || q.includes('cuantos') || (q.includes('juego') && !q.includes('jugado'))) return AI_RESPONSES['juegos'];
+  if (q.includes(' link') || q.startsWith('link') || q.includes('héroe') || q.includes('heroe')) return AI_RESPONSES['link'];
+  if (q.includes('ganon') || q.includes('mal')) return AI_RESPONSES['ganon'];
+  if (q.includes('zelda') && !q.includes('legend')) return AI_RESPONSES['zelda'];
+  return AI_RESPONSES['default'];
 }
 
-async function sendAIMessage(preset) {
-  const input = document.getElementById('ai-input');
-  const q = preset || input.value.trim();
-  if (!q) return;
+function addMessage(text, role) {
+  var container = document.getElementById('ai-messages');
+  var typing = document.getElementById('typing-indicator');
+  var msg = document.createElement('div');
+  msg.className = 'ai-msg ' + role;
+  var avatar = role === 'assistant' ? '👁' : '⚔';
+  msg.innerHTML =
+    '<div class="ai-msg-avatar">' + avatar + '</div>' +
+    '<div class="ai-msg-bubble">' + text.replace(/\n/g, '<br>') + '</div>';
+  container.insertBefore(msg, typing);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  var t = document.getElementById('typing-indicator');
+  if (t) {
+    t.classList.add('visible');
+    var container = document.getElementById('ai-messages');
+    if (container) container.scrollTop = container.scrollHeight;
+  }
+}
+
+function hideTyping() {
+  var t = document.getElementById('typing-indicator');
+  if (t) t.classList.remove('visible');
+}
+
+var aiSending = false;
+
+async function sendAIMessage() {
+  if (aiSending) return;
+  var input = document.getElementById('ai-input');
+  var query = input.value.trim();
+  if (!query) return;
   input.value = '';
-  addAIMessage(q, true);
-  addTypingIndicator();
+  aiSending = true;
 
-  // Try local first
-  const local = findLocalAnswer(q);
-  if (local) {
-    await new Promise(r => setTimeout(r, 700 + Math.random()*500));
-    removeTypingIndicator();
-    addAIMessage(local);
-    return;
-  }
+  addMessage(query, 'user');
+  showTyping();
 
-  // Try API
   try {
-    const res = await fetch('/api/zelda/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:q})
+    var res = await fetch('/api/zelda/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: query }),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined,
     });
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    removeTypingIndicator();
-    addAIMessage(data.response || data.message || 'Respuesta recibida.');
-  } catch(e) {
-    await new Promise(r => setTimeout(r, 800));
-    removeTypingIndicator();
-    addAIMessage('⚠️ Despliega en Vercel con ANTHROPIC_API_KEY para activar el Sheikah AI real.\n\nMientras tanto, puedo responder preguntas comunes sobre el timeline, la Trifuerza, personajes y más. ¡Prueba con las sugerencias de arriba!');
-  }
-}
-
-/* ── SEARCH ────────────────────────────────────────────────────── */
-function heroSearch() {
-  const q = document.getElementById('hero-search-input').value.trim();
-  if (!q) return;
-  // Navigate to games with search
-  navigateTo('games');
-  setTimeout(() => {
-    const results = [
-      ...GAMES.filter(g => g.title.toLowerCase().includes(q.toLowerCase())),
-    ];
-    if (results.length) {
-      // highlight first match
-      const card = document.querySelector(`.game-card[data-id="${results[0].id}"]`);
-      if (card) {
-        card.scrollIntoView({behavior:'smooth',block:'center'});
-        card.style.boxShadow = '0 0 40px var(--gold)';
-        setTimeout(() => card.style.boxShadow = '', 2000);
-      }
+    if (res.ok) {
+      var data = await res.json();
+      hideTyping();
+      addMessage(data.response || data.message || 'Sin respuesta del servidor.', 'assistant');
+      aiSending = false;
+      return;
     }
-  }, 400);
-}
-
-// Nav search
-const navSearch = document.getElementById('nav-search');
-const dropdown  = document.getElementById('search-dropdown');
-
-navSearch.addEventListener('input', () => {
-  const q = navSearch.value.trim().toLowerCase();
-  if (!q) { dropdown.classList.remove('visible'); return; }
-
-  const gResults = GAMES.filter(g => g.title.toLowerCase().includes(q)).slice(0,4);
-  const cResults = CHARACTERS.filter(c => c.name.toLowerCase().includes(q)).slice(0,2);
-  const iResults = ITEMS.filter(i => i.name.toLowerCase().includes(q)).slice(0,2);
-
-  if (!gResults.length && !cResults.length && !iResults.length) {
-    dropdown.innerHTML = '<div class="sr-empty">Sin resultados para "' + navSearch.value + '"</div>';
-    dropdown.classList.add('visible');
-    return;
+  } catch (e) {
+    // fallback to local
   }
 
-  dropdown.innerHTML = [
-    ...gResults.map(g => `<div class="search-result-item" onclick="openGameModal('${g.id}');dropdown.classList.remove('visible')">
-      <div class="sr-icon">🎮</div>
-      <div><div class="sr-name">${g.title}</div><div class="sr-type">${g.year} · ${g.platform}</div></div>
-    </div>`),
-    ...cResults.map(c => `<div class="search-result-item" onclick="navigateTo('characters')">
-      <div class="sr-icon">🧝</div>
-      <div><div class="sr-name">${c.name}</div><div class="sr-type">${c.role}</div></div>
-    </div>`),
-    ...iResults.map(i => `<div class="search-result-item" onclick="navigateTo('items')">
-      <div class="sr-icon">${i.icon}</div>
-      <div><div class="sr-name">${i.name}</div><div class="sr-type">${i.rarity.toUpperCase()}</div></div>
-    </div>`),
-  ].join('');
-  dropdown.classList.add('visible');
-});
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.nav-search-wrap')) dropdown.classList.remove('visible');
-});
-
-/* ── MOBILE MENU ───────────────────────────────────────────────── */
-function toggleMobileMenu() {
-  document.getElementById('nav-links').classList.toggle('mobile-open');
+  await new Promise(function(r) { setTimeout(r, 700 + Math.random() * 600); });
+  hideTyping();
+  var response = getAIResponse(query);
+  addMessage(response, 'assistant');
+  document.getElementById('ai-warning').style.display = 'block';
+  aiSending = false;
 }
 
-/* ── INIT ──────────────────────────────────────────────────────── */
-(function init() {
-  const startPage = getHashPage();
-  navigateTo(startPage);
-})();
+function askSuggestion(text) {
+  var input = document.getElementById('ai-input');
+  if (input) {
+    input.value = text;
+    sendAIMessage();
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  initCanvas();
+  renderGames();
+  renderCharacters();
+  renderItems();
+});
 </script>
 </body>
 </html>
