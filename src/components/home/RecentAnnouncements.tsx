@@ -4,31 +4,56 @@ import { noticiasPR } from '@/lib/data/oficial-pr'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
 import { formatDateShort } from '@/lib/utils'
 
+const categoryColors: Record<string, string> = {
+  Economía:        'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  Educación:       'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+  Salud:           'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+  Infraestructura: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+  Presupuesto:     'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+}
+
 export function RecentAnnouncements() {
   const recientes = noticiasPR.slice(0, 3)
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3 px-4">
-        <h2 className="section-title">Anuncios Recientes</h2>
-        <Link href="/noticias" className="text-xs text-primary dark:text-secondary font-medium flex items-center gap-0.5">
+      <div className="flex items-center justify-between px-4 mb-3">
+        <h2 className="section-title">Comunicados Oficiales</h2>
+        <Link href="/noticias" className="flex items-center gap-0.5 text-[11px] font-semibold text-primary dark:text-secondary">
           Ver todos <ChevronRight size={12} />
         </Link>
       </div>
+
       <div className="space-y-2.5 px-4">
-        {recientes.map(n => (
-          <div key={n.id} className="card p-3.5">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white leading-tight flex-1">{n.titulo}</h3>
-              <VerificationBadge status={n.verificacion} />
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">{n.resumen}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-gray-400 dark:text-gray-600">{formatDateShort(n.fecha)}</span>
-              <a href={n.urlFuente} target="_blank" rel="noopener noreferrer"
-                className="text-[10px] text-primary dark:text-secondary flex items-center gap-0.5 font-medium">
-                {n.agencia} <ExternalLink size={9} />
-              </a>
+        {recientes.map((n, i) => (
+          <div key={n.id} className={`card p-4 fade-up stagger-${i + 1}`}>
+            <div className="flex items-start gap-3">
+              {/* Left accent */}
+              <div className="w-1 self-stretch rounded-full bg-gradient-to-b from-primary to-secondary shrink-0 mt-0.5" />
+
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                  <span className={`badge text-[9.5px] ${categoryColors[n.categoria] || 'bg-gray-100 text-gray-600'}`}>
+                    {n.categoria}
+                  </span>
+                  <VerificationBadge status={n.verificacion} />
+                </div>
+
+                <h3 className="text-[13px] font-bold text-gray-900 dark:text-white leading-snug mb-1.5">
+                  {n.titulo}
+                </h3>
+                <p className="text-[11.5px] text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mb-2">
+                  {n.resumen}
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-600">{formatDateShort(n.fecha)}</span>
+                  <a href={n.urlFuente} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-[10px] text-primary dark:text-secondary font-semibold">
+                    {n.agencia.split(' ')[0]} <ExternalLink size={9} />
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         ))}

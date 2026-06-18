@@ -15,41 +15,39 @@ export function Header({ title, subtitle, showSearch = false, showNotifications 
   const { theme, toggleTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-40 glass border-b border-gray-200 dark:border-gray-700"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      <div className="flex items-center justify-between px-4 h-14">
+    <header className="sticky top-0 z-40 glass" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-sm">
-            <span className="text-white text-xs font-black">GT</span>
+          <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/30">
+            <span className="text-white text-[11px] font-black tracking-tight">GT</span>
           </div>
           <div>
-            <h1 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{title}</h1>
+            <h1 className="text-[13px] font-bold text-gray-900 dark:text-white leading-tight">{title}</h1>
             {subtitle && (
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">{subtitle}</p>
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-tight">{subtitle}</p>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-1">
+
+        <div className="flex items-center gap-0.5">
           {showSearch && (
-            <Link
-              href="/buscar"
-              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Search size={18} />
+            <Link href="/buscar"
+              className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
+              <Search size={17} />
             </Link>
           )}
           {showNotifications && (
-            <button className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
-              <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
+            <button className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors relative">
+              <Bell size={17} />
+              <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-danger rounded-full ring-1 ring-white dark:ring-gray-900" />
             </button>
           )}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
             aria-label="Cambiar tema"
           >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
         </div>
       </div>

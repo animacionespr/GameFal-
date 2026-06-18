@@ -1,69 +1,57 @@
 import Link from 'next/link'
-import { ChevronRight, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { gobernadorPR } from '@/lib/data/oficial-pr'
 
 export function ProjectsOverview() {
   const { promesasCompletadas, promesasEnProgreso, promesasRetrasadas, promesasTotal } = gobernadorPR
 
+  const bars = [
+    { label: 'Completadas', val: promesasCompletadas, color: 'bg-green-500',         textColor: 'text-green-600 dark:text-green-400' },
+    { label: 'En Progreso', val: promesasEnProgreso,  color: 'bg-blue-500',          textColor: 'text-blue-600 dark:text-blue-400'   },
+    { label: 'Retrasadas',  val: promesasRetrasadas,  color: 'bg-amber-500',         textColor: 'text-amber-600 dark:text-amber-400' },
+    { label: 'Sin datos',   val: promesasTotal - promesasCompletadas - promesasEnProgreso - promesasRetrasadas,
+                                                       color: 'bg-gray-300 dark:bg-gray-600', textColor: 'text-gray-400' },
+  ]
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-3 px-4">
-        <h2 className="section-title">Proyectos y Promesas</h2>
-        <Link href="/promesas" className="text-xs text-primary dark:text-secondary font-medium flex items-center gap-0.5">
-          Ver todos <ChevronRight size={12} />
+      <div className="flex items-center justify-between px-4 mb-3">
+        <h2 className="section-title">Promesas de Campaña</h2>
+        <Link href="/promesas" className="flex items-center gap-0.5 text-[11px] font-semibold text-primary dark:text-secondary">
+          Ver todas <ChevronRight size={12} />
         </Link>
       </div>
+
       <div className="card mx-4 p-4">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-success" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Completadas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 rounded-full bg-green-200 dark:bg-green-900/40 overflow-hidden" style={{ width: 80 }}>
-                <div className="h-full bg-success rounded-full"
-                  style={{ width: `${(promesasCompletadas / promesasTotal) * 100}%` }} />
-              </div>
-              <span className="text-sm font-bold text-success w-6 text-right">{promesasCompletadas}</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Clock size={16} className="text-secondary" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">En Progreso</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 rounded-full bg-blue-200 dark:bg-blue-900/40 overflow-hidden" style={{ width: 80 }}>
-                <div className="h-full bg-secondary rounded-full"
-                  style={{ width: `${(promesasEnProgreso / promesasTotal) * 100}%` }} />
-              </div>
-              <span className="text-sm font-bold text-secondary w-6 text-right">{promesasEnProgreso}</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertTriangle size={16} className="text-warning" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Retrasadas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 rounded-full bg-amber-200 dark:bg-amber-900/40 overflow-hidden" style={{ width: 80 }}>
-                <div className="h-full bg-warning rounded-full"
-                  style={{ width: `${(promesasRetrasadas / promesasTotal) * 100}%` }} />
-              </div>
-              <span className="text-sm font-bold text-warning w-6 text-right">{promesasRetrasadas}</span>
-            </div>
-          </div>
+        {/* Stacked bar */}
+        <div className="h-3 rounded-full overflow-hidden flex mb-4">
+          {bars.map(({ val, color }) => (
+            val > 0 && (
+              <div key={color} className={`h-full ${color} transition-all duration-700`}
+                style={{ width: `${(val / promesasTotal) * 100}%` }} />
+            )
+          ))}
         </div>
-        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-          <div className="h-3 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex">
-            <div className="h-full bg-success" style={{ width: `${(promesasCompletadas / promesasTotal) * 100}%` }} />
-            <div className="h-full bg-secondary" style={{ width: `${(promesasEnProgreso / promesasTotal) * 100}%` }} />
-            <div className="h-full bg-warning" style={{ width: `${(promesasRetrasadas / promesasTotal) * 100}%` }} />
-          </div>
-          <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-1.5 text-center">
-            {promesasTotal} compromisos totales rastreados
-          </p>
+
+        {/* Legend */}
+        <div className="grid grid-cols-2 gap-2">
+          {bars.filter(b => b.val > 0).map(({ label, val, color, textColor }) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${color}`} />
+              <div className="flex-1 flex items-center justify-between">
+                <span className="text-[11px] text-gray-500 dark:text-gray-400">{label}</span>
+                <span className={`text-[12px] font-bold ${textColor}`}>{val}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-3.5 pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+          <span className="text-[10px] text-gray-400 dark:text-gray-600">{promesasTotal} compromisos rastreados</span>
+          <span className="text-[11px] font-bold text-green-500">
+            {Math.round((promesasCompletadas / promesasTotal) * 100)}% completado
+          </span>
         </div>
       </div>
     </div>
