@@ -7,6 +7,7 @@ import { RecentAnnouncements } from '@/components/home/RecentAnnouncements'
 import { gobernadorPR } from '@/lib/data/oficial-pr'
 import { OfficialPhoto } from '@/components/ui/OfficialPhoto'
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour'
+import { ApprovalRating } from '@/components/home/ApprovalRating'
 import { ChevronRight, Shield, Dot } from 'lucide-react'
 
 export default function HomePage() {
@@ -81,13 +82,18 @@ export default function HomePage() {
           <PerformanceScore />
         </div>
 
+        {/* Approval rating */}
+        <div className="fade-up stagger-2">
+          <ApprovalRating />
+        </div>
+
         {/* Quick stats */}
-        <div className="fade-up stagger-2" data-tour="stats">
+        <div className="fade-up stagger-3" data-tour="stats">
           <QuickStats />
         </div>
 
         {/* Projects */}
-        <div className="fade-up stagger-3">
+        <div className="fade-up stagger-4">
           <ProjectsOverview />
         </div>
 

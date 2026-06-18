@@ -119,3 +119,26 @@ export interface AIInsight {
   fuentes: string[]
   fechaGeneracion: string
 }
+
+export interface ApprovalPoll {
+  id: string
+  firma: string
+  fechaPublicacion: string           // YYYY-MM
+  fechaTrabajoCampo: string          // human-readable span
+  muestra: number
+  margenError: number | null
+  tipo: 'imagen' | 'gestion'         // image/perception vs management approval
+  aprueba: number                    // %
+  desaprueba: number                 // %
+  neutro: number                     // %
+  desglosePorPartido?: {
+    pnp?: { aprueba: number; desaprueba: number; neutro: number }
+    ppd?: { aprueba: number; desaprueba: number; neutro: number }
+    pip?: { aprueba: number; desaprueba: number; neutro: number }
+  }
+  notaGestion?: { buena: number; regular: number; mala: number }  // A/B / C / D/F
+  fuente: string
+  urlFuente: string
+  metodologia: string
+  notas?: string
+}

@@ -1,4 +1,4 @@
-import type { Official, Promise, TimelineEvent, Statistic, NewsItem, AIInsight, OfficialBundle } from '../types'
+import type { Official, Promise, TimelineEvent, Statistic, NewsItem, AIInsight, OfficialBundle, ApprovalPoll } from '../types'
 
 export const gobernadorPR: Official = {
   id: 'jenniffer-gonzalez-colon',
@@ -679,3 +679,46 @@ export const prBundle: OfficialBundle = {
   noticias: noticiasPR,
   insights: insightsPR,
 }
+
+// ─── Encuestas de aprobación ────────────────────────────────────────────────
+// Fuentes verificadas: Peter Hart Research (ago 2025) y El Nuevo Día (oct 2025)
+
+export const encuestasPR: ApprovalPoll[] = [
+  {
+    id: 'peter-hart-ago-2025',
+    firma: 'Peter Hart Research',
+    fechaPublicacion: '2025-10',
+    fechaTrabajoCampo: '23-25 ago 2025',
+    muestra: 800,
+    margenError: null,
+    tipo: 'imagen',
+    aprueba: 18,
+    desaprueba: 58,
+    neutro: 24,
+    fuente: 'Metro Puerto Rico',
+    urlFuente: 'https://www.metro.pr/noticias/2025/10/09/encuesta-refleja-alto-nivel-de-percepcion-negativa-para-la-gobernadora-jenniffer-gonzalez/',
+    metodologia: 'No especificada públicamente',
+    notas: 'Mide imagen/percepción favorable-desfavorable, no aprobación de gestión. PPD Pablo José Hernández obtuvo 40% positiva en la misma encuesta.',
+  },
+  {
+    id: 'end-oct-2025',
+    firma: 'La Encuesta de El Nuevo Día',
+    fechaPublicacion: '2025-10',
+    fechaTrabajoCampo: '17-23 oct 2025',
+    muestra: 750,
+    margenError: 3.6,
+    tipo: 'gestion',
+    aprueba: 48,
+    desaprueba: 52,
+    neutro: 0,
+    desglosePorPartido: {
+      pnp: { aprueba: 38, desaprueba: 27, neutro: 35 },
+      ppd: { aprueba: 1,  desaprueba: 74, neutro: 25 },
+    },
+    notaGestion: { buena: 27, regular: 40, mala: 33 },
+    fuente: 'El Nuevo Día',
+    urlFuente: 'https://www.elnuevodia.com/noticias/politica/notas/a-b-c-d-o-f-que-nota-dieron-los-encuestados-a-la-gestion-de-jenniffer-gonzalez/',
+    metodologia: 'Entrevistas personales puerta a puerta, toda PR excepto Vieques y Culebra.',
+    notas: 'Solo 35% ve el gabinete como competente. Gobernadora respondió: "Nunca he perdido una elección. Las elecciones son en 3 años."',
+  },
+]
