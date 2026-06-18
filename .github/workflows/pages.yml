@@ -28,18 +28,21 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Descargar foto oficial de la gobernadora
+      - name: Verificar foto oficial de la gobernadora
         run: |
           mkdir -p public/images
-          curl -sL -A "Mozilla/5.0" \
-            "https://bioguide.congress.gov/photos/G000582.jpg" \
-            -o public/images/gobernadora-pr.jpg && \
-            file public/images/gobernadora-pr.jpg | grep -qiE "JPEG|image" && \
-            echo "✓ Foto de Congress.gov" || \
-          curl -sL -A "Mozilla/5.0" \
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg/440px-Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg" \
-            -o public/images/gobernadora-pr.jpg && \
-            echo "✓ Foto de Wikipedia" || echo "⚠ Usando SVG"
+          if [ -f public/images/gobernadora-pr.jpg ] && file public/images/gobernadora-pr.jpg | grep -qiE "JPEG|image"; then
+            echo "✓ Foto del repo válida ($(du -sh public/images/gobernadora-pr.jpg | cut -f1))"
+          else
+            echo "⚠ Foto no encontrada en repo, intentando descargar..."
+            curl -sL -A "Mozilla/5.0" \
+              "https://bioguide.congress.gov/photos/G000582.jpg" \
+              -o /tmp/gobernadora-tmp.jpg && \
+              file /tmp/gobernadora-tmp.jpg | grep -qiE "JPEG|image" && \
+              cp /tmp/gobernadora-tmp.jpg public/images/gobernadora-pr.jpg && \
+              echo "✓ Foto descargada de Congress.gov" || \
+            echo "⚠ Usando foto de respaldo del repo"
+          fi
         continue-on-error: true
 
       - name: Actualizar datos desde fuentes oficiales
