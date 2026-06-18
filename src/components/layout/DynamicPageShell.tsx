@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, User, CheckSquare, Clock, BarChart2, Newspaper, Sparkles, Settings, TrendingUp, ArrowLeft } from 'lucide-react'
+import { Home, CheckSquare, Newspaper, TrendingUp, Settings, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -13,14 +13,11 @@ interface Props {
 }
 
 const NAV_ITEMS = [
-  { key: '',           icon: Home,         label: 'Inicio'    },
-  { key: 'promesas',   icon: CheckSquare,  label: 'Promesas'  },
-  { key: 'finanzas',   icon: TrendingUp,   label: 'Finanzas'  },
-  { key: 'cronologia', icon: Clock,        label: 'Historial' },
-  { key: 'estadisticas',icon: BarChart2,   label: 'Datos'     },
-  { key: 'noticias',   icon: Newspaper,    label: 'Noticias'  },
-  { key: 'analisis',   icon: Sparkles,     label: 'IA'        },
-  { key: 'perfil',     icon: User,         label: 'Perfil'    },
+  { key: '',          icon: Home,        label: 'Inicio'   },
+  { key: 'promesas',  icon: CheckSquare, label: 'Promesas' },
+  { key: 'noticias',  icon: Newspaper,   label: 'Noticias' },
+  { key: 'finanzas',  icon: TrendingUp,  label: 'Finanzas' },
+  { key: 'ajustes',   icon: Settings,    label: 'Ajustes'  },
 ]
 
 export function DynamicPageShell({ slug, title, subtitle, children }: Props) {
@@ -41,26 +38,32 @@ export function DynamicPageShell({ slug, title, subtitle, children }: Props) {
         </div>
       </header>
 
-      <main className="flex-1" style={{ paddingBottom: 'calc(60px + env(safe-area-inset-bottom))' }}>
+      <main className="flex-1" style={{ paddingBottom: 'calc(70px + env(safe-area-inset-bottom))' }}>
         {children}
       </main>
 
       {/* Bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-gray-200/50 dark:border-gray-700/50"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex items-center h-[60px] max-w-lg mx-auto overflow-x-auto no-scrollbar px-1">
+        <div className="flex items-stretch h-[70px] max-w-lg mx-auto">
           {NAV_ITEMS.map(({ key, icon: Icon, label }) => {
-            const href = key ? `/${slug}/${key}` : `/${slug}/`
+            const href = key ? `/${slug}/${key}/` : `/${slug}/`
             const active = key === ''
               ? pathname === `/${slug}` || pathname === `/${slug}/`
               : pathname.startsWith(`/${slug}/${key}`)
             return (
               <Link key={key} href={href}
-                className={cn('nav-pill shrink-0', active ? 'bg-primary/10 dark:bg-primary/20' : '')}>
-                <Icon size={18} strokeWidth={active ? 2.5 : 1.8}
-                  className={cn('transition-colors', active ? 'text-primary dark:text-secondary' : 'text-gray-400 dark:text-gray-600')} />
-                <span className={cn('text-[8px] font-semibold leading-tight transition-colors',
-                  active ? 'text-primary dark:text-secondary' : 'text-gray-400 dark:text-gray-600')}>
+                className={cn(
+                  'flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-95',
+                  active ? 'text-primary dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+                )}>
+                <div className={cn(
+                  'w-11 h-8 rounded-2xl flex items-center justify-center transition-all duration-200',
+                  active ? 'bg-primary/10 dark:bg-blue-400/15' : ''
+                )}>
+                  <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+                </div>
+                <span className={cn('text-[10px] font-semibold leading-none', active ? 'font-bold' : '')}>
                   {label}
                 </span>
               </Link>

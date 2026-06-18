@@ -2,44 +2,43 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, User, CheckSquare, Clock, BarChart2, Newspaper, Sparkles, Settings } from 'lucide-react'
+import { Home, CheckSquare, Newspaper, TrendingUp, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const navItems = [
-  { href: '/',             icon: Home,        label: 'Inicio'    },
-  { href: '/perfil',       icon: User,        label: 'Perfil'    },
-  { href: '/promesas',     icon: CheckSquare, label: 'Promesas'  },
-  { href: '/cronologia',   icon: Clock,       label: 'Historial' },
-  { href: '/estadisticas', icon: BarChart2,   label: 'Datos'     },
-  { href: '/noticias',     icon: Newspaper,   label: 'Noticias'  },
-  { href: '/analisis',     icon: Sparkles,    label: 'IA'        },
-  { href: '/ajustes',      icon: Settings,    label: 'Ajustes'   },
+const NAV = [
+  { href: '/',                                         icon: Home,        label: 'Inicio'   },
+  { href: '/jenniffer-gonzalez-colon/promesas/',       icon: CheckSquare, label: 'Promesas' },
+  { href: '/jenniffer-gonzalez-colon/noticias/',       icon: Newspaper,   label: 'Noticias' },
+  { href: '/jenniffer-gonzalez-colon/finanzas/',       icon: TrendingUp,  label: 'Finanzas' },
+  { href: '/jenniffer-gonzalez-colon/ajustes/',        icon: Settings,    label: 'Ajustes'  },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 glass"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-    >
-      <div className="flex items-center justify-around h-[60px] max-w-lg mx-auto px-1">
-        {navItems.map(({ href, icon: Icon, label }) => {
-          const active = pathname === href
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-gray-200/50 dark:border-gray-700/50"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="flex items-stretch h-[70px] max-w-lg mx-auto">
+        {NAV.map(({ href, icon: Icon, label }) => {
+          const active = href === '/'
+            ? pathname === '/' || pathname === ''
+            : pathname.startsWith(href.replace(/\/$/, ''))
           return (
-            <Link key={href} href={href} className={cn('nav-pill', active ? 'bg-primary/10 dark:bg-primary/20' : '')}>
-              <Icon
-                size={19}
-                strokeWidth={active ? 2.5 : 1.8}
-                className={cn(
-                  'transition-colors duration-200',
-                  active ? 'text-primary dark:text-secondary' : 'text-gray-400 dark:text-gray-600'
-                )}
-              />
+            <Link key={href} href={href}
+              className={cn(
+                'flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-95',
+                active ? 'text-primary dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+              )}>
+              <div className={cn(
+                'w-11 h-8 rounded-2xl flex items-center justify-center transition-all duration-200',
+                active ? 'bg-primary/10 dark:bg-blue-400/15' : ''
+              )}>
+                <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+              </div>
               <span className={cn(
-                'text-[8.5px] font-semibold leading-tight transition-colors',
-                active ? 'text-primary dark:text-secondary' : 'text-gray-400 dark:text-gray-600'
+                'text-[10px] font-semibold leading-none',
+                active ? 'font-bold' : ''
               )}>
                 {label}
               </span>
