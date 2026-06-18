@@ -22,9 +22,12 @@ export type EventCategory =
 
 export interface Official {
   id: string
+  slug: string
   nombre: string
   cargo: string
   partido: string
+  pais: string
+  bandera: string
   fechaInicio: string
   finMandato: string
   foto: string
@@ -37,6 +40,15 @@ export interface Official {
   promesasCompletadas: number
   promesasEnProgreso: number
   promesasRetrasadas: number
+}
+
+export interface OfficialBundle {
+  oficial: Official
+  promesas: Promise[]
+  eventos: TimelineEvent[]
+  estadisticas: Statistic[]
+  noticias: NewsItem[]
+  insights: AIInsight
 }
 
 export interface Promise {

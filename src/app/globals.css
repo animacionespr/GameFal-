@@ -40,6 +40,12 @@
   ::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-700 rounded-full; }
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .translate-x-5\.5 { transform: translateX(1.375rem); }
+}
+
 @layer components {
   .card {
     background-color: var(--card-bg);

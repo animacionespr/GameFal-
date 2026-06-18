@@ -1,7 +1,10 @@
-import type { Official, Promise, TimelineEvent, Statistic, NewsItem, AIInsight } from '../types'
+import type { Official, Promise, TimelineEvent, Statistic, NewsItem, AIInsight, OfficialBundle } from '../types'
 
 export const gobernadorPR: Official = {
   id: 'jenniffer-gonzalez-colon',
+  slug: 'jenniffer-gonzalez-colon',
+  pais: 'Puerto Rico',
+  bandera: '🇵🇷',
   nombre: 'Jenniffer González Colón',
   cargo: 'Gobernadora de Puerto Rico',
   partido: 'Partido Nuevo Progresista (PNP)',
@@ -556,4 +559,13 @@ export const insightsPR: AIInsight = {
     'Junta de Planificación — jp.pr.gov',
   ],
   fechaGeneracion: '2025-05-31',
+}
+
+export const prBundle: OfficialBundle = {
+  oficial: gobernadorPR,
+  promesas: promesasPR,
+  eventos: eventosPR,
+  estadisticas: estadisticasPR,
+  noticias: noticiasPR,
+  insights: insightsPR,
 }

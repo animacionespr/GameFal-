@@ -5,9 +5,13 @@ on:
     branches: [claude/spanish-app-idea-xnnk8b]
   workflow_dispatch:
   schedule:
-    # 7:00am y 7:00pm hora de Puerto Rico (UTC-4) → 11:00 y 23:00 UTC
-    - cron: '0 11 * * *'
-    - cron: '0 23 * * *'
+    # Hora de Puerto Rico (UTC-4) → UTC
+    # 6:10am PR  = 10:10 UTC
+    # 12:05pm PR = 16:05 UTC
+    # 11:10pm PR = 03:10 UTC
+    - cron: '10 10 * * *'
+    - cron: '5 16 * * *'
+    - cron: '10 3 * * *'
 
 permissions:
   contents: write
