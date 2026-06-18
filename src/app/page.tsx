@@ -13,16 +13,20 @@ export default function HomePage() {
 
   return (
     <PageShell title="GovTracker PR" subtitle="Transparencia basada en datos oficiales" showSearch>
-      <div className="space-y-4 pb-6">
+      <div className="space-y-5 pb-6">
 
         {/* Hero banner — full bleed, immersive */}
-        <div className="relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #001A4D 0%, #0050B3 45%, #0080CC 100%)' }}>
+        <div className="relative overflow-hidden" style={{ background: 'linear-gradient(155deg, #001228 0%, #00307A 40%, #0060C0 75%, #0090D8 100%)' }}>
           {/* Dot pattern */}
-          <div className="absolute inset-0 opacity-[0.07]"
+          <div className="absolute inset-0 opacity-[0.09]"
             style={{
               backgroundImage: `radial-gradient(circle, #fff 1px, transparent 1px)`,
-              backgroundSize: '24px 24px',
+              backgroundSize: '22px 22px',
             }}
+          />
+          {/* Radial glow center */}
+          <div className="absolute inset-0 opacity-20"
+            style={{ background: 'radial-gradient(ellipse 80% 60% at 60% 40%, #00A3FF, transparent)' }}
           />
           {/* Bottom fade */}
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#F0F4FA] dark:from-[#0D1120] to-transparent" />
@@ -47,8 +51,8 @@ export default function HomePage() {
 
               <div className="flex-1 min-w-0">
                 <p className="text-white/50 text-[9px] font-bold uppercase tracking-[0.15em] mb-0.5">{partido}</p>
-                <p className="text-white font-black text-[18px] leading-tight tracking-tight">{nombre}</p>
-                <p className="text-white/70 text-[12px] font-medium mt-0.5">{cargo}</p>
+                <p className="text-white font-black text-[19px] leading-tight tracking-tight">{nombre}</p>
+                <p className="text-white/65 text-[12px] font-medium mt-0.5">{cargo}</p>
               </div>
 
               <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
