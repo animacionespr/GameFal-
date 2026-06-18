@@ -3,6 +3,9 @@ const nextConfig = {
   output: 'export',
   basePath: '/GameFal-',
   trailingSlash: true,
+  env: {
+    NEXT_PUBLIC_BASE_PATH: '/GameFal-',
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
