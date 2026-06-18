@@ -1,10 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { PageShell } from '@/components/layout/PageShell'
 import { estadisticasPR } from '@/lib/data/oficial-pr'
-import { TrendingUp, TrendingDown, Minus, ExternalLink } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { cn, formatNumber } from '@/lib/utils'
+
+function useCountUp(target: number, duration = 1200) {
+  const [count, setCount] = useState(0)
+  const ref = useRef<HTMLDivElement>(null)
+  const started = useRef(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true
+        const start = performance.now()
+        const tick = (now: number) => {
+          const progress = Math.min((now - start) / duration, 1)
+          const ease = 1 - Math.pow(1 - progress, 3)
+          setCount(Math.round(ease * target))
+          if (progress < 1) requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)
+      }
+    }, { threshold: 0.3 })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [target, duration])
+
+  return { count, ref }
+}
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar
@@ -16,6 +44,8 @@ function StatChart({ stat }: { stat: typeof estadisticasPR[0] }) {
   const [chartType, setChartType] = useState<'area' | 'bar'>('area')
   const data = stat.historial.map(h => ({ fecha: h.fecha, valor: h.valor }))
   const color = stat.tendencia === 'subida' ? '#16A34A' : stat.tendencia === 'bajada' ? '#DC2626' : '#00A3FF'
+  const { count, ref: countRef } = useCountUp(stat.valor, 1400)
+  const displayVal = stat.valor > 10000 ? formatNumber(count) : count
 
   return (
     <div className="card p-4">
@@ -38,11 +68,9 @@ function StatChart({ stat }: { stat: typeof estadisticasPR[0] }) {
       </div>
 
       <div className="flex items-end justify-between mb-4">
-        <div>
-          <p className="text-2xl font-black text-gray-900 dark:text-white">
-            {typeof stat.valor === 'number' && stat.valor > 10000
-              ? formatNumber(stat.valor)
-              : stat.valor}
+        <div ref={countRef}>
+          <p className="text-2xl font-black text-gray-900 dark:text-white tabular-nums">
+            {displayVal}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">{stat.unidad}</p>
         </div>
