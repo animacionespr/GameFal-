@@ -83,7 +83,7 @@ export default function AjustesPage() {
               <span className="text-white text-lg font-black">GT</span>
             </div>
           </div>
-          <h3 className="text-sm font-black text-center text-gray-900 dark:text-white mb-1">Rastreador de Gobierno</h3>
+          <h3 className="text-sm font-black text-center text-gray-900 dark:text-white mb-1">GovTracker PR</h3>
           <p className="text-[10px] text-center text-gray-500 dark:text-gray-400">
             Plataforma de transparencia gubernamental basada en datos oficiales y verificables.
             Sin afiliación política. Sin opiniones. Solo hechos.
