@@ -6,6 +6,7 @@ import { ProjectsOverview } from '@/components/home/ProjectsOverview'
 import { RecentAnnouncements } from '@/components/home/RecentAnnouncements'
 import { gobernadorPR } from '@/lib/data/oficial-pr'
 import { OfficialPhoto } from '@/components/ui/OfficialPhoto'
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour'
 import { ChevronRight, Shield, Dot } from 'lucide-react'
 
 export default function HomePage() {
@@ -13,6 +14,7 @@ export default function HomePage() {
 
   return (
     <PageShell title="GovTracker PR" subtitle="Transparencia basada en datos oficiales" showSearch>
+      <OnboardingTour />
       <div className="space-y-5 pb-6">
 
         {/* Hero banner — full bleed, immersive */}
@@ -75,12 +77,12 @@ export default function HomePage() {
         </div>
 
         {/* Performance score */}
-        <div className="px-4 -mt-3 relative z-10 fade-up stagger-1">
+        <div className="px-4 -mt-3 relative z-10 fade-up stagger-1" data-tour="performance">
           <PerformanceScore />
         </div>
 
         {/* Quick stats */}
-        <div className="fade-up stagger-2">
+        <div className="fade-up stagger-2" data-tour="stats">
           <QuickStats />
         </div>
 

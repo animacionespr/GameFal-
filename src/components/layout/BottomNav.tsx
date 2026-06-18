@@ -25,6 +25,7 @@ export function BottomNav() {
       <div className="absolute -top-6 left-0 right-0 h-6 pointer-events-none bg-gradient-to-t from-[var(--page-bg)] to-transparent opacity-80" />
 
       <div
+        data-tour="nav"
         className="glass border-t border-gray-200/60 dark:border-white/[0.06]"
         style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.06)' }}
       >
