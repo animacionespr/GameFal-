@@ -38,6 +38,21 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Descargar foto oficial de la gobernadora
+        run: |
+          mkdir -p public/images
+          curl -L -A "Mozilla/5.0" \
+            "https://bioguide.congress.gov/photos/G000582.jpg" \
+            -o public/images/gobernadora-pr.jpg 2>/dev/null && \
+            file public/images/gobernadora-pr.jpg | grep -q "JPEG\|image" && \
+            echo "✓ Foto descargada de Congress.gov" || \
+          curl -L -A "Mozilla/5.0" \
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg/440px-Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg" \
+            -o public/images/gobernadora-pr.jpg 2>/dev/null && \
+            echo "✓ Foto descargada de Wikipedia" || \
+            echo "⚠ Usando SVG de respaldo"
+        continue-on-error: true
+
       - name: Actualizar datos desde fuentes oficiales
         run: node scripts/update-data.mjs
         continue-on-error: true

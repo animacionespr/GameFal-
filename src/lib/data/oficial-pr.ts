@@ -12,6 +12,7 @@ export const gobernadorPR: Official = {
   finMandato: '2028-12-31',
   foto: '/images/gobernadora-pr.svg',
   fotoSources: [
+    '/images/gobernadora-pr.jpg',
     'https://bioguide.congress.gov/photos/G000582.jpg',
     'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg/440px-Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg',
   ],
