@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap');
+
+@layer base {
+  :root {
+    --primary: #0050B3;
+    --secondary: #00A3FF;
+    --success: #16A34A;
+    --warning: #F59E0B;
+    --danger: #DC2626;
+    --card-bg: #ffffff;
+    --page-bg: #F0F4FA;
+  }
+
+  .dark {
+    --card-bg: #1A2235;
+    --page-bg: #0D1120;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--page-bg);
+    @apply text-gray-900 dark:text-gray-100;
+    overscroll-behavior: none;
+  }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-700 rounded-full; }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .translate-x-5\.5 { transform: translateX(1.375rem); }
+}
+
+@layer components {
+  .card {
+    background-color: var(--card-bg);
+    @apply rounded-2xl border border-gray-100/80 dark:border-white/5;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  .card-glow {
+    background-color: var(--card-bg);
+    @apply rounded-2xl border border-primary/20 dark:border-primary/30;
+    box-shadow: 0 0 0 1px rgba(0,80,179,0.1), 0 4px 24px rgba(0,80,179,0.12);
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-secondary text-white px-4 py-2.5 rounded-xl
+           font-semibold text-sm active:scale-95 transition-all duration-150;
+    box-shadow: 0 4px 12px rgba(0,80,179,0.35);
+  }
+
+  .section-title {
+    @apply text-[17px] font-bold text-gray-900 dark:text-white tracking-tight;
+  }
+
+  .label-text {
+    @apply text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest;
+  }
+
+  .bottom-safe {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  .stat-chip {
+    @apply flex flex-col items-center justify-center p-3 rounded-2xl;
+  }
+
+  .nav-pill {
+    @apply flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #0050B3 0%, #00A3FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-warm {
+    background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    @apply backdrop-blur-xl;
+    background: rgba(255,255,255,0.85);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .dark .glass {
+    background: rgba(13,17,32,0.9);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #003D8F 0%, #0050B3 50%, #0070D6 100%);
+  }
+
+  .gradient-hero {
+    background: linear-gradient(145deg, #001F5C 0%, #0050B3 55%, #0080CC 100%);
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,0.06) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .fade-up {
+    animation: fadeUp 0.4s ease-out both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+}

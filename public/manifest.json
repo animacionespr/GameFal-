@@ -1,0 +1,45 @@
+{
+  "name": "GovTracker PR",
+  "short_name": "GovTracker",
+  "description": "Transparencia y rendición de cuentas del Gobierno de Puerto Rico",
+  "start_url": "/GameFal-/",
+  "scope": "/GameFal-/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#0050B3",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "categories": ["news", "government", "utilities"],
+  "icons": [
+    {
+      "src": "/GameFal-/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/GameFal-/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/GameFal-/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Promesas",
+      "url": "/GameFal-/jenniffer-gonzalez-colon/promesas/",
+      "description": "Ver promesas electorales"
+    },
+    {
+      "name": "Finanzas",
+      "url": "/GameFal-/jenniffer-gonzalez-colon/finanzas/",
+      "description": "Monitoreo financiero público"
+    }
+  ]
+}
