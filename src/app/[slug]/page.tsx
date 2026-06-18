@@ -1,8 +1,8 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getOfficialBundle, OFFICIAL_SLUGS } from '@/lib/data/officials'
 import { DynamicPageShell } from '@/components/layout/DynamicPageShell'
+import { OfficialPhoto } from '@/components/ui/OfficialPhoto'
 import { ChevronRight, Shield, TrendingUp, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
 
 export async function generateStaticParams() {
@@ -40,7 +40,7 @@ export default function OfficialDashboard({ params }: Props) {
           />
           <Link href={`/${params.slug}/perfil`} className="relative flex items-center gap-3.5 active:opacity-80">
             <div className="relative w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-white/30 shadow-xl shrink-0">
-              <Image src={oficial.foto} alt={oficial.nombre} fill className="object-cover object-top" sizes="56px" />
+              <OfficialPhoto sources={oficial.fotoSources ?? []} fallback={oficial.foto} alt={oficial.nombre} className="w-full h-full object-cover object-top" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white/60 text-[9.5px] font-semibold uppercase tracking-widest mb-0.5">

@@ -11,6 +11,10 @@ export const gobernadorPR: Official = {
   fechaInicio: '2025-01-02',
   finMandato: '2028-12-31',
   foto: '/images/gobernadora-pr.svg',
+  fotoSources: [
+    'https://bioguide.congress.gov/photos/G000582.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg/440px-Jenniffer_Gonz%C3%A1lez_Col%C3%B3n.jpg',
+  ],
   biografia:
     'Jenniffer González Colón es la 12ª Gobernadora de Puerto Rico, tomando posesión el 2 de enero de 2025. Anteriormente se desempeñó como Comisionada Residente de Puerto Rico en el Congreso de los Estados Unidos (2017–2025). Abogada de profesión, graduada de la Universidad Interamericana de Puerto Rico Escuela de Derecho.',
   sitioWeb: 'https://www.estado.pr.gov',

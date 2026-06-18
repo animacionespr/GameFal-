@@ -1,8 +1,8 @@
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { DynamicPageShell } from '@/components/layout/DynamicPageShell'
 import { getOfficialBundle, OFFICIAL_SLUGS } from '@/lib/data/officials'
 import { ProgressBar } from '@/components/ui/ProgressBar'
+import { OfficialPhoto } from '@/components/ui/OfficialPhoto'
 import { Globe, Mail, Calendar, ExternalLink, Award, TrendingUp } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
@@ -17,7 +17,7 @@ export default function PerfilPage({ params }: Props) {
   if (!bundle) notFound()
 
   const {
-    nombre, cargo, partido, foto, fechaInicio, finMandato,
+    nombre, cargo, partido, foto, fotoSources, fechaInicio, finMandato,
     biografia, sitioWeb, contacto, administracion,
     puntajeRendimiento, promesasTotal, promesasCompletadas,
     promesasEnProgreso, promesasRetrasadas,
@@ -51,7 +51,7 @@ export default function PerfilPage({ params }: Props) {
             {/* Avatar + name */}
             <div className="flex items-end gap-4 -mt-12 mb-4">
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-gray-800 shadow-2xl shadow-black/30 shrink-0">
-                <Image src={foto} alt={nombre} fill className="object-cover object-top" />
+                <OfficialPhoto sources={fotoSources ?? []} fallback={foto} alt={nombre} className="w-full h-full object-cover object-top" />
               </div>
               <div className="pb-1 flex-1 min-w-0">
                 <h1 className="text-[17px] font-black text-gray-900 dark:text-white leading-tight truncate">{nombre}</h1>

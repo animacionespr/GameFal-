@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { PageShell } from '@/components/layout/PageShell'
 import { PerformanceScore } from '@/components/home/PerformanceScore'
@@ -6,10 +5,11 @@ import { QuickStats } from '@/components/home/QuickStats'
 import { ProjectsOverview } from '@/components/home/ProjectsOverview'
 import { RecentAnnouncements } from '@/components/home/RecentAnnouncements'
 import { gobernadorPR } from '@/lib/data/oficial-pr'
+import { OfficialPhoto } from '@/components/ui/OfficialPhoto'
 import { ChevronRight, Shield } from 'lucide-react'
 
 export default function HomePage() {
-  const { nombre, cargo, partido, foto } = gobernadorPR
+  const { nombre, cargo, partido, foto, fotoSources } = gobernadorPR
 
   return (
     <PageShell title="GovTracker PR" subtitle="Transparencia basada en datos oficiales" showSearch>
@@ -26,7 +26,12 @@ export default function HomePage() {
           <div className="relative px-4 pt-5 pb-6">
             <Link href="/jenniffer-gonzalez-colon/perfil/" className="flex items-center gap-3.5 active:opacity-80 transition-opacity">
               <div className="relative w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-white/30 shadow-xl shrink-0">
-                <Image src={foto} alt={nombre} fill className="object-cover object-top" sizes="56px" />
+                <OfficialPhoto
+                  sources={fotoSources ?? []}
+                  fallback={foto}
+                  alt={nombre}
+                  className="w-full h-full object-cover object-top"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-white/60 text-[10px] font-semibold uppercase tracking-widest mb-0.5">{partido}</p>

@@ -31,6 +31,7 @@ export interface Official {
   fechaInicio: string
   finMandato: string
   foto: string
+  fotoSources?: string[]
   biografia: string
   sitioWeb: string
   contacto: string
