@@ -24,7 +24,7 @@ export default function HomePage() {
             }}
           />
           <div className="relative px-4 pt-5 pb-6">
-            <Link href="/perfil" className="flex items-center gap-3.5 active:opacity-80 transition-opacity">
+            <Link href="/jenniffer-gonzalez-colon/perfil/" className="flex items-center gap-3.5 active:opacity-80 transition-opacity">
               <div className="relative w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-white/30 shadow-xl shrink-0">
                 <Image src={foto} alt={nombre} fill className="object-cover object-top" sizes="56px" />
               </div>

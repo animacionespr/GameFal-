@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="440" viewBox="0 0 440 440">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0050B3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#003380;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a6fd4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a4a9e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f4c17a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e8a85a;stop-opacity:1" />
+    </linearGradient>
+    <clipPath id="circle">
+      <circle cx="220" cy="220" r="220"/>
+    </clipPath>
+  </defs>
+  <!-- Background -->
+  <circle cx="220" cy="220" r="220" fill="url(#bg)"/>
+  <!-- Subtle pattern -->
+  <circle cx="220" cy="220" r="220" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="40"/>
+  <circle cx="220" cy="220" r="180" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="30"/>
+  <!-- Body/shoulders -->
+  <ellipse cx="220" cy="380" rx="130" ry="80" fill="url(#body)" clip-path="url(#circle)"/>
+  <ellipse cx="220" cy="340" rx="90" ry="60" fill="url(#body)" clip-path="url(#circle)"/>
+  <!-- Neck -->
+  <rect x="196" y="265" width="48" height="45" rx="10" fill="url(#skin)" clip-path="url(#circle)"/>
+  <!-- Head -->
+  <ellipse cx="220" cy="235" rx="72" ry="78" fill="url(#skin)"/>
+  <!-- Hair -->
+  <ellipse cx="220" cy="175" rx="72" ry="45" fill="#4a2c0a"/>
+  <ellipse cx="155" cy="205" rx="18" ry="35" fill="#4a2c0a"/>
+  <ellipse cx="285" cy="205" rx="18" ry="35" fill="#4a2c0a"/>
+  <!-- Face details -->
+  <!-- Eyes -->
+  <ellipse cx="197" cy="228" rx="9" ry="7" fill="#2c1a0e"/>
+  <ellipse cx="243" cy="228" rx="9" ry="7" fill="#2c1a0e"/>
+  <ellipse cx="199" cy="226" rx="3" ry="2.5" fill="white"/>
+  <ellipse cx="245" cy="226" rx="3" ry="2.5" fill="white"/>
+  <!-- Nose -->
+  <ellipse cx="220" cy="248" rx="5" ry="3" fill="#d4956a"/>
+  <!-- Smile -->
+  <path d="M205 262 Q220 274 235 262" stroke="#c4845a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Eyebrows -->
+  <path d="M187 218 Q197 213 207 217" stroke="#3a2008" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M233 217 Q243 213 253 218" stroke="#3a2008" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- PR Flag accent bottom -->
+  <rect x="0" y="410" width="440" height="30" fill="url(#circle)" clip-path="url(#circle)"/>
+  <!-- Initials overlay (subtle) -->
+  <text x="220" y="430" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="rgba(255,255,255,0.4)" text-anchor="middle">JGC · Gobernadora PR</text>
+</svg>

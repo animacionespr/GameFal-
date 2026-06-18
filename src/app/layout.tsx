@@ -2,15 +2,30 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
+import { PWARegister } from '@/components/pwa/PWARegister'
 
 export const metadata: Metadata = {
-  title: 'Rastreador de Gobierno',
-  description: 'Plataforma de transparencia y rendición de cuentas gubernamental basada en datos oficiales',
+  title: 'GovTracker PR — Transparencia Gubernamental',
+  description: 'Sigue el desempeño de la Gobernadora de Puerto Rico con datos oficiales en tiempo real.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'GovTracker PR',
+    startupImage: '/apple-touch-icon.png',
+  },
+  icons: {
+    apple: '/apple-touch-icon.png',
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+  },
+  openGraph: {
+    title: 'GovTracker PR',
+    description: 'Transparencia y rendición de cuentas del Gobierno de Puerto Rico',
+    type: 'website',
+    locale: 'es_PR',
   },
 }
 
@@ -36,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <QueryProvider>
             {children}
+            <PWARegister />
           </QueryProvider>
         </ThemeProvider>
       </body>
