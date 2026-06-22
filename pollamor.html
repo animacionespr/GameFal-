@@ -788,25 +788,26 @@ function setupInput(){
     if((e.key===' '||e.key==='Enter')&&STATE==='title')startCharSelect();
   });
   window.addEventListener('keyup',e=>{keys[e.key]=false;});
+  function cvCoord(cx2,cy2){
+    const r=cv.getBoundingClientRect();
+    return {x:(cx2-r.left)/SC,y:(cy2-r.top)/SC};
+  }
   cv.addEventListener('touchstart',e=>{
     e.preventDefault();
-    const t=e.touches[0];
-    touchStartX=(t.clientX-cv.offsetLeft)/SC;
-    touchStartY=(t.clientY-cv.offsetTop)/SC;
-    touchX=touchStartX;touchY=touchStartY;
-    handleTap(touchX,touchY);
+    const t=e.touches[0];const p=cvCoord(t.clientX,t.clientY);
+    touchStartX=p.x;touchStartY=p.y;touchX=p.x;touchY=p.y;
+    handleTap(p.x,p.y);
   },{passive:false});
   cv.addEventListener('touchmove',e=>{
     e.preventDefault();
-    const t=e.touches[0];
-    touchX=(t.clientX-cv.offsetLeft)/SC;
-    touchY=(t.clientY-cv.offsetTop)/SC;
+    const t=e.touches[0];const p=cvCoord(t.clientX,t.clientY);
+    touchX=p.x;touchY=p.y;
   },{passive:false});
   cv.addEventListener('touchend',e=>{
     touchX=null;touchY=null;touchStartX=null;touchStartY=null;
   },{passive:false});
   cv.addEventListener('click',e=>{
-    handleTap((e.clientX-cv.offsetLeft)/SC,(e.clientY-cv.offsetTop)/SC);
+    const p=cvCoord(e.clientX,e.clientY);handleTap(p.x,p.y);
   });
   document.getElementById('chat-send').addEventListener('click',sendChatMsg);
   document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChatMsg();});
