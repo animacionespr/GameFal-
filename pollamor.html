@@ -330,38 +330,54 @@ function hexDarken(h,a){return hexLighten(h,-a);}
 
 // ── Character Definitions ───────────────
 const CHARS=[
+  // Beto: blue cap forward, white shirt, maroon shorts, medium-tan skin
   {id:0,gender:'m',name:'Beto',
-   skin:'#c68642',skinH:'#e0a468',skinS:'#9a5c28',
-   hair:'#1a0a00',capCol:'#c62828',capBack:true,
-   shirtCol:'#fdd835',pantsCol:'#283593',shoeCol:'#eceff1',accent:'#c62828',hairStyle:0},
+   skin:'#c8784a',skinH:'#e09060',skinS:'#9a5830',
+   hair:'#1a0800',capCol:'#1565c0',capBack:false,
+   shirtCol:'#f0efeb',pantsCol:'#8b1a1a',shoeCol:'#f0efeb',
+   accent:'#2196f3',hairStyle:0},
+  // Ricky: blue cap backwards, white shirt, maroon shorts, dark skin
   {id:1,gender:'m',name:'Ricky',
-   skin:'#ffe0b2',skinH:'#fff3e0',skinS:'#d4a870',
-   hair:'#3e2723',capCol:null,
-   shirtCol:'#1565c0',pantsCol:'#eceff1',shoeCol:'#212121',accent:'#1565c0',hairStyle:1},
+   skin:'#7a4520',skinH:'#9a6538',skinS:'#5a3010',
+   hair:'#0a0400',capCol:'#1565c0',capBack:true,
+   shirtCol:'#f0efeb',pantsCol:'#8b1a1a',shoeCol:'#f0efeb',
+   accent:'#2196f3',hairStyle:0},
+  // Dante: brown cap, green shirt (Vagni Libre style), khaki shorts
   {id:2,gender:'m',name:'Dante',
-   skin:'#8d5524',skinH:'#a8683a',skinS:'#6a3e18',
-   hair:'#0d0000',capCol:null,
-   shirtCol:'#e65100',pantsCol:'#2e7d32',shoeCol:'#795548',accent:'#ff6d00',hairStyle:2},
+   skin:'#c07844',skinH:'#d89060',skinS:'#9a5828',
+   hair:'#2c1810',capCol:'#5d4037',capBack:false,
+   shirtCol:'#388e3c',pantsCol:'#a1887f',shoeCol:'#795548',
+   accent:'#66bb6a',hairStyle:0},
+  // Mani: no cap, short hair, blue sporty shirt, dark shorts
   {id:3,gender:'m',name:'Mani',
-   skin:'#d4956a',skinH:'#e8b088',skinS:'#b07040',
-   hair:'#212121',capCol:'#e65100',capBack:false,
-   shirtCol:'#ff8f00',pantsCol:'#37474f',shoeCol:'#f9a825',accent:'#ffca28',hairStyle:0},
+   skin:'#d49058',skinH:'#e8a870',skinS:'#b06838',
+   hair:'#2c1810',capCol:null,
+   shirtCol:'#0d47a1',pantsCol:'#37474f',shoeCol:'#212121',
+   accent:'#42a5f5',hairStyle:1},
+  // Luna: blue cap + ponytail, white shirt, maroon shorts, medium skin
   {id:4,gender:'f',name:'Luna',
-   skin:'#c68642',skinH:'#e0a468',skinS:'#9a5c28',
-   hair:'#e91e63',capCol:null,ribbon:'#f48fb1',
-   shirtCol:'#ec407a',pantsCol:'#f48fb1',shoeCol:'#e91e63',accent:'#fce4ec',hairStyle:4},
+   skin:'#c8784a',skinH:'#e09060',skinS:'#9a5830',
+   hair:'#1a0800',capCol:'#1565c0',capBack:false,
+   shirtCol:'#f0efeb',pantsCol:'#8b1a1a',shoeCol:'#f0efeb',
+   accent:'#2196f3',hairStyle:0,ponytail:true},
+  // Vale: no cap, dark ponytail, white shirt, maroon shorts, darker skin
   {id:5,gender:'f',name:'Vale',
-   skin:'#8d5524',skinH:'#a8683a',skinS:'#6a3e18',
-   hair:'#9c27b0',capCol:null,ribbon:'#ce93d8',
-   shirtCol:'#9c87b0',pantsCol:'#ce93d8',shoeCol:'#7b1fa2',accent:'#f3e5f5',hairStyle:5},
+   skin:'#7a4520',skinH:'#9a6538',skinS:'#5a3010',
+   hair:'#0a0400',capCol:null,ribbon:null,
+   shirtCol:'#f0efeb',pantsCol:'#8b1a1a',shoeCol:'#212121',
+   accent:'#eceff1',hairStyle:3},
+  // Caro: red turbante, vestido floral, very dark skin
   {id:6,gender:'f',name:'Caro',
-   skin:'#ffe0b2',skinH:'#fff3e0',skinS:'#d4a870',
-   hair:'#ff5722',capCol:null,ribbon:'#ff8a65',
-   shirtCol:'#ff7043',pantsCol:'#bf360c',shoeCol:'#e64a19',accent:'#ffccbc',hairStyle:6},
+   skin:'#4a2c18',skinH:'#6a4438',skinS:'#2e1808',
+   hair:'#8b1a1a',capCol:null,ribbon:null,
+   shirtCol:'#e91e63',pantsCol:'#c62828',shoeCol:'#6d4c41',
+   accent:'#f8bbd0',hairStyle:8,floralDress:true},
+  // Iris: pigtails, colorful purple outfit, medium skin
   {id:7,gender:'f',name:'Iris',
-   skin:'#d4956a',skinH:'#e8b088',skinS:'#b07040',
-   hair:'#00897b',capCol:null,ribbon:'#4dd0e1',
-   shirtCol:'#00838f',pantsCol:'#006064',shoeCol:'#004d40',accent:'#b2ebf2',hairStyle:7},
+   skin:'#d49058',skinH:'#e8a870',skinS:'#b06838',
+   hair:'#3e2723',capCol:null,ribbon:null,
+   shirtCol:'#6a1b9a',pantsCol:'#4a148c',shoeCol:'#4a148c',
+   accent:'#ce93d8',hairStyle:5},
 ];
 
 // ── Draw Character ──────────────────────
@@ -376,7 +392,7 @@ function drawChar(ctx,ch,wx,wy,frame,facing,camXo,camYo,alpha=1){
 }
 function _drawCharPixels(ctx,ch,frame){
   const f4=frame&3;
-  const {skin,skinH,skinS,hair,capCol,capBack,shirtCol,pantsCol,shoeCol,accent,gender,ribbon,hairStyle=0}=ch;
+  const {skin,skinH,skinS,hair,capCol,capBack,shirtCol,pantsCol,shoeCol,accent,gender,ribbon,hairStyle=0,ponytail=false,floralDress=false}=ch;
   const sH=skinH||hexLighten(skin,28),sS=skinS||hexDarken(skin,28);
   // 4-frame walk cycle: legs/arms swing alternately
   const LL=[0,2,0,-2][f4],RL=[0,-2,0,2][f4];
@@ -393,10 +409,18 @@ function _drawCharPixels(ctx,ch,frame){
   ctx.fillRect(-4+LL,-3,2,1);ctx.fillRect(1+RL,-3,2,1);
   // ── Legs ──
   if(gender==='f'){
-    ctx.fillStyle=pantsCol;ctx.fillRect(-5,-11,10,8);
-    ctx.fillStyle=hexLighten(pantsCol,22);ctx.fillRect(-4,-11,8,2);
-    ctx.fillStyle=hexDarken(pantsCol,22);ctx.fillRect(-4,-4,8,1);
-    ctx.fillStyle=accent;ctx.fillRect(-5,-11,10,1);
+    if(floralDress){
+      // Vestido floral – base crema con manchas de colores
+      ctx.fillStyle='#f5f0e6';ctx.fillRect(-5,-11,10,8);
+      const fl=[['#e91e63',-3,-9],['#ff7043',1,-8],['#4caf50',-2,-6],['#ffeb3b',2,-9],['#9c27b0',-1,-7]];
+      fl.forEach(([c,fx,fy])=>{ctx.fillStyle=c;ctx.fillRect(fx,fy,2,2);});
+      ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(-4,-4,8,1);
+    } else {
+      ctx.fillStyle=pantsCol;ctx.fillRect(-5,-11,10,8);
+      ctx.fillStyle=hexLighten(pantsCol,22);ctx.fillRect(-4,-11,8,2);
+      ctx.fillStyle=hexDarken(pantsCol,22);ctx.fillRect(-4,-4,8,1);
+      ctx.fillStyle=accent;ctx.fillRect(-5,-11,10,1);
+    }
     ctx.fillStyle=skin;ctx.fillRect(-4+LL,-6,3,3);ctx.fillRect(1+RL,-6,3,3);
   } else {
     ctx.fillStyle=pantsCol;
@@ -452,7 +476,7 @@ function _drawCharPixels(ctx,ch,frame){
   ctx.fillStyle='rgba(255,120,100,0.2)';
   ctx.fillRect(-6,-24,2,2);ctx.fillRect(4,-24,2,2);
   // ── Hair / Cap ──
-  if(capCol){_drawCap(ctx,capCol,capBack,hair);}
+  if(capCol){_drawCap(ctx,capCol,capBack,hair,ponytail);}
   else{
     _drawHair(ctx,hairStyle,hair);
     if(gender==='f'&&ribbon){
@@ -467,7 +491,24 @@ function _drawHair(ctx,style,hair){
   const hD=hexDarken(hair,25),hL=hexLighten(hair,38);
   ctx.fillStyle=hair;
   switch(style){
-    case 1: // Spiky swept – Ricky
+    case 3: // Ponytail – Vale
+      ctx.fillRect(-5,-31,10,4);
+      ctx.fillRect(-6,-30,2,8);ctx.fillRect(4,-30,2,8);
+      ctx.fillRect(-8,-28,4,14); // coleta colgando hacia atrás
+      ctx.fillStyle=hL;ctx.fillRect(-6,-28,1,5);
+      ctx.fillStyle=hD;ctx.fillRect(-8,-25,1,8);
+      ctx.fillStyle='#222';ctx.fillRect(-8,-25,4,2); // liga
+      break;
+    case 8: // Turbante rojo – Caro
+      ctx.fillRect(-6,-32,12,5);
+      ctx.fillRect(-5,-34,10,4);
+      ctx.fillRect(-7,-31,2,4);ctx.fillRect(5,-31,2,4);
+      ctx.fillStyle=hL;
+      ctx.fillRect(-4,-34,4,2);ctx.fillRect(-5,-32,4,1);
+      ctx.fillStyle=hD;
+      ctx.fillRect(-5,-29,10,2);ctx.fillRect(-6,-31,1,5);
+      break;
+    case 1: // Spiky swept – Mani
       ctx.fillRect(-5,-31,10,4);
       ctx.fillRect(-6,-30,2,8);ctx.fillRect(4,-30,2,8);
       ctx.fillRect(-4,-34,2,4);ctx.fillRect(0,-35,2,5);ctx.fillRect(3,-33,2,3);
@@ -521,10 +562,17 @@ function _drawHair(ctx,style,hair){
   }
   ctx.fillStyle=hD;ctx.fillRect(-5,-29,10,1);
 }
-function _drawCap(ctx,capCol,capBack,hair){
+function _drawCap(ctx,capCol,capBack,hair,ponytail=false){
   ctx.fillStyle=hair;
   ctx.fillRect(-5,-30,10,3);
   ctx.fillRect(-6,-29,2,7);ctx.fillRect(4,-29,2,7);
+  if(ponytail){
+    // Coleta colgando por la parte trasera (izquierda en coordenadas sprite)
+    ctx.fillStyle=hair;ctx.fillRect(-8,-28,4,14);
+    ctx.fillStyle=hexLighten(hair,30);ctx.fillRect(-6,-28,1,5);
+    ctx.fillStyle=hexDarken(hair,25);ctx.fillRect(-8,-25,1,8);
+    ctx.fillStyle='#222';ctx.fillRect(-8,-25,4,2); // liga
+  }
   ctx.fillStyle=capCol;ctx.fillRect(-5,-33,10,5);
   ctx.fillStyle=hexLighten(capCol,30);ctx.fillRect(-4,-33,3,2);
   ctx.fillStyle=hexDarken(capCol,22);ctx.fillRect(-5,-30,10,2);
