@@ -436,7 +436,7 @@ function spawnEntities(){
       charDef:cd,
       name:cd.name+(i>=CHARS.length?String(Math.floor(i/CHARS.length)+1):''),
       isPlayer:false,answers:[],biases,tx:null,ty:null,wanderTimer:0,
-      speech:{text:'',timer:0}
+      speech:{text:'',timer:0},emote:null
     });
   }
 }
@@ -564,6 +564,12 @@ function updateBotSpeech(){
       b.speech.text=IDLE_PHRASES[Math.floor(Math.random()*IDLE_PHRASES.length)];
       b.speech.timer=150+Math.random()*120;
     }
+    // Random bot emotes
+    if(!b.emote&&Math.random()<0.0008){
+      b.emote={emoji:EMOTES[Math.floor(Math.random()*EMOTES.length)],timer:160};
+    }
+    if(b.emote&&b.emote.timer>0)b.emote.timer--;
+    if(b.emote&&b.emote.timer<=0)b.emote=null;
   }
 }
 function drawSpeechBubble(sx,sy,text){
@@ -858,7 +864,8 @@ function startChatFlow(){if(!compatList.length)return;openChat(compatList[0].bot
 function restartGame(){
   STATE='title';frameN=0;stateStartFrame=0;
   currentQ=0;playerVote=-1;votePhase='pending';compatList=[];
-  particles=[];snowFlakes=[];emotePickerOpen=false;
+  particles=[];emotePickerOpen=false;
+  initSnow();
   document.getElementById('chat-wrap').style.display='none';
 }
 
@@ -869,6 +876,7 @@ function update(){
 
   if(STATE==='countdown'){
     updateEntities();updateCamera();
+    checkPlayerZone();
     countdownTimer--;
     if(countdownTimer<=0)showNextQuestion();
   }
@@ -961,7 +969,7 @@ function draw(){
   cx.fillStyle='#0d0820';cx.fillRect(0,0,VW,VH);
 
   if(STATE==='title'){drawTitle();}
-  else if(STATE==='charSelect'){drawCharSelect();}
+  else if(STATE==='charSelect'){drawCharSelect();drawSnow();}
   else{
     drawMapAndEntities();
     drawHUD();
@@ -1007,6 +1015,25 @@ function drawMapAndEntities(){
         }
       }
     }
+  }
+
+  // Building signs
+  const signs=[
+    {wx:6.5*TS,wy:11.5*TS,text:'🏪 Tienda'},
+    {wx:22.5*TS,wy:11.5*TS,text:'☕ Café'},
+    {wx:6.5*TS,wy:27*TS,  text:'🎵 Club'},
+    {wx:22.5*TS,wy:27*TS, text:'🌸 Jardín'},
+    {wx:17*TS,  wy:12.5*TS,text:'☕'},
+    {wx:11.5*TS,wy:21.5*TS,text:'🎶'},
+  ];
+  cx.font='bold 9px monospace';cx.textAlign='center';
+  for(const sg of signs){
+    const ssx=sg.wx-mx,ssy=sg.wy-my+MAP_TOP;
+    if(ssx<-30||ssx>VW+30||ssy<MAP_TOP||ssy>MAP_BOT)continue;
+    cx.fillStyle='rgba(255,240,200,0.85)';
+    const tw2=cx.measureText(sg.text).width+6;
+    cx.fillRect(ssx-tw2/2,ssy-9,tw2,12);
+    cx.fillStyle='#3e2000';cx.fillText(sg.text,ssx,ssy);
   }
 
   // Fountain ripple
@@ -1069,7 +1096,12 @@ function drawMapAndEntities(){
       cx.globalAlpha=1;
     }
 
-    // Bot speech bubble
+    // Bot speech bubble / emote
+    if(!e.isPlayer&&e.emote&&e.emote.timer>0&&alpha>0.5){
+      const fadeA=Math.min(1,e.emote.timer/20);
+      cx.globalAlpha=fadeA;cx.font='16px serif';cx.textAlign='center';
+      cx.fillText(e.emote.emoji,sx,sy-48);cx.globalAlpha=1;
+    }
     if(!e.isPlayer&&e.speech&&e.speech.text&&alpha>0.5){
       const fadeA=Math.min(1,e.speech.timer/20);
       cx.globalAlpha=fadeA;
@@ -1480,17 +1512,7 @@ function wrapText(ctx,text,maxW,fsize){
 }
 function clamp(v,lo,hi){return v<lo?lo:v>hi?hi:v;}
 
-// ── Summary / restart tap ────────────────
-cv.addEventListener('click',e=>{
-  if(STATE==='summary'){
-    const y=(e.clientY-cv.offsetTop)/SC;
-    if(y>MAP_BOT)restartGame();
-  }
-});
-
 // ── Game Loop ────────────────────────────
-function startChat(){if(!compatList.length)return;openChat(compatList[0].bot,compatList[0].compat);}
-
 function loop(){update();draw();requestAnimationFrame(loop);}
 
 initSnow();
