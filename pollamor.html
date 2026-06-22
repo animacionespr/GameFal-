@@ -462,25 +462,28 @@ function moveEntity(e,tx,ty,spd){
 }
 
 // ── Snow Particles ──────────────────────
-let snowFlakes=[];
+let snowFlakes=[],windPhase=0,windX=0;
 function initSnow(){
   snowFlakes=[];
-  for(let i=0;i<70;i++){
+  for(let i=0;i<80;i++){
     snowFlakes.push({
       x:Math.random()*VW,y:Math.random()*VH,
-      sz:1+Math.random()*2,
-      spd:0.4+Math.random()*1.2,
-      drift:(Math.random()-0.5)*0.3,
-      op:0.35+Math.random()*0.5
+      sz:1+Math.random()*2.5,
+      spd:0.35+Math.random()*1.1,
+      drift:(Math.random()-0.5)*0.25,
+      op:0.3+Math.random()*0.55,
+      wobble:Math.random()*Math.PI*2
     });
   }
 }
 function updateSnow(){
+  windPhase+=0.004;windX=Math.sin(windPhase)*0.55+Math.sin(windPhase*2.3)*0.2;
   for(const s of snowFlakes){
-    s.y+=s.spd;s.x+=s.drift;
-    if(s.y>VH){s.y=-4;s.x=Math.random()*VW;}
-    if(s.x>VW+4)s.x=0;
-    if(s.x<-4)s.x=VW;
+    s.wobble+=0.02;
+    s.y+=s.spd;s.x+=s.drift+windX+Math.sin(s.wobble)*0.15;
+    if(s.y>VH+4){s.y=-4;s.x=Math.random()*VW;}
+    if(s.x>VW+4)s.x=-4;
+    if(s.x<-4)s.x=VW+4;
   }
 }
 function drawSnow(){
@@ -490,6 +493,60 @@ function drawSnow(){
     cx.fillRect(Math.round(s.x),Math.round(s.y),s.sz,s.sz);
   }
   cx.globalAlpha=1;cx.restore();
+}
+
+// ── Audio System ────────────────────────
+let audioCtx=null,musicEnabled=true,dancebeat=0,lastZoneSnd=T_SNOW;
+function ensureAudio(){
+  if(!audioCtx){
+    try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+  }
+}
+function note(f,d,type='sine',vol=0.1,delay=0){
+  if(!audioCtx||!musicEnabled)return;
+  const t=audioCtx.currentTime+delay;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.value=f;
+  o.connect(g);g.connect(audioCtx.destination);
+  g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.start(t);o.stop(t+d+0.05);
+}
+function sfxVote(ch){
+  note(ch===0?440:523,0.1,'sine',0.13);
+  note(ch===0?660:784,0.07,'sine',0.08,0.07);
+}
+function sfxCountdown(n){
+  if(n>0)note(660,0.14,'square',0.09);
+  else{note(880,0.18,'square',0.12);note(1100,0.14,'square',0.09,0.1);}
+}
+function sfxReveal(){
+  [523,659,784,1047,1319].forEach((f,i)=>note(f,0.28,'sine',0.12,i*0.12));
+}
+function sfxZone(zone){
+  const m={[T_DANCE]:[392,494,587,740],[T_CAFE]:[330,415,494],[T_FOUNTAIN]:[440,554,659],[T_ICE]:[523,622,740,880],[T_BENCH]:[330,392]};
+  const n=m[zone];if(n)n.forEach((f,i)=>note(f,0.12,'sine',0.07,i*0.06));
+}
+function sfxEmote(){note(880,0.08,'sine',0.08);note(1100,0.06,'sine',0.06,0.06);}
+// Dance beat (called every frame from update)
+const DANCE_BPM=128,DANCE_FPB=Math.round(60*60/DANCE_BPM); // frames per beat
+function updateDanceBeat(){
+  if(!player||!audioCtx||!musicEnabled)return;
+  if(player.zone!==T_DANCE)return;
+  dancebeat++;
+  const b=dancebeat%DANCE_FPB,hb=Math.round(DANCE_FPB/2);
+  if(b===0){note(80,0.12,'sine',0.18);note(80,0.08,'sawtooth',0.06);}  // kick
+  if(b===hb){note(200,0.08,'square',0.07);note(400,0.04,'square',0.03);}// snare
+  if(b===0||b===hb/2||b===hb||b===hb*1.5){note(2000,0.03,'sawtooth',0.03);} // hat
+}
+// Ambient winter pad (plays every ~6sec when NOT on dance floor)
+let padTimer=0;
+function updateAmbient(){
+  if(!audioCtx||!musicEnabled||!player)return;
+  if(player.zone===T_DANCE){padTimer=0;return;}
+  padTimer++;
+  if(padTimer===360){[220,277,330,415].forEach((f,i)=>note(f,3.5,'sine',0.018,i*0.15));}
+  if(padTimer>=360)padTimer=0;
 }
 
 // ── Particles ───────────────────────────
@@ -603,6 +660,7 @@ function updateEmote(){
 function checkPlayerZone(){
   if(!player)return;
   const tile=tileAt(player.x,player.y);
+  if(tile!==player.zone&&tile!==lastZoneSnd){sfxZone(tile);lastZoneSnd=tile;}
   player.zone=tile;
   if(tile===T_DANCE&&frameN%25===0){
     const sx=player.x-camX,sy=player.y-camY+MAP_TOP;
@@ -759,12 +817,19 @@ function setupInput(){
 }
 
 function handleTap(x,y){
+  ensureAudio();
   if(STATE==='title'){startCharSelect();return;}
   if(STATE==='charSelect'){handleCharSelectTap(x,y);return;}
   if(STATE==='voting'){handleVoteTap(x,y);return;}
   if(STATE==='matchReveal'){if(frameN-stateStartFrame>120){startChatFlow();return;}}
   if(STATE==='summary'){if(y>MAP_BOT){restartGame();}}
 
+  // Music toggle (bottom-left)
+  if(y>MAP_BOT&&y<MAP_BOT+44&&x>4&&x<50){
+    musicEnabled=!musicEnabled;
+    if(musicEnabled)ensureAudio();
+    return;
+  }
   // Emote picker (below map area, right side)
   if((STATE==='playing'||STATE==='countdown')&&y>MAP_BOT&&y<MAP_BOT+44&&x>VW-55&&x<VW-5){
     emotePickerOpen=!emotePickerOpen;return;
@@ -773,7 +838,7 @@ function handleTap(x,y){
     const idx=Math.floor((x-8)/52);
     if(idx>=0&&idx<EMOTES.length){
       player.emote={emoji:EMOTES[idx],timer:200};
-      emotePickerOpen=false;
+      emotePickerOpen=false;sfxEmote();
     }
     return;
   }
@@ -830,14 +895,14 @@ function handleVoteTap(x,y){
   const btnY=MAP_BOT+90;
   if(y>=btnY&&y<=btnY+72){
     playerVote=x<VW/2?0:1;
-    player.answers.push(playerVote);
+    player.answers.push(playerVote);sfxVote(playerVote);
     const zoneX=playerVote===0?WW*0.22:WW*0.78;
     player.tx=zoneX;player.ty=WH*0.4+Math.random()*WH*0.2;
     return;
   }
   if(y>=MAP_TOP&&y<=MAP_BOT){
     playerVote=(x+camX)<WW/2?0:1;
-    player.answers.push(playerVote);
+    player.answers.push(playerVote);sfxVote(playerVote);
     const zoneX=playerVote===0?WW*0.22:WW*0.78;
     player.tx=zoneX;player.ty=WH*0.4+Math.random()*WH*0.2;
   }
@@ -859,6 +924,7 @@ function endVoting(){
     spawnStars(player.x-camX,player.y-camY+MAP_TOP,10);
   }
   STATE='matchReveal';stateStartFrame=frameN;
+  setTimeout(sfxReveal,300);
 }
 function startChatFlow(){if(!compatList.length)return;openChat(compatList[0].bot,compatList[0].compat);}
 function restartGame(){
@@ -873,11 +939,16 @@ function restartGame(){
 function update(){
   frameN++;
   updateParticles();updateSnow();updateEmote();updateBotSpeech();
+  updateDanceBeat();updateAmbient();
 
   if(STATE==='countdown'){
     updateEntities();updateCamera();
     checkPlayerZone();
+    const prevSec=Math.ceil((countdownTimer)/60);
     countdownTimer--;
+    const nowSec=Math.ceil((countdownTimer)/60);
+    if(nowSec!==prevSec&&nowSec<=3&&nowSec>0)sfxCountdown(nowSec);
+    if(countdownTimer===0)sfxCountdown(0);
     if(countdownTimer<=0)showNextQuestion();
   }
 
@@ -1085,7 +1156,26 @@ function drawMapAndEntities(){
       } else {alpha=0.4;}
     }
 
-    drawChar(cx,e.charDef,e.x,e.y,e.frame,e.facing,mx,my-MAP_TOP,alpha);
+    // Dance floor: player bounces + faster frames
+    const onDance=e.isPlayer&&e.zone===T_DANCE;
+    const bounceY=onDance?Math.sin(frameN*0.25)*3.5:0;
+    const drawFrame=onDance?(frameN>>2)&3:e.frame;
+    if(onDance){
+      // Disco glow under feet
+      const dgx=sx,dgy=sy+bounceY;
+      const dg=cx.createRadialGradient(dgx,dgy,0,dgx,dgy,22);
+      const hue=(frameN*4)%360;
+      dg.addColorStop(0,`hsla(${hue},100%,65%,0.45)`);
+      dg.addColorStop(1,`hsla(${hue},100%,65%,0)`);
+      cx.fillStyle=dg;cx.fillRect(dgx-22,dgy-22,44,44);
+      // Disco ball sparkles raining down
+      if(frameN%4===0){
+        const sh=(frameN*3)%360;
+        particles.push({x:sx+(Math.random()-0.5)*30,y:sy-60,vx:(Math.random()-0.5)*0.5,vy:0.8+Math.random(),
+          type:'star',life:40,ml:40,size:2+Math.random()*3,col:`hsl(${sh},100%,70%)`});
+      }
+    }
+    drawChar(cx,e.charDef,e.x,e.y-bounceY,drawFrame,e.facing,mx,my-MAP_TOP,alpha);
 
     // Player emote
     if(e.isPlayer&&e.emote&&e.emote.timer>0){
@@ -1188,6 +1278,16 @@ function drawHUD(){
     cx.fillStyle='rgba(180,200,255,0.75)';cx.font='11px monospace';cx.textAlign='left';
     cx.fillText(zoneLabels[player.zone],12,MAP_BOT+22);
   }
+
+  // Music toggle button (bottom-left)
+  cx.fillStyle=musicEnabled?'rgba(80,120,80,0.5)':'rgba(80,40,40,0.5)';
+  cx.fillRect(4,MAP_BOT+4,44,36);
+  cx.strokeStyle=musicEnabled?'#66bb6a':'#ef5350';cx.lineWidth=1;
+  cx.strokeRect(4,MAP_BOT+4,44,36);
+  cx.font='18px serif';cx.textAlign='center';
+  cx.fillText(musicEnabled?'🎵':'🔇',26,MAP_BOT+26);
+  cx.fillStyle='rgba(255,255,255,0.45)';cx.font='8px monospace';
+  cx.fillText(musicEnabled?'SON':'MUT',26,MAP_BOT+38);
 
   // Emote button (bottom-right)
   if(STATE==='playing'||STATE==='countdown'){
