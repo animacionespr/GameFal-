@@ -378,6 +378,12 @@ const CHARS=[
    hair:'#3e2723',capCol:null,ribbon:null,
    shirtCol:'#6a1b9a',pantsCol:'#4a148c',shoeCol:'#4a148c',
    accent:'#ce93d8',hairStyle:5},
+  // Don Pepe: viejito, sombrero de paja, guayabera blanca, barba gris
+  {id:8,gender:'m',name:'Don Pepe',
+   skin:'#b87040',skinH:'#cc8850',skinS:'#8a5025',
+   hair:'#c0c0c0',capCol:null,
+   shirtCol:'#f8f4e8',pantsCol:'#78909c',shoeCol:'#6d4c41',
+   accent:'#fff9c4',hairStyle:10,beard:true},
 ];
 
 // ── Draw Character ──────────────────────
@@ -475,6 +481,14 @@ function _drawCharPixels(ctx,ch,frame){
   // ── Cheek blush ──
   ctx.fillStyle='rgba(255,120,100,0.2)';
   ctx.fillRect(-6,-24,2,2);ctx.fillRect(4,-24,2,2);
+  // ── Beard (old characters) ──
+  if(ch.beard){
+    ctx.fillStyle='#a8a8a8';ctx.fillRect(-3,-23,6,1);
+    ctx.fillStyle='#c8c8c8';ctx.fillRect(-4,-22,8,3);
+    ctx.fillStyle='#e0e0e0';ctx.fillRect(-3,-22,6,2);
+    ctx.fillStyle='rgba(255,255,255,0.45)';ctx.fillRect(-2,-22,2,1);
+    ctx.fillStyle='rgba(0,0,0,0.12)';ctx.fillRect(-4,-20,8,1);
+  }
   // ── Hair / Cap ──
   if(capCol){_drawCap(ctx,capCol,capBack,hair,ponytail);}
   else{
@@ -555,6 +569,25 @@ function _drawHair(ctx,style,hair){
       ctx.fillRect(-3,-37,1,2);ctx.fillRect(2,-37,1,2);ctx.fillRect(-1,-37,1,3);
       ctx.fillRect(-6,-32,1,3);ctx.fillRect(6,-32,1,3);
       ctx.fillStyle=hD;ctx.fillRect(-4,-31,2,3);ctx.fillRect(2,-31,2,3);
+      break;
+    case 10: // Sombrero de paja – Don Pepe
+      // Gray hair peeking under hat
+      ctx.fillStyle='#b0b0b0';
+      ctx.fillRect(-6,-29,2,6);ctx.fillRect(4,-29,2,6);
+      ctx.fillRect(-5,-30,10,3);
+      // Hat brim (wide, golden straw)
+      ctx.fillStyle='#d4a017';ctx.fillRect(-8,-30,16,3);
+      ctx.fillStyle=hexLighten('#d4a017',22);ctx.fillRect(-8,-30,16,1);
+      ctx.fillStyle=hexDarken('#d4a017',12);ctx.fillRect(-8,-29,16,1);
+      // Hat crown
+      ctx.fillStyle='#c49010';ctx.fillRect(-5,-36,10,6);
+      ctx.fillStyle=hexLighten('#c49010',28);ctx.fillRect(-4,-36,6,2);ctx.fillRect(-3,-34,4,1);
+      ctx.fillStyle=hexDarken('#c49010',18);ctx.fillRect(-5,-31,10,1);
+      // Hat band
+      ctx.fillStyle='#7a5020';ctx.fillRect(-5,-30,10,1);
+      // Straw texture lines
+      ctx.fillStyle='rgba(0,0,0,0.09)';
+      ctx.fillRect(-3,-35,1,5);ctx.fillRect(0,-35,1,5);ctx.fillRect(2,-35,1,5);
       break;
     default: // Short buzz – under cap base
       ctx.fillRect(-5,-30,10,4);
@@ -1029,7 +1062,7 @@ function handleTap(x,y){
 
 // ── Game State ──────────────────────────
 let STATE='title';
-let selectedChar=0;
+let selectedChar=null;
 let currentQ=0,qTimer=0,Q_TIME=450;
 let playerVote=-1,votePhase='pending',voteRevealTimer=0;
 let frameN=0,stateStartFrame=0;
@@ -1038,11 +1071,24 @@ let countdownTimer=0;
 
 function startCharSelect(){STATE='charSelect';stateStartFrame=frameN;}
 function handleCharSelectTap(x,y){
-  const cols=2,cw=VW/cols,ch=156,startY=80;
-  for(let i=0;i<8;i++){
-    const col=i%cols,row=Math.floor(i/cols);
-    const bx=col*cw,by=startY+row*ch;
-    if(x>=bx&&x<bx+cw&&y>=by&&y<by+ch){selectedChar=i;startGame();return;}
+  const COLS=3,PAD=8,GAP=5;
+  const cardW=Math.floor((VW-PAD*2-GAP*(COLS-1))/COLS);
+  const cardH=152,GRID_Y=82;
+  // Character cards
+  for(let i=0;i<CHARS.length;i++){
+    const col=i%COLS,row=Math.floor(i/COLS);
+    const bx=PAD+col*(cardW+GAP),by=GRID_Y+row*cardH;
+    if(x>=bx&&x<bx+cardW&&y>=by&&y<by+cardH){
+      if(selectedChar===i){startGame();}else{selectedChar=i;}
+      return;
+    }
+  }
+  // JUGAR button
+  const ROWS=Math.ceil(CHARS.length/COLS);
+  const gridBot=GRID_Y+ROWS*cardH;
+  const btnY=gridBot+14,btnX=VW/2-75,btnW=150,btnH=46;
+  if(selectedChar!==null&&x>=btnX&&x<btnX+btnW&&y>=btnY&&y<btnY+btnH){
+    startGame();
   }
 }
 function startGame(){
@@ -1740,46 +1786,115 @@ function drawTitle(){
 
 // ── Character Select ──────────────────────
 function drawCharSelect(){
-  const g=cx.createLinearGradient(0,0,0,VH);
-  g.addColorStop(0,'#080618');g.addColorStop(1,'#0e0c28');
-  cx.fillStyle=g;cx.fillRect(0,0,VW,VH);
+  // ── Background ──
+  const bg=cx.createLinearGradient(0,0,0,VH);
+  bg.addColorStop(0,'#030116');bg.addColorStop(0.65,'#06021e');bg.addColorStop(1,'#0e0828');
+  cx.fillStyle=bg;cx.fillRect(0,0,VW,VH);
 
-  // Snowflake header
-  cx.fillStyle='rgba(200,220,255,0.2)';cx.font='12px serif';cx.textAlign='center';
-  for(let i=0;i<7;i++)cx.fillText('❄️',30+i*56,26);
-
-  cx.fillStyle='#ff6b9d';cx.font='bold 19px monospace';cx.textAlign='center';
-  cx.fillText('ELIGE TU PERSONAJE',VW/2,48);
-  cx.fillStyle='rgba(180,200,255,0.55)';cx.font='11px monospace';
-  cx.fillText('Toca un personaje para comenzar',VW/2,66);
-
-  const cols=2,cw=VW/cols,ch=156,startY=78;
-  for(let i=0;i<8;i++){
-    const cd=CHARS[i];
-    const col=i%cols,row=Math.floor(i/cols);
-    const bx=col*cw,by=startY+row*ch;
-    const isHov=(selectedChar===i);
-    cx.fillStyle=isHov?'rgba(196,77,255,0.18)':'rgba(255,255,255,0.04)';
-    cx.fillRect(bx+6,by+4,cw-12,ch-8);
-    cx.strokeStyle=isHov?'#c44dff':'rgba(155,89,182,0.3)';
-    cx.lineWidth=isHov?2:1;cx.strokeRect(bx+6,by+4,cw-12,ch-8);
-    if(isHov){
-      cx.fillStyle='rgba(196,77,255,0.06)';cx.fillRect(bx+6,by+4,cw-12,14);
-    }
-    cx.save();cx.translate(bx+cw/2,by+76);cx.scale(CS+0.5,CS+0.5);
-    _drawCharPixels(cx,cd,(frameN>>4)&1);cx.restore();
-    cx.fillStyle=isHov?'#ff6b9d':'rgba(220,230,255,0.8)';
-    cx.font=`bold ${isHov?13:12}px monospace`;cx.textAlign='center';
-    cx.fillText(cd.name,bx+cw/2,by+108);
-    cx.fillStyle='rgba(200,180,255,0.45)';cx.font='10px monospace';
-    cx.fillText(cd.gender==='m'?'♂ Masculino':'♀ Femenino',bx+cw/2,by+124);
-    cx.fillStyle=cd.gender==='f'?'rgba(255,107,157,0.25)':'rgba(66,165,245,0.25)';
-    cx.fillRect(bx+cw/2-22,by+132,44,12);
-    cx.fillStyle=cd.gender==='f'?'#ff9de2':'#90caf9';
-    cx.font='8px monospace';cx.fillText(cd.accent,bx+cw/2,by+141);
+  // Stars
+  const rng=mulberry32(137);
+  for(let i=0;i<75;i++){
+    const sx=rng()*VW,sy=rng()*580;
+    const a=0.2+rng()*0.55,big=rng()<0.12;
+    cx.fillStyle=`rgba(200,210,255,${a.toFixed(2)})`;
+    cx.fillRect(Math.round(sx),Math.round(sy),big?2:1,big?2:1);
   }
-  cx.strokeStyle='rgba(155,89,182,0.12)';cx.lineWidth=1;
-  cx.beginPath();cx.moveTo(VW/2,78);cx.lineTo(VW/2,VH-10);cx.stroke();
+
+  // ── Header ──
+  cx.shadowColor='#c44dff';cx.shadowBlur=22;
+  cx.fillStyle='#ff9de2';cx.font='bold 21px monospace';cx.textAlign='center';
+  cx.fillText('★ ELIGE TU PERSONAJE ★',VW/2,40);
+  cx.shadowBlur=0;
+  cx.fillStyle='rgba(165,185,255,0.55)';cx.font='11px monospace';
+  cx.fillText('Toca un personaje, luego ¡JUGAR!',VW/2,58);
+  // Divider
+  cx.strokeStyle='rgba(196,77,255,0.25)';cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(18,68);cx.lineTo(VW-18,68);cx.stroke();
+
+  // ── Character Grid  (3 cols × 3 rows) ──
+  const COLS=3,PAD=8,GAP=5;
+  const cardW=Math.floor((VW-PAD*2-GAP*(COLS-1))/COLS); // ~116px
+  const cardH=152, GRID_Y=82;
+  const SPRITE_SC=3.2;
+
+  for(let i=0;i<CHARS.length;i++){
+    const cd=CHARS[i];
+    const col=i%COLS,row=Math.floor(i/COLS);
+    const bx=PAD+col*(cardW+GAP),by=GRID_Y+row*cardH;
+    const sel=(selectedChar===i);
+    const fem=(cd.gender==='f');
+
+    // Card bg
+    cx.fillStyle=sel
+      ?'rgba(196,77,255,0.20)'
+      :fem?'rgba(160,20,70,0.12)':'rgba(15,60,160,0.12)';
+    cx.fillRect(bx,by,cardW,cardH);
+
+    // Accent stripe top
+    cx.fillStyle=sel?'#ff6b9d':fem?'rgba(255,107,157,0.4)':'rgba(66,165,245,0.4)';
+    cx.fillRect(bx,by,cardW,3);
+
+    // Card border + glow
+    cx.lineWidth=sel?2.5:1;
+    if(sel){cx.shadowColor='#ff6b9d';cx.shadowBlur=14;}
+    cx.strokeStyle=sel?'#ff6b9d':fem?'rgba(255,107,157,0.28)':'rgba(66,165,245,0.28)';
+    cx.strokeRect(bx+0.5,by+0.5,cardW-1,cardH-1);
+    cx.shadowBlur=0;
+
+    // Character sprite – walk cycle
+    cx.save();
+    cx.translate(bx+cardW/2,by+cardH-26);
+    cx.scale(SPRITE_SC,SPRITE_SC);
+    _drawCharPixels(cx,cd,(frameN>>4)&3);
+    cx.restore();
+
+    // Name
+    cx.font=`bold ${sel?13:11}px monospace`;cx.textAlign='center';
+    cx.fillStyle=sel?'#ff9de2':'rgba(225,215,255,0.88)';
+    cx.fillText(cd.name,bx+cardW/2,by+cardH-11);
+
+    // Gender badge
+    cx.font='9px monospace';
+    cx.fillStyle=fem?'rgba(255,140,180,0.75)':'rgba(100,175,255,0.75)';
+    cx.fillText(fem?'♀':'♂',bx+cardW/2,by+cardH-1);
+
+    // Selected star
+    if(sel){
+      cx.fillStyle='#ffd700';cx.font='bold 12px serif';cx.textAlign='center';
+      cx.fillText('★',bx+cardW/2,by+15);
+    }
+  }
+
+  // ── JUGAR Button ──
+  const ROWS=Math.ceil(CHARS.length/COLS);
+  const gridBot=GRID_Y+ROWS*cardH;
+  const btnY=gridBot+14,btnX=VW/2-75,btnW=150,btnH=46;
+  const active=selectedChar!==null;
+
+  if(active){
+    const pulse=0.85+Math.sin(frameN*0.1)*0.15;
+    cx.shadowColor='#ff6b9d';cx.shadowBlur=Math.round(pulse*18);
+    cx.fillStyle=`rgba(220,60,120,${(0.75+pulse*0.25).toFixed(2)})`;
+  } else {
+    cx.shadowBlur=0;cx.fillStyle='rgba(80,60,110,0.4)';
+  }
+  cx.fillRect(btnX,btnY,btnW,btnH);
+  cx.lineWidth=2;
+  cx.strokeStyle=active?'rgba(255,200,230,0.85)':'rgba(130,110,150,0.3)';
+  cx.strokeRect(btnX,btnY,btnW,btnH);
+  cx.shadowBlur=0;
+  cx.fillStyle=active?'#fff':'rgba(160,140,180,0.5)';
+  cx.font='bold 20px monospace';cx.textAlign='center';
+  cx.fillText('¡ JUGAR !',VW/2,btnY+31);
+
+  if(active){
+    const cd=CHARS[selectedChar];
+    cx.fillStyle='rgba(196,168,255,0.5)';cx.font='10px monospace';
+    cx.fillText(`Jugando como ${cd.name}`,VW/2,btnY+btnH+14);
+  } else {
+    cx.fillStyle='rgba(140,120,170,0.4)';cx.font='10px monospace';
+    cx.fillText('← Selecciona un personaje',VW/2,btnY+btnH+14);
+  }
 }
 
 // ── Utils ────────────────────────────────
