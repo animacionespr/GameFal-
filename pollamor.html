@@ -1056,24 +1056,39 @@ function drawParticles(){
 // ── Bot Speech Bubbles ──────────────────
 const IDLE_PHRASES=[
   '¿Quién será mi match? 👀','Qué nervioso/a estoy... 😬',
-  'Hmm... 🤔','¡Espero hacer match! ✨','¡Qué frío! ❄️',
+  'Hmm... 🤔','¡Espero hacer match! ✨','Qué bello día 😎',
   '¿Pepsi o Coca? 🤷','... 💭','¡Vamos! 💪',
-  '¿Y si bailo? 💃','¡Me late algo! 🔥'
+  '¿Y si bailo? 💃','¡Me late algo! 🔥',
+  '¡Saludos a todos! 👋','Buscando el amor… 💕',
+  '¿Habrá coquito? 🥥','¡Qué rico el mofongo! 😋',
+  '¡Wepa! 🇵🇷','¡Esto está buenísimo! ✨'
 ];
+let _speechCooldown=0;
 function updateBotSpeech(){
   if(STATE!=='playing'&&STATE!=='countdown')return;
+  let anyTalking=false;
   for(const b of bots){
-    if(b.speech.timer>0){b.speech.timer--;if(b.speech.timer<=0)b.speech.text='';}
-    else if(Math.random()<0.003){
-      b.speech.text=IDLE_PHRASES[Math.floor(Math.random()*IDLE_PHRASES.length)];
-      b.speech.timer=150+Math.random()*120;
+    if(b.speech.timer>0){
+      b.speech.timer--;
+      if(b.speech.timer<=0)b.speech.text='';
+      else anyTalking=true;
     }
-    // Random bot emotes
+    // Random bot emotes (independent of speech)
     if(!b.emote&&Math.random()<0.0008){
       b.emote={emoji:EMOTES[Math.floor(Math.random()*EMOTES.length)],timer:160};
     }
     if(b.emote&&b.emote.timer>0)b.emote.timer--;
     if(b.emote&&b.emote.timer<=0)b.emote=null;
+  }
+  // Only one bot speaks at a time; stagger with cooldown so bubbles are readable
+  if(!anyTalking){
+    if(_speechCooldown>0){_speechCooldown--;}
+    else if(Math.random()<0.018){
+      const b=bots[Math.floor(Math.random()*bots.length)];
+      b.speech.text=IDLE_PHRASES[Math.floor(Math.random()*IDLE_PHRASES.length)];
+      b.speech.timer=160+Math.random()*80; // visible ~2.7-4 seconds
+      _speechCooldown=200; // ~3.3 sec gap before next bot speaks
+    }
   }
 }
 function drawSpeechBubble(sx,sy,text){
@@ -1271,6 +1286,11 @@ function handleTap(x,y){
   ensureAudio();
   if(STATE==='title'){startCharSelect();return;}
   if(STATE==='charSelect'){handleCharSelectTap(x,y);return;}
+  if(STATE==='tutorial'){
+    tutorialStep++;
+    if(tutorialStep>=4){tutorialStep=0;STATE='playing';stateStartFrame=frameN;setTimeout(startCountdown,1500);}
+    return;
+  }
   if(STATE==='voting'){handleVoteTap(x,y);return;}
   if(STATE==='matchReveal'){if(frameN-stateStartFrame>120){startChatFlow();return;}}
   if(STATE==='summary'){if(y>MAP_BOT){restartGame();}}
@@ -1304,6 +1324,7 @@ let playerVote=-1,votePhase='pending',voteRevealTimer=0;
 let frameN=0,stateStartFrame=0;
 let compatList=[];
 let countdownTimer=0;
+let tutorialStep=0;
 
 function startCharSelect(){STATE='charSelect';stateStartFrame=frameN;}
 function handleCharSelectTap(x,y){
@@ -1315,7 +1336,7 @@ function handleCharSelectTap(x,y){
     const col=i%COLS,row=Math.floor(i/COLS);
     const bx=PAD+col*(cardW+GAP),by=GRID_Y+row*cardH;
     if(x>=bx&&x<bx+cardW&&y>=by&&y<by+cardH){
-      if(selectedChar===i){startGame();}else{selectedChar=i;}
+      if(selectedChar===i){startTutorial();}else{selectedChar=i;}
       return;
     }
   }
@@ -1324,8 +1345,60 @@ function handleCharSelectTap(x,y){
   const gridBot=GRID_Y+ROWS*cardH;
   const btnY=gridBot+14,btnX=VW/2-75,btnW=150,btnH=46;
   if(selectedChar!==null&&x>=btnX&&x<btnX+btnW&&y>=btnY&&y<btnY+btnH){
-    startGame();
+    startTutorial();
   }
+}
+function startTutorial(){
+  shuffleQuestions();spawnEntities();initCamera();particles=[];
+  currentQ=0;playerVote=-1;compatList=[];votePhase='pending';
+  emotePickerOpen=false;
+  initSnow();_speechCooldown=0;
+  tutorialStep=0;
+  STATE='tutorial';stateStartFrame=frameN;
+}
+const _TOUR_SLIDES=[
+  {icon:'🕹️',title:'¡Muévete!',
+   lines:['Toca y arrastra para caminar','por la Plaza Boricua.','Explora cada rincón del lugar.']},
+  {icon:'🗳️',title:'¡Vota!',
+   lines:['Cada cierto tiempo aparecerá','una pregunta. Elige A o B','según tu opinión honesta.']},
+  {icon:'💕',title:'¡Busca tu Match!',
+   lines:['Votar igual que alguien','aumenta tu compatibilidad.','Al final se revela tu mejor match.']},
+  {icon:'💬',title:'¡Chatea!',
+   lines:['Tras el match podrás chatear','con quien más te pareció.','¡Mucha suerte en el amor! 🇵🇷']}
+];
+function drawTutorial(){
+  drawMapAndEntities();
+  drawHUD();
+  // Dark overlay
+  cx.fillStyle='rgba(10,6,26,0.80)';cx.fillRect(0,0,VW,VH);
+  const slide=_TOUR_SLIDES[tutorialStep];
+  const isLast=tutorialStep===_TOUR_SLIDES.length-1;
+  // Panel
+  const pw=VW-36,ph=272,px=(VW-pw)/2,py=(VH-ph)/2-20;
+  cx.fillStyle='rgba(22,10,52,0.97)';
+  cx.beginPath();if(cx.roundRect)cx.roundRect(px,py,pw,ph,16);else cx.rect(px,py,pw,ph);cx.fill();
+  cx.strokeStyle='rgba(180,80,255,0.45)';cx.lineWidth=1.5;
+  cx.beginPath();if(cx.roundRect)cx.roundRect(px,py,pw,ph,16);else cx.rect(px,py,pw,ph);cx.stroke();
+  // Dots
+  const n=_TOUR_SLIDES.length,dotSp=20,dotX0=VW/2-(n-1)*dotSp/2;
+  for(let i=0;i<n;i++){
+    cx.fillStyle=i===tutorialStep?'#ff6b9d':'rgba(255,255,255,0.22)';
+    cx.beginPath();cx.arc(dotX0+i*dotSp,py+22,i===tutorialStep?5:3.5,0,Math.PI*2);cx.fill();
+  }
+  // Icon
+  cx.font='44px serif';cx.textAlign='center';
+  cx.fillText(slide.icon,VW/2,py+76);
+  // Title
+  cx.fillStyle='#ff6b9d';cx.font='bold 19px monospace';
+  cx.fillText(slide.title,VW/2,py+114);
+  // Body
+  cx.fillStyle='rgba(220,210,255,0.92)';cx.font='13px monospace';
+  slide.lines.forEach((ln,i)=>cx.fillText(ln,VW/2,py+146+i*22));
+  // Continue prompt
+  const pulse=0.55+0.45*Math.sin(frameN*0.09);
+  cx.globalAlpha=pulse;cx.fillStyle='#ffd700';cx.font='bold 12px monospace';
+  cx.fillText(isLast?'▶ TOCA PARA COMENZAR':'▶ TOCA PARA CONTINUAR',VW/2,py+ph-18);
+  cx.globalAlpha=1;
 }
 function startGame(){
   shuffleQuestions();spawnEntities();initCamera();particles=[];
@@ -1416,6 +1489,9 @@ function update(){
     if(countdownTimer<=0)showNextQuestion();
   }
 
+  if(STATE==='tutorial'){
+    updateEntities();updateCamera();
+  }
   if(STATE==='playing'||STATE==='voting'||STATE==='matchReveal'){
     updateEntities();updateCamera();
   }
@@ -1505,6 +1581,7 @@ function draw(){
 
   if(STATE==='title'){drawTitle();}
   else if(STATE==='charSelect'){drawCharSelect();drawSnow();}
+  else if(STATE==='tutorial'){drawTutorial();}
   else{
     drawMapAndEntities();
     drawHUD();
@@ -1522,7 +1599,7 @@ function draw(){
 function drawMapAndEntities(){
   const mx=Math.round(camX),my=Math.round(camY);
   cx.save();
-  cx.beginPath();cx.rect(0,MAP_TOP,VW,MAP_H);cx.clip();
+  cx.beginPath();cx.rect(0,MAP_TOP-56,VW,MAP_H+56);cx.clip();
 
   // Static map
   cx.drawImage(mapOC,mx,my,VW,MAP_H,0,MAP_TOP,VW,MAP_H);
