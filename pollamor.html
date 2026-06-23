@@ -165,6 +165,7 @@ buildMap();
 // ── Background Image ────────────────────
 const _BG_B64=''; // Plaza Boricua — fill with base64 when PNG is uploaded
 let _BG_IMG=null,_BG_READY=false;
+const _BG_ACTIVE=true; // plaza boricua always shown (programmatic or PNG)
 if(_BG_B64){
   _BG_IMG=new Image();
   _BG_IMG.onload=()=>{_BG_READY=true;prerenderMap();};
@@ -180,11 +181,209 @@ function prerenderMap(){
     mapOX.imageSmoothingEnabled=true;
     mapOX.drawImage(_BG_IMG,0,0,WW,WH);
   }else{
-    mapOX.imageSmoothingEnabled=false;
-    const rng=mulberry32(77);
-    for(let r=0;r<MH;r++)for(let c=0;c<MW;c++)drawTile(mapOX,MAP[r][c],c*TS,r*TS,TS,r,c,rng);
+    mapOX.imageSmoothingEnabled=true;
+    drawPlazaBg(mapOX,WW,WH);
   }
 }
+
+function drawPlazaBg(g,W,H){
+  // ── Helpers ──
+  function prFlag(x,y,fw,fh){
+    for(let i=0;i<5;i++){g.fillStyle=i%2===0?'#ce1126':'#f4f5f5';g.fillRect(x,y+i*fh/5,fw,Math.ceil(fh/5));}
+    g.fillStyle='#0f2d80';
+    g.beginPath();g.moveTo(x,y);g.lineTo(x+fh*0.87,y+fh/2);g.lineTo(x,y+fh);g.closePath();g.fill();
+    g.fillStyle='#fff';
+    const scx=x+fh*0.3,scy=y+fh/2,sr=fh*0.13;
+    g.beginPath();
+    for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5,b=a+Math.PI/5;g.lineTo(scx+Math.cos(a)*sr,scy+Math.sin(a)*sr);g.lineTo(scx+Math.cos(b)*sr*0.4,scy+Math.sin(b)*sr*0.4);}
+    g.closePath();g.fill();
+  }
+  function wins(x,y,w,h,cols,rows,col){
+    const pw=w/cols*0.55,ph=h/rows*0.5;
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+      const wx=x+c*(w/cols)+w/cols*0.22,wy=y+r*(h/rows)+h/rows*0.22;
+      g.fillStyle=col;g.fillRect(wx,wy,pw,ph);
+      g.fillStyle='rgba(255,255,255,0.12)';g.fillRect(wx,wy,pw/2,ph/2);
+    }
+  }
+  function bench(x,y,w){
+    g.fillStyle='#8d6e3f';g.fillRect(x,y,w,5);g.fillRect(x,y-9,w,4);
+    g.fillStyle='#616161';g.fillRect(x+3,y+5,4,9);g.fillRect(x+w-7,y+5,4,9);
+  }
+  function miniPalm(x,y,sc){
+    g.fillStyle='#6d4c2e';g.fillRect(x-2*sc,y,3*sc,18*sc);
+    const leaves=[[-14,-12,-4,-4],[-8,-18,-2,-2],[2,-20,4,-2],[10,-16,2,-4],[14,-10,-2,-4]];
+    leaves.forEach(([dx1,dy1,dx2,dy2])=>{
+      g.strokeStyle='#4caf50';g.lineWidth=3*sc;
+      g.beginPath();g.moveTo(x,y-2*sc);g.quadraticCurveTo(x+dx1*sc,y+dy1*sc,x+(dx1+dx2)*sc,y+(dy1+dy2)*sc);g.stroke();
+      g.strokeStyle='#81c784';g.lineWidth=sc;g.stroke();
+    });
+  }
+
+  // ── Sky ──
+  const sky=g.createLinearGradient(0,0,0,H*0.4);
+  sky.addColorStop(0,'#5ba3d0');sky.addColorStop(0.5,'#87ceeb');sky.addColorStop(1,'#c5e8f5');
+  g.fillStyle=sky;g.fillRect(0,0,W,H*0.4+2);
+
+  // ── Green hills (right) ──
+  g.fillStyle='#2e7d32';
+  g.beginPath();g.moveTo(W*0.36,H*0.4);g.lineTo(W*0.5,H*0.1);g.lineTo(W*0.68,H*0.22);g.lineTo(W*0.86,H*0.07);g.lineTo(W,H*0.2);g.lineTo(W,H*0.4);g.closePath();g.fill();
+  g.fillStyle='#388e3c';
+  g.beginPath();g.moveTo(W*0.4,H*0.4);g.lineTo(W*0.56,H*0.14);g.lineTo(W*0.73,H*0.26);g.lineTo(W*0.92,H*0.1);g.lineTo(W,H*0.25);g.lineTo(W,H*0.4);g.closePath();g.fill();
+  g.fillStyle='#1b5e20';
+  g.beginPath();g.moveTo(W*0.55,H*0.4);g.lineTo(W*0.7,H*0.18);g.lineTo(W*0.82,H*0.29);g.lineTo(W,H*0.22);g.lineTo(W,H*0.4);g.closePath();g.fill();
+
+  // ── Ocean ──
+  g.fillStyle='#1565c0';g.fillRect(W*0.17,H*0.23,W*0.66,H*0.09);
+  g.fillStyle='#1e88e5';g.fillRect(W*0.2,H*0.25,W*0.6,H*0.055);
+  g.fillStyle='#42a5f5';g.fillRect(W*0.24,H*0.27,W*0.52,H*0.025);
+  for(let i=0;i<5;i++){g.fillStyle='rgba(255,255,255,0.22)';g.fillRect(W*0.22+i*W*0.1,H*0.28,W*0.06,1.5);}
+  // Beach
+  g.fillStyle='#f5deb3';g.fillRect(W*0.17,H*0.31,W*0.66,H*0.035);
+  g.fillStyle='#ffe0b2';g.fillRect(W*0.19,H*0.315,W*0.62,H*0.02);
+  // Pier
+  g.fillStyle='#8d6e3f';g.fillRect(W*0.44,H*0.245,7,H*0.065);g.fillRect(W*0.42,H*0.24,11,4);
+
+  // ── Lighthouse ──
+  const lhx=W*0.455|0;
+  g.fillStyle='#f5f5f5';g.fillRect(lhx,H*0.1|0,9,H*0.13|0);
+  g.fillStyle='#e53935';g.fillRect(lhx,H*0.1|0,9,5);g.fillRect(lhx,H*0.165|0,9,5);
+  g.fillStyle='#f9a825';g.fillRect(lhx+1,(H*0.1-5)|0,7,5);
+  g.fillStyle='#546e7a';g.fillRect(lhx-2,H*0.23|0,13,4);
+
+  // ── Background palms ──
+  miniPalm(W*0.23,H*0.33,0.45);miniPalm(W*0.35,H*0.34,0.38);
+  miniPalm(W*0.57,H*0.32,0.35);miniPalm(W*0.68,H*0.34,0.42);
+
+  // ── LEFT BUILDING: CAFÉ BORICUA ──────────────
+  // Upper orange wall
+  g.fillStyle='#d4571e';g.fillRect(0,H*0.12|0,W*0.27|0,(H*0.28)|0);
+  // Ground floor darker
+  g.fillStyle='#bf4a13';g.fillRect(0,H*0.4|0,W*0.27|0,H*0.22|0);
+  // Facade edge line
+  g.fillStyle='rgba(0,0,0,0.15)';g.fillRect(0,H*0.38|0,W*0.27|0,4);
+  // Windows
+  wins(8,H*0.14,W*0.22,H*0.2,3,2,'#1a3a6b');
+  // Large storefront windows
+  g.fillStyle='#1a3a6b';g.fillRect(8,H*0.42|0,W*0.11|0,H*0.12|0);g.fillRect(W*0.14|0,H*0.42|0,W*0.1|0,H*0.12|0);
+  g.fillStyle='rgba(255,255,255,0.1)';g.fillRect(8,H*0.42|0,W*0.04|0,H*0.12|0);
+  // Sign
+  g.fillStyle='#111';g.fillRect(3,H*0.4|0,W*0.24|0,H*0.028|0);
+  g.fillStyle='#fff';g.font='bold 8px monospace';g.textAlign='left';
+  g.fillText('CAFÉ BORICUA',7,(H*0.413)|0);g.font='6px monospace';g.fillText('CONTEMPORÁNEO',7,(H*0.422)|0);
+  // PR flag
+  prFlag(10,H*0.33,20,14);
+  // Door
+  g.fillStyle='#4e342e';g.fillRect(W*0.09|0,H*0.5|0,W*0.07|0,H*0.12|0);
+  g.fillStyle='#3e2723';g.fillRect((W*0.125)|0,H*0.5|0,2,H*0.12|0);
+  g.fillStyle='#ffd54f';g.fillRect((W*0.114)|0,(H*0.545)|0,3,3);
+  // Sidewalk plant
+  g.fillStyle='#4caf50';g.beginPath();g.arc(W*0.025|0,H*0.615|0,9,0,Math.PI*2);g.fill();
+  g.fillStyle='#388e3c';g.beginPath();g.arc(W*0.025|0,H*0.61|0,5,0,Math.PI*2);g.fill();
+  g.fillStyle='#5d4037';g.fillRect((W*0.018)|0,H*0.62|0,12,9);
+  // Chalkboard sign outside
+  g.fillStyle='#1a1a1a';g.fillRect(W*0.22|0,H*0.57|0,20,24);
+  g.fillStyle='#fff';g.font='5px monospace';g.fillText('HOY:',W*0.222|0,(H*0.585)|0);g.fillText('CAFÉ',W*0.222|0,(H*0.592)|0);g.fillText('COLAO',W*0.222|0,(H*0.599)|0);
+
+  // ── CENTER-LEFT: TIENDA DE DISEÑO ──────────────
+  g.fillStyle='#26a69a';g.fillRect(W*0.25|0,H*0.17|0,W*0.2|0,H*0.24|0);
+  g.fillStyle='#00897b';g.fillRect(W*0.25|0,H*0.41|0,W*0.2|0,H*0.21|0);
+  wins(W*0.27,H*0.19,W*0.15,H*0.18,2,2,'#004d40');
+  g.fillStyle='#004d40';g.fillRect(W*0.253|0,H*0.39|0,W*0.19|0,H*0.028|0);
+  g.fillStyle='#fff';g.font='bold 7px monospace';g.textAlign='left';
+  g.fillText('TIENDA DE',W*0.258|0,(H*0.404)|0);g.fillText('DISEÑO LOCAL',W*0.256|0,(H*0.412)|0);
+  // Canopy
+  g.fillStyle='#00695c';g.fillRect(W*0.24|0,H*0.41|0,W*0.22|0,5);
+  prFlag(W*0.36|0,H*0.28|0,20,14);
+  // Street lamp post
+  g.fillStyle='#546e7a';g.fillRect(W*0.38|0,H*0.38|0,4,(H*0.24)|0);
+  g.fillStyle='#78909c';g.fillRect(W*0.376|0,H*0.38|0,10,4);
+  g.fillStyle='#fff9c4';g.fillRect(W*0.378|0,H*0.381|0,6,3);
+  // Small kiosk/stand
+  g.fillStyle='#5d4037';g.fillRect(W*0.4|0,H*0.47|0,W*0.1|0,H*0.07|0);
+  g.fillStyle='#4e342e';g.fillRect(W*0.39|0,H*0.455|0,W*0.12|0,4);
+  g.fillStyle='#d7ccc8';g.fillRect(W*0.405|0,H*0.47|0,W*0.08|0,H*0.055|0);
+  g.fillStyle='#333';g.font='6px monospace';g.textAlign='center';
+  g.fillText('🥤',W*0.45|0,(H*0.5)|0);
+
+  // ── RIGHT: ARTE URBANO ──────────────────────
+  // Green accent building
+  g.fillStyle='#558b2f';g.fillRect(W*0.63|0,H*0.17|0,W*0.1|0,H*0.25|0);
+  g.fillStyle='#33691e';g.fillRect(W*0.63|0,H*0.42|0,W*0.1|0,H*0.2|0);
+  wins(W*0.64,H*0.19,W*0.08,H*0.18,1,2,'#1b5e20');
+  prFlag(W*0.64|0,H*0.29|0,20,14);
+  // Main gray building
+  g.fillStyle='#607d8b';g.fillRect(W*0.73|0,H*0.13|0,W*0.27|0,H*0.29|0);
+  g.fillStyle='#546e7a';g.fillRect(W*0.73|0,H*0.42|0,W*0.27|0,H*0.2|0);
+  wins(W*0.75,H*0.15,W*0.23,H*0.23,3,3,'#1a237e');
+  // AC unit
+  g.fillStyle='#90a4ae';g.fillRect(W*0.75|0,H*0.13|0,22,8);g.fillStyle='#78909c';g.fillRect(W*0.75|0,H*0.13|0,22,3);
+  // Sign
+  g.fillStyle='#111';g.fillRect(W*0.733|0,H*0.4|0,W*0.255|0,H*0.028|0);
+  g.fillStyle='#fff';g.font='bold 8px monospace';g.textAlign='left';
+  g.fillText('ARTE URBANO',W*0.738|0,(H*0.412)|0);
+  // Street lamp right
+  g.fillStyle='#546e7a';g.fillRect(W*0.7|0,H*0.38|0,4,(H*0.24)|0);
+  g.fillStyle='#78909c';g.fillRect(W*0.696|0,H*0.38|0,10,4);g.fillStyle='#fff9c4';g.fillRect(W*0.698|0,H*0.381|0,6,3);
+  // Art piece on building wall
+  g.fillStyle='#e91e63';g.fillRect(W*0.77|0,H*0.32|0,22,30);
+  g.fillStyle='#ff5722';g.fillRect(W*0.775|0,H*0.325|0,10,20);
+  g.fillStyle='#9c27b0';g.fillRect(W*0.79|0,H*0.33|0,8,14);
+
+  // ── PLAZA FLOOR ─────────────────────────────
+  g.fillStyle='#c2c2c2';g.fillRect(0,H*0.62|0,W,(H*0.38)|0);
+  // Tile grid
+  g.strokeStyle='#adadad';g.lineWidth=0.7;
+  for(let y=(H*0.62|0);y<H;y+=20){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+  for(let x=0;x<W;x+=28){g.beginPath();g.moveTo(x,H*0.62|0);g.lineTo(x,H);g.stroke();}
+  // Lighter center strip (main walkway)
+  g.fillStyle='#cccccc';g.fillRect(W*0.31|0,H*0.62|0,W*0.38|0,H*0.38|0);
+  g.strokeStyle='#b8b8b8';
+  for(let y=(H*0.62|0);y<H;y+=20)g.strokeRect(W*0.31|0,y,W*0.38|0,20);
+
+  // ── TRAIN TRACKS ────────────────────────────
+  const t1b=W*0.39,t2b=W*0.61,t1t=W*0.47,t2t=W*0.53;
+  // Ties
+  g.fillStyle='#6d4c41';
+  for(let i=0;i<=10;i++){const t=i/10;const ty=(H*0.62+t*(H*0.38))|0;const lx=t1t+(t1b-t1t)*t,rx=t2t+(t2b-t2t)*t;g.fillRect(lx-3|0,ty,rx-lx+6|0,3+t*2|0);}
+  // Rails
+  [[t1t,t1b],[t2t,t2b]].forEach(([xt,xb])=>{
+    g.fillStyle='#9e9e9e';
+    g.beginPath();g.moveTo(xt-2,H*0.62);g.lineTo(xb-2,H);g.lineTo(xb+2,H);g.lineTo(xt+2,H*0.62);g.closePath();g.fill();
+    g.fillStyle='#d0d0d0';
+    g.beginPath();g.moveTo(xt-1,H*0.62);g.lineTo(xb-1,H);g.lineTo(xb,H);g.lineTo(xt,H*0.62);g.closePath();g.fill();
+  });
+
+  // ── BENCHES ─────────────────────────────────
+  bench(W*0.06,H*0.74,W*0.14);bench(W*0.1,H*0.67,W*0.12);
+  bench(W*0.76,H*0.74,W*0.14);bench(W*0.78,H*0.67,W*0.1);
+
+  // ── TROPICAL PLANT GARDEN ───────────────────
+  g.fillStyle='#6d6d6d';g.fillRect(W*0.54|0,H*0.63|0,W*0.15|0,H*0.1|0);
+  g.fillStyle='#4e342e';g.fillRect(W*0.54|0,H*0.635|0,W*0.15|0,(H*0.095)|0);
+  g.fillStyle='#3e2723';g.fillRect(W*0.54|0,H*0.63|0,W*0.15|0,4);
+  [[W*0.56,H*0.695,1],[W*0.6,H*0.675,0.85],[W*0.635,H*0.705,0.9],[W*0.665,H*0.67,0.75]].forEach(([px,py,sc])=>{
+    g.fillStyle='#2e7d32';g.beginPath();g.arc(px,py,11*sc,0,Math.PI*2);g.fill();
+    g.fillStyle='#4caf50';g.beginPath();g.arc(px-3*sc,py-4*sc,7*sc,0,Math.PI*2);g.fill();
+    g.strokeStyle='#388e3c';g.lineWidth=2.5*sc;
+    g.beginPath();g.moveTo(px,py);g.quadraticCurveTo(px-10*sc,py-8*sc,px-16*sc,py-18*sc);g.stroke();
+    g.beginPath();g.moveTo(px,py);g.quadraticCurveTo(px+8*sc,py-10*sc,px+14*sc,py-20*sc);g.stroke();
+  });
+
+  // ── PEDESTALS ───────────────────────────────
+  [[W*0.32,'#c2185b','♥'],[W*0.68,'#78909c','★']].forEach(([px,col,sym])=>{
+    g.fillStyle='#c0c0c0';g.fillRect(px-11,(H*0.81)|0,22,18);
+    g.fillStyle='#a0a0a0';g.fillRect(px-9,(H*0.814)|0,18,14);
+    g.fillStyle='#d8d8d8';g.fillRect(px-11,(H*0.81)|0,22,3);
+    g.fillStyle='#b4b4b4';g.fillRect(px-14,(H*0.824)|0,28,4);
+    g.fillStyle=col;g.font='bold 15px serif';g.textAlign='center';
+    g.fillText(sym,px,(H*0.822)|0);
+  });
+
+  // ── CORNER PLANTS (foreground) ──────────────
+  miniPalm(W*0.01,H*0.72,0.55);miniPalm(W*0.99,H*0.74,0.5);
+}
+
 
 function drawTile(ctx,t,x,y,sz,r,c,rng){
   const sd=(r*37+c*17)&0xff;
@@ -1314,7 +1513,7 @@ function draw(){
     if(STATE==='matchReveal')drawMatchReveal();
     if(STATE==='summary')drawSummary();
     // Snow overlay on top of everything (skip in tropical BG mode)
-    if(STATE!=='matchReveal'&&!_BG_READY)drawSnow();
+    if(STATE!=='matchReveal'&&!_BG_ACTIVE)drawSnow();
   }
   cx.restore();
 }
@@ -1329,7 +1528,7 @@ function drawMapAndEntities(){
   cx.drawImage(mapOC,mx,my,VW,MAP_H,0,MAP_TOP,VW,MAP_H);
 
   // Lamp glows (tile-map only)
-  if(!_BG_READY)for(const lp of lampPositions){
+  if(!_BG_ACTIVE)for(const lp of lampPositions){
     const sx=lp.x-mx,sy=lp.y-my+MAP_TOP;
     if(sx>-50&&sx<VW+50){
       const g=cx.createRadialGradient(sx,sy-8,0,sx,sy-8,38);
@@ -1354,7 +1553,7 @@ function drawMapAndEntities(){
   }
 
   // Building signs (only shown in tile mode, not when bg image is active)
-  if(!_BG_READY){
+  if(!_BG_ACTIVE){
     const signs=[
       {wx:6.5*TS,wy:11.5*TS,text:'🏪 Tienda'},
       {wx:22.5*TS,wy:11.5*TS,text:'☕ Café'},
