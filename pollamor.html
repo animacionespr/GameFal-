@@ -877,19 +877,20 @@ function spawnEntities(){
   player={
     x:ps.x,y:ps.y,vx:0,vy:0,frame:0,frameTimer:0,facing:'right',
     charDef:CHARS[charIdx],name:CHARS[charIdx].name,
-    isPlayer:true,answers:[],tx:null,ty:null,
+    isPlayer:true,answers:[],votedNodes:[],qNode:0,nextQNode:null,tx:null,ty:null,
     emote:null,zone:T_SNOW
   };
   bots=[];
   for(let i=0;i<NUM_BOTS;i++){
     const sp=randSpawn();
     const cd=CHARS[i%CHARS.length];
-    const biases=QUESTIONS.map(()=>Math.random()<0.3?0:Math.random()<0.3?1:Math.random());
+    const biases={};
+    QTREE.forEach((_,idx)=>{biases[idx]=Math.random()<0.3?0:Math.random()<0.3?1:Math.random();});
     bots.push({
       x:sp.x,y:sp.y,vx:0,vy:0,frame:0,frameTimer:0,facing:'right',
       charDef:cd,
       name:cd.name+(i>=CHARS.length?String(Math.floor(i/CHARS.length)+1):''),
-      isPlayer:false,answers:[],biases,tx:null,ty:null,wanderTimer:0,
+      isPlayer:false,answers:[],votedNodes:[],qNode:0,nextQNode:null,biases,tx:null,ty:null,wanderTimer:0,
       speech:{text:'',timer:0},emote:null
     });
   }
@@ -1154,12 +1155,16 @@ function checkPlayerZone(){
 }
 
 // ── Compatibility ───────────────────────
-function calcCompatibility(answersA,answersB){
-  if(!answersA.length||!answersB.length)return 0;
-  const len=Math.min(answersA.length,answersB.length);
-  let match=0;
-  for(let i=0;i<len;i++)if(answersA[i]===answersB[i])match++;
-  return Math.round((match/len)*100);
+function calcCompatibility(votedNodesA,votedNodesB){
+  if(!votedNodesA.length||!votedNodesB.length)return 0;
+  const mapB={};
+  votedNodesB.forEach(vn=>mapB[vn.node]=vn.vote);
+  let match=0,shared=0;
+  votedNodesA.forEach(vn=>{
+    if(mapB[vn.node]!==undefined){shared++;if(vn.vote===mapB[vn.node])match++;}
+  });
+  if(!shared)return 0;
+  return Math.round((match/shared)*100);
 }
 
 // ── Bot chat responses ──────────────────
@@ -1222,28 +1227,36 @@ function addChatMsg(type,text){
   const msgs=document.getElementById('chat-msgs');msgs.scrollTop=msgs.scrollHeight;
 }
 
-// ── Questions ───────────────────────────
-const QUESTIONS=[
-  {q:'¿Pepsi o Coca-Cola?',a:'Pepsi',b:'Coca-Cola'},
-  {q:'¿Playa o Montaña?',a:'Playa 🏖️',b:'Montaña ⛰️'},
-  {q:'¿Películas o Series?',a:'Películas',b:'Series'},
-  {q:'¿Perro o Gato?',a:'Perro 🐶',b:'Gato 🐱'},
-  {q:'¿Café o Té?',a:'Café ☕',b:'Té 🍵'},
-  {q:'¿Madrugador o Trasnochador?',a:'Madrugador',b:'Trasnochador'},
-  {q:'¿Pizza o Hamburguesa?',a:'Pizza 🍕',b:'Hamburguesa 🍔'},
-  {q:'¿Invierno o Verano?',a:'Invierno ❄️',b:'Verano ☀️'},
-  {q:'¿Ciudad o Naturaleza?',a:'Ciudad 🏙️',b:'Naturaleza 🌿'},
-  {q:'¿Redes sociales o Libros?',a:'Redes 📱',b:'Libros 📚'},
-  {q:'¿Música o Silencio?',a:'Música 🎵',b:'Silencio 🤫'},
-  {q:'¿Salsa o Reggaetón?',a:'Salsa 💃',b:'Reggaetón 🔥'},
-  {q:'¿Macarrones o Arroz?',a:'Macarrones',b:'Arroz c/habichuelas'},
-  {q:'¿Aventura o Comodidad?',a:'Aventura 🗺️',b:'Comodidad 🛋️'},
-  {q:'¿Cine o Streaming?',a:'Cine 🎬',b:'Streaming 📺'},
+// ── Questions (branching tree) ───────────
+// Each node: {q, a, b, ba (child if vote A), bb (child if vote B)}
+// ba/bb=null means leaf (no follow-up)
+const QTREE=[
+  // Thread 0: Hobbies (root=0)
+  {q:'¿Cómo prefieres pasar tu tiempo libre?',a:'📚 Leer libros',b:'🎮 Videojuegos',ba:1,bb:2},
+  {q:'¿Qué tipo de libros te gustan más?',a:'💕 Drama / Romance',b:'🧙 Fantasía / Sci-Fi',ba:null,bb:null},
+  {q:'¿Qué tipo de videojuegos prefieres?',a:'💥 Acción / Aventura',b:'🧩 Estrategia / Puzzle',ba:null,bb:null},
+  // Thread 1: Comida (root=3)
+  {q:'¿Qué prefieres hacer a la hora de comer?',a:'👨‍🍳 Cocinar en casa',b:'🍽️ Salir a restaurantes',ba:4,bb:5},
+  {q:'¿Qué cocina te encanta cocinar?',a:'🇵🇷 Criolla / Caribeña',b:'🌍 Fusión / Internacional',ba:null,bb:null},
+  {q:'¿Qué tipo de restaurante eliges?',a:'🥂 Ambiente fino',b:'🍔 Casual y tranquilo',ba:null,bb:null},
+  // Thread 2: Planes de fin de semana (root=6)
+  {q:'¿Tu plan de fin de semana ideal?',a:'🏖️ Playa / Piscina',b:'⛰️ Bosque / Montaña',ba:7,bb:8},
+  {q:'¿Qué haces cuando vas a la playa?',a:'🏄 Deportes acuáticos',b:'🌅 Relajarme al sol',ba:null,bb:null},
+  {q:'¿Tu actividad favorita en la naturaleza?',a:'🥾 Senderismo',b:'🏕️ Acampar bajo las estrellas',ba:null,bb:null},
+  // Thread 3: Música boricua (root=9)
+  {q:'¿Cuál es tu ritmo musical favorito?',a:'🔥 Reguetón / Trap',b:'💃 Salsa / Bomba / Plena',ba:10,bb:11},
+  {q:'¿Tu favorito del reguetón?',a:'🐰 Bad Bunny / Jhay Cortez',b:'🎙️ Anuel / Myke Towers',ba:null,bb:null},
+  {q:'¿Dónde disfrutas más la salsa?',a:'🎉 En fiestas y parrandas',b:'🎭 Eventos y festivales',ba:null,bb:null},
+  // Thread 4: Comunicación y relaciones (root=12)
+  {q:'¿Cómo prefieres comunicarte con alguien especial?',a:'📞 Llamadas de voz',b:'💬 Mensajes de texto',ba:13,bb:14},
+  {q:'¿Cuándo prefieres hacer una llamada?',a:'☀️ Durante el día',b:'🌙 Por la noche',ba:null,bb:null},
+  {q:'¿Qué tipo de mensajes valoras más?',a:'😂 Humor y memes',b:'💕 Mensajes del corazón',ba:null,bb:null},
 ];
-const NUM_QUESTIONS=7;
+const QROOTS=[0,3,6,9,12];
+const NUM_QUESTIONS=QROOTS.length*2; // 5 threads × 2 rounds = 10
 let questionOrder=[];
 function shuffleQuestions(){
-  questionOrder=[...Array(QUESTIONS.length).keys()];
+  questionOrder=[...QROOTS];
   for(let i=questionOrder.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [questionOrder[i],questionOrder[j]]=[questionOrder[j],questionOrder[i]];
@@ -1422,13 +1435,31 @@ function startCountdown(){
     countdownTimer=200;// ~3.3 sec: "¡SE VIENE!" banner + 3-2-1
   }
 }
+function recordVote(entity,vote){
+  entity.answers.push(vote);
+  entity.votedNodes.push({node:entity.qNode,vote:vote});
+  const qObj=QTREE[entity.qNode];
+  entity.nextQNode=(vote===0&&qObj.ba!==null)?qObj.ba:(vote===1&&qObj.bb!==null)?qObj.bb:null;
+}
 function showNextQuestion(){
   if(currentQ>=NUM_QUESTIONS){endVoting();return;}
   votePhase='pending';playerVote=-1;qTimer=Q_TIME;
   STATE='voting';stateStartFrame=frameN;
-  const q=questionOrder[currentQ];
+  const isFollowUp=(currentQ%2===1);
+  const threadIdx=Math.floor(currentQ/2);
+  if(!isFollowUp){
+    // Root question: set everyone to the root node of this thread
+    const rootNode=questionOrder[threadIdx];
+    player.qNode=rootNode;
+    bots.forEach(b=>b.qNode=rootNode);
+  } else {
+    // Follow-up: advance each entity to their nextQNode (set when they voted on root)
+    if(player.nextQNode!==null)player.qNode=player.nextQNode;
+    bots.forEach(b=>{if(b.nextQNode!==null)b.qNode=b.nextQNode;});
+  }
   bots.forEach(b=>{
-    b.pendingVote=Math.random()<b.biases[q]?1:0;
+    const bias=b.biases[b.qNode]!==undefined?b.biases[b.qNode]:0.5;
+    b.pendingVote=Math.random()<bias?1:0;
     const zoneX=b.pendingVote===0?WW*0.25:WW*0.75;
     b.tx=zoneX+(-40+Math.random()*80);
     b.ty=WH*0.35+Math.random()*WH*0.3;
@@ -1439,28 +1470,27 @@ function handleVoteTap(x,y){
   const btnY=MAP_BOT+90;
   if(y>=btnY&&y<=btnY+72){
     playerVote=x<VW/2?0:1;
-    player.answers.push(playerVote);sfxVote(playerVote);
+    recordVote(player,playerVote);sfxVote(playerVote);
     const zoneX=playerVote===0?WW*0.22:WW*0.78;
     player.tx=zoneX;player.ty=WH*0.4+Math.random()*WH*0.2;
     return;
   }
   if(y>=MAP_TOP&&y<=MAP_BOT){
     playerVote=(x+camX)<WW/2?0:1;
-    player.answers.push(playerVote);sfxVote(playerVote);
+    recordVote(player,playerVote);sfxVote(playerVote);
     const zoneX=playerVote===0?WW*0.22:WW*0.78;
     player.tx=zoneX;player.ty=WH*0.4+Math.random()*WH*0.2;
   }
 }
 function commitBotVotes(){
-  bots.forEach(b=>{if(b.pendingVote!==undefined)b.answers.push(b.pendingVote);});
-  // Update running compat
-  if(player.answers.length>0){
-    compatList=bots.map(b=>({bot:b,compat:calcCompatibility(player.answers,b.answers)}));
+  bots.forEach(b=>{if(b.pendingVote!==undefined)recordVote(b,b.pendingVote);});
+  if(player.votedNodes.length>0){
+    compatList=bots.map(b=>({bot:b,compat:calcCompatibility(player.votedNodes,b.votedNodes)}));
     compatList.sort((a,b2)=>b2.compat-a.compat);
   }
 }
 function endVoting(){
-  compatList=bots.map(b=>({bot:b,compat:calcCompatibility(player.answers,b.answers)}));
+  compatList=bots.map(b=>({bot:b,compat:calcCompatibility(player.votedNodes,b.votedNodes)}));
   compatList.sort((a,b2)=>b2.compat-a.compat);
   const best=compatList[0];
   if(best&&best.compat>0){
@@ -1523,7 +1553,7 @@ function update(){
     if(votePhase==='pending'){
       qTimer--;
       if(qTimer<=0){
-        if(playerVote===-1){playerVote=Math.round(Math.random());player.answers.push(playerVote);}
+        if(playerVote===-1){playerVote=Math.round(Math.random());recordVote(player,playerVote);}
         commitBotVotes();votePhase='reveal';voteRevealTimer=150;
       }
     } else if(votePhase==='reveal'){
@@ -1797,16 +1827,23 @@ function drawHUD(){
   cx.fillStyle='rgba(255,255,255,0.55)';cx.font='11px monospace';cx.textAlign='right';
   cx.fillText(`Pregunta ${Math.min(currentQ+1,NUM_QUESTIONS)}/${NUM_QUESTIONS}`,VW-12,20);
   for(let i=0;i<NUM_QUESTIONS;i++){
-    const px=VW-14-(NUM_QUESTIONS-1-i)*15,py=34;
+    const px=VW-14-(NUM_QUESTIONS-1-i)*13,py=34;
     const isActive=i===currentQ&&STATE==='voting';
     const isDone=i<currentQ;
-    cx.fillStyle=isDone?'#ff6b9d':isActive?'#ffd700':'rgba(255,255,255,0.18)';
+    const isFollowUpDot=(i%2===1);
+    cx.fillStyle=isDone?'#ff6b9d':isActive?'#ffd700':isFollowUpDot?'rgba(156,39,176,0.35)':'rgba(255,255,255,0.18)';
     if(isActive){
       cx.save();const p2=0.5+0.5*Math.sin(frameN*0.15);
       cx.globalAlpha=0.6+0.4*p2;
     }
-    cx.beginPath();cx.arc(px,py,isDone||isActive?5:4,0,Math.PI*2);cx.fill();
+    const r=isFollowUpDot?(isDone||isActive?4:3):(isDone||isActive?5:4);
+    cx.beginPath();cx.arc(px,py,r,0,Math.PI*2);cx.fill();
     if(isActive)cx.restore();
+    // Thread separator gap visual (tiny line between pairs)
+    if(i%2===1&&i<NUM_QUESTIONS-1){
+      cx.strokeStyle='rgba(255,255,255,0.15)';cx.lineWidth=1;
+      cx.beginPath();cx.moveTo(px+8,py-3);cx.lineTo(px+8,py+3);cx.stroke();
+    }
   }
 
   // Player count + best match
@@ -1869,14 +1906,15 @@ function drawCountdown(){
   cx.fillStyle='rgba(0,0,0,0.55)';cx.fillRect(0,MAP_TOP,VW,MAP_H);
 
   if(t>120){
-    // "¡SE VIENE LA PREGUNTA!"
+    const isFollowUpRound=(currentQ%2===1);
+    const bannerText=isFollowUpRound?'¡PREGUNTA DE SEGUIMIENTO!':'¡SE VIENE LA PREGUNTA!';
     const a=(200-t)/80;
     cx.globalAlpha=clamp(a,0,1);
     const scale=0.8+0.2*clamp(a,0,1);
     cx.save();cx.translate(VW/2,VH/2-30);cx.scale(scale,scale);
-    cx.fillStyle='#ffd700';cx.font='bold 22px monospace';cx.textAlign='center';
-    cx.fillText('¡SE VIENE LA PREGUNTA!',0,0);
-    cx.fillStyle='rgba(255,215,0,0.4)';cx.fillText('¡SE VIENE LA PREGUNTA!',2,2);
+    cx.fillStyle=isFollowUpRound?'#ce93d8':'#ffd700';cx.font='bold 22px monospace';cx.textAlign='center';
+    cx.fillText(bannerText,0,0);
+    cx.fillStyle='rgba(255,215,0,0.4)';cx.fillText(bannerText,2,2);
     cx.restore();
     cx.fillStyle='rgba(196,77,255,0.85)';cx.font='14px monospace';cx.textAlign='center';
     cx.globalAlpha=clamp(a,0,1);
@@ -1900,21 +1938,28 @@ function drawCountdown(){
 
 // ── Question Overlay ─────────────────────
 function drawQuestionOverlay(){
-  const qObj=QUESTIONS[questionOrder[currentQ]];
+  const qObj=QTREE[player.qNode];
+  const isFollowUp=(currentQ%2===1);
   const panY=MAP_BOT;
   cx.fillStyle='rgba(8,8,28,0.97)';cx.fillRect(0,panY,VW,VH-panY);
-  cx.fillStyle='#6a3fa0';cx.fillRect(0,panY,VW,2);
+  cx.fillStyle=isFollowUp?'#9c27b0':'#6a3fa0';cx.fillRect(0,panY,VW,2);
 
   const pct=qTimer/Q_TIME;
   cx.fillStyle='rgba(255,255,255,0.08)';cx.fillRect(0,panY+3,VW,8);
   cx.fillStyle=pct>0.4?'#4caf50':pct>0.2?'#ff9800':'#f44336';
   cx.fillRect(0,panY+3,VW*pct,8);
 
+  if(isFollowUp){
+    cx.fillStyle='rgba(156,39,176,0.9)';cx.font='bold 10px monospace';cx.textAlign='center';
+    cx.fillText('↳ PREGUNTA DE SEGUIMIENTO PARA TU GRUPO',VW/2,panY+18);
+  }
+
   cx.fillStyle='#ffffff';cx.font='bold 16px monospace';cx.textAlign='center';
   const qLines=wrapText(cx,qObj.q,VW-24,16);
-  qLines.forEach((l,i)=>cx.fillText(l,VW/2,panY+26+i*20));
+  const qTop=isFollowUp?panY+32:panY+26;
+  qLines.forEach((l,i)=>cx.fillText(l,VW/2,qTop+i*20));
 
-  const btnY=panY+86;
+  const btnY=isFollowUp?panY+96:panY+86;
   if(votePhase==='pending'){
     cx.fillStyle=playerVote===0?'rgba(21,101,192,0.8)':'rgba(66,165,245,0.18)';
     cx.fillRect(10,btnY,VW/2-18,72);
