@@ -162,13 +162,28 @@ function buildMap(){
 }
 buildMap();
 
+// ── Background Image ────────────────────
+const _BG_B64=''; // Plaza Boricua — fill with base64 when PNG is uploaded
+let _BG_IMG=null,_BG_READY=false;
+if(_BG_B64){
+  _BG_IMG=new Image();
+  _BG_IMG.onload=()=>{_BG_READY=true;prerenderMap();};
+  _BG_IMG.src='data:image/png;base64,'+_BG_B64;
+}
+
 // ── Prerender map ───────────────────────
 let mapOC,mapOX;
 function prerenderMap(){
   mapOC=document.createElement('canvas');mapOC.width=WW;mapOC.height=WH;
-  mapOX=mapOC.getContext('2d');mapOX.imageSmoothingEnabled=false;
-  const rng=mulberry32(77);
-  for(let r=0;r<MH;r++)for(let c=0;c<MW;c++)drawTile(mapOX,MAP[r][c],c*TS,r*TS,TS,r,c,rng);
+  mapOX=mapOC.getContext('2d');
+  if(_BG_READY&&_BG_IMG){
+    mapOX.imageSmoothingEnabled=true;
+    mapOX.drawImage(_BG_IMG,0,0,WW,WH);
+  }else{
+    mapOX.imageSmoothingEnabled=false;
+    const rng=mulberry32(77);
+    for(let r=0;r<MH;r++)for(let c=0;c<MW;c++)drawTile(mapOX,MAP[r][c],c*TS,r*TS,TS,r,c,rng);
+  }
 }
 
 function drawTile(ctx,t,x,y,sz,r,c,rng){
@@ -1298,8 +1313,8 @@ function draw(){
     if(STATE==='voting')drawQuestionOverlay();
     if(STATE==='matchReveal')drawMatchReveal();
     if(STATE==='summary')drawSummary();
-    // Snow overlay on top of everything
-    if(STATE!=='matchReveal')drawSnow();
+    // Snow overlay on top of everything (skip in tropical BG mode)
+    if(STATE!=='matchReveal'&&!_BG_READY)drawSnow();
   }
   cx.restore();
 }
@@ -1313,8 +1328,8 @@ function drawMapAndEntities(){
   // Static map
   cx.drawImage(mapOC,mx,my,VW,MAP_H,0,MAP_TOP,VW,MAP_H);
 
-  // Lamp glows
-  for(const lp of lampPositions){
+  // Lamp glows (tile-map only)
+  if(!_BG_READY)for(const lp of lampPositions){
     const sx=lp.x-mx,sy=lp.y-my+MAP_TOP;
     if(sx>-50&&sx<VW+50){
       const g=cx.createRadialGradient(sx,sy-8,0,sx,sy-8,38);
@@ -1338,23 +1353,25 @@ function drawMapAndEntities(){
     }
   }
 
-  // Building signs
-  const signs=[
-    {wx:6.5*TS,wy:11.5*TS,text:'🏪 Tienda'},
-    {wx:22.5*TS,wy:11.5*TS,text:'☕ Café'},
-    {wx:6.5*TS,wy:27*TS,  text:'🎵 Club'},
-    {wx:22.5*TS,wy:27*TS, text:'🌸 Jardín'},
-    {wx:17*TS,  wy:12.5*TS,text:'☕'},
-    {wx:11.5*TS,wy:21.5*TS,text:'🎶'},
-  ];
-  cx.font='bold 9px monospace';cx.textAlign='center';
-  for(const sg of signs){
-    const ssx=sg.wx-mx,ssy=sg.wy-my+MAP_TOP;
-    if(ssx<-30||ssx>VW+30||ssy<MAP_TOP||ssy>MAP_BOT)continue;
-    cx.fillStyle='rgba(255,240,200,0.85)';
-    const tw2=cx.measureText(sg.text).width+6;
-    cx.fillRect(ssx-tw2/2,ssy-9,tw2,12);
-    cx.fillStyle='#3e2000';cx.fillText(sg.text,ssx,ssy);
+  // Building signs (only shown in tile mode, not when bg image is active)
+  if(!_BG_READY){
+    const signs=[
+      {wx:6.5*TS,wy:11.5*TS,text:'🏪 Tienda'},
+      {wx:22.5*TS,wy:11.5*TS,text:'☕ Café'},
+      {wx:6.5*TS,wy:27*TS,  text:'🎵 Club'},
+      {wx:22.5*TS,wy:27*TS, text:'🌸 Jardín'},
+      {wx:17*TS,  wy:12.5*TS,text:'☕'},
+      {wx:11.5*TS,wy:21.5*TS,text:'🎶'},
+    ];
+    cx.font='bold 9px monospace';cx.textAlign='center';
+    for(const sg of signs){
+      const ssx=sg.wx-mx,ssy=sg.wy-my+MAP_TOP;
+      if(ssx<-30||ssx>VW+30||ssy<MAP_TOP||ssy>MAP_BOT)continue;
+      cx.fillStyle='rgba(255,240,200,0.85)';
+      const tw2=cx.measureText(sg.text).width+6;
+      cx.fillRect(ssx-tw2/2,ssy-9,tw2,12);
+      cx.fillStyle='#3e2000';cx.fillText(sg.text,ssx,ssy);
+    }
   }
 
   // Fountain ripple
