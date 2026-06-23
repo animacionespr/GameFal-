@@ -607,21 +607,28 @@ _SPR_IMG.src='data:image/png;base64,'+_SPR_B64;
 let _SPR_READY=false;
 _SPR_IMG.onload=()=>{_SPR_READY=true;};
 const _SPR_CW=64,_SPR_CH=128;
-const _SPR_ROW={0:0,1:0,2:2,3:0,4:1,5:1,6:3,7:1,8:4};
+// Per-row source crop [y_start, y_height] — trims transparent blank space above each character
+const _SPR_CROP=[[10,118],[18,110],[50,78],[5,122],[64,64]];
+// Only assign unique sprite rows; shared-row chars fall back to programmatic (more variety)
+const _SPR_ROW={2:2,6:3,8:4};
 
 // ── Draw Character ──────────────────────
-const CS=2.5;
+const CS=2.8;
 function drawChar(ctx,ch,wx,wy,frame,facing,camXo,camYo,alpha=1){
   const sx=wx-camXo,sy=wy-camYo;
   ctx.save();ctx.globalAlpha=alpha;
   ctx.translate(sx,sy);
   const row=_SPR_ROW[ch.id];
+  // Drop shadow (both sprite and programmatic)
+  ctx.fillStyle='rgba(0,0,0,0.28)';
+  ctx.beginPath();ctx.ellipse(0,2,10,3,0,0,Math.PI*2);ctx.fill();
   if(row!==undefined&&_SPR_READY){
     const col=(frame>>1)&1;
     const ax=col*_SPR_CW,ay=row*_SPR_CH;
-    const DW=26,DH=52;
+    const [cy,ch2]=_SPR_CROP[row];
+    const DW=28,DH=56;
     if(facing==='left'){ctx.save();ctx.scale(-1,1);}
-    ctx.drawImage(_SPR_IMG,ax,ay,_SPR_CW,_SPR_CH,-DW/2,-DH,DW,DH);
+    ctx.drawImage(_SPR_IMG,ax,ay+cy,_SPR_CW,ch2,-DW/2,-DH,DW,DH);
     if(facing==='left')ctx.restore();
   }else{
     ctx.scale(facing==='left'?-CS:CS,CS);
@@ -1189,7 +1196,7 @@ function openChat(bot,compat){
   const avx=avc.getContext('2d');
   avx.clearRect(0,0,36,36);avx.save();avx.translate(18,34);
   const _asr=_SPR_ROW[bot.charDef.id];
-  if(_asr!==undefined&&_SPR_READY){avx.drawImage(_SPR_IMG,0,_asr*_SPR_CH,_SPR_CW,_SPR_CH,-8,-28,16,28);}
+  if(_asr!==undefined&&_SPR_READY){const[_acy,_ach]=_SPR_CROP[_asr];avx.drawImage(_SPR_IMG,0,_asr*_SPR_CH+_acy,_SPR_CW,_ach,-8,-28,16,28);}
   else{avx.scale(0.85,0.85);_drawCharPixels(avx,bot.charDef,0);}
   avx.restore();
   chatMessages=[];
@@ -1975,7 +1982,7 @@ function drawMatchReveal(){
 
   cx.save();cx.translate(VW/2,py+128);
   const _msr=_SPR_ROW[best.bot.charDef.id];
-  if(_msr!==undefined&&_SPR_READY){const _mf=((elapsed>>3)&1)*_SPR_CW;cx.drawImage(_SPR_IMG,_mf,_msr*_SPR_CH,_SPR_CW,_SPR_CH,-32,-64,64,64);}
+  if(_msr!==undefined&&_SPR_READY){const _mf=((elapsed>>3)&1)*_SPR_CW;const[_mcy,_mch]=_SPR_CROP[_msr];cx.drawImage(_SPR_IMG,_mf,_msr*_SPR_CH+_mcy,_SPR_CW,_mch,-32,-64,64,64);}
   else{cx.scale(3,3);_drawCharPixels(cx,best.bot.charDef,(elapsed>>3)&1);}
   cx.restore();
 
@@ -2068,7 +2075,7 @@ function drawTitle(){
     if(_tsr!==undefined&&_SPR_READY){
       const _tc=(tc.frame>>1)&1;
       if(tc.dir<0){cx.save();cx.scale(-1,1);}
-      cx.drawImage(_SPR_IMG,_tc*_SPR_CW,_tsr*_SPR_CH,_SPR_CW,_SPR_CH,-13,-52,26,52);
+      const[_tcy,_tch]=_SPR_CROP[_tsr];cx.drawImage(_SPR_IMG,_tc*_SPR_CW,_tsr*_SPR_CH+_tcy,_SPR_CW,_tch,-14,-56,28,56);
       if(tc.dir<0)cx.restore();
     }else{
       cx.scale(tc.dir>0?CS:-CS,CS);
@@ -2174,7 +2181,8 @@ function drawCharSelect(){
     const _r=_SPR_ROW[cd.id];
     if(_r!==undefined&&_SPR_READY){
       const _col=((frameN>>4)>>1)&1;
-      cx.drawImage(_SPR_IMG,_col*_SPR_CW,_r*_SPR_CH,_SPR_CW,_SPR_CH,-cardW*0.38,-cardH*0.7,cardW*0.76,cardH*0.7);
+      const[_rcy,_rch]=_SPR_CROP[_r];
+      cx.drawImage(_SPR_IMG,_col*_SPR_CW,_r*_SPR_CH+_rcy,_SPR_CW,_rch,-cardW*0.38,-cardH*0.7,cardW*0.76,cardH*0.7);
     }else{
       cx.scale(SPRITE_SC,SPRITE_SC);
       _drawCharPixels(cx,cd,(frameN>>4)&3);
