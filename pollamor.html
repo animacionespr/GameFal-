@@ -1065,11 +1065,19 @@ function drawParticles(){
 const IDLE_PHRASES=[
   '¿Quién será mi match? 👀','Qué nervioso/a estoy... 😬',
   'Hmm... 🤔','¡Espero hacer match! ✨','Qué bello día 😎',
-  '¿Pepsi o Coca? 🤷','... 💭','¡Vamos! 💪',
   '¿Y si bailo? 💃','¡Me late algo! 🔥',
   '¡Saludos a todos! 👋','Buscando el amor… 💕',
   '¿Habrá coquito? 🥥','¡Qué rico el mofongo! 😋',
-  '¡Wepa! 🇵🇷','¡Esto está buenísimo! ✨'
+  '¡Wepa! 🇵🇷','¡Esto está buenísimo! ✨',
+  'Yo soy más de playa 🏖️','¡Bad Bunny no falla! 🐰',
+  'Cocino muy bien 👨‍🍳','Me gusta la salsa 💃',
+  'Los libros son mi vida 📚','¡La fantasía es lo mío! 🧙',
+  'Prefiero cocinar en casa 🍽️','El senderismo me relaja 🥾',
+  '¿Restaurante fino o casual? 🍽️','¡La bomba y la plena! 🥁',
+  'Prefiero mensajes de texto 💬','Llamadas toda la vida 📞',
+  '¡Videojuegos con amigos! 🎮','Drama o fantasía... 💭',
+  '¡Acampar bajo las estrellas! 🏕️','La salsa me pone a bailar 🎉',
+  '¿Habrá alguien que lea libros? 📖','Yo y la naturaleza… 🌿'
 ];
 let _speechCooldown=0;
 function updateBotSpeech(){
@@ -1169,19 +1177,29 @@ function calcCompatibility(votedNodesA,votedNodesB){
 
 // ── Bot chat responses ──────────────────
 const BOT_RESPONSES={
-  greet:['¡Hola! 😊','¡Qué bueno que hicimos match! 💕','¡Wow, somos muy compatibles! ✨','Me alegra que tengamos tanto en común 🥰'],
-  generic:['Jaja, eso es interesante 😄','¡Cuéntame más! 👂','Totalmente de acuerdo 🙌','¡Qué coincidencia! Yo también 😲'],
+  greet:['¡Hola! 😊','¡Qué bueno que hicimos match! 💕','¡Wow, somos muy compatibles! ✨','Me alegra que tengamos tanto en común 🥰','¡Sabía que íbamos a hacer match! 🔥'],
+  generic:['Jaja, eso es interesante 😄','¡Cuéntame más! 👂','Totalmente de acuerdo 🙌','¡Qué coincidencia! Yo también 😲','Me alegra que pienses igual 😊'],
   trabajo:['Trabajo en diseño gráfico 🎨','Soy maestro/a 📚','Trabajo en tecnología 💻','Tengo mi propio negocio 🚀'],
-  cancion:['Me encanta Bad Bunny 🐰','Amo Silvio Rodríguez 🎸','Escucho de todo, pero hoy reggaetón 🎶','Depende el mood – hoy Frank Ocean 🎵'],
-  salir:['¡Me encantaría! ¿Conoces El Morro? 🏰','Algo relajado, tipo café ☕','¿Playa o museo? 🏖️','¡Claro! ¿Cuándo te viene bien? 😊'],
-  default:['jaja 😄','Sí, entiendo 🙂','Interesante… 🤔','¡Me parece bien!','Cuéntame más 🙂','¿Y tú qué harías?']
+  cancion:['Me encanta Bad Bunny 🐰','¡La salsa es vida! 💃','Escucho de todo, pero hoy reggaetón 🎶','Jhay Cortez me fascina 🎵','¡Myke Towers! 🔥'],
+  salir:['¡Me encantaría! ¿Conoces El Morro? 🏰','Algo relajado, tipo café ☕','¿Playa o bosque? 🏖️','¡Claro! ¿Cuándo te viene bien? 😊'],
+  playa:['¡La playa es lo mío! 🌊','El mar me relaja totalmente 🏖️','¿Vamos un día a Luquillo? ☀️','Los deportes acuáticos son mi pasión 🏄'],
+  naturaleza:['¡Me encanta el senderismo! 🥾','El Yunque es increíble 🌿','Acampar bajo las estrellas... 🏕️✨','La naturaleza me llena el alma 🌲'],
+  libros:['¡Leer es lo mejor! 📚','El drama me hace llorar, pero lo amo 😭','La fantasía te lleva a otro mundo 🧙','Siempre tengo un libro en la mano 📖'],
+  juegos:['¡Los videojuegos son vida! 🎮','La acción y aventura me apasionan 💥','Estrategia es para los inteligentes 🧩','Pasé toda la noche jugando 😅'],
+  comida:['¡El mofongo no tiene igual! 🇵🇷','Cocinar es mi terapia 👨‍🍳','Los restaurantes finos son especiales ✨','Me encanta salir a comer 🍽️'],
+  default:['jaja 😄','Sí, entiendo 🙂','Interesante… 🤔','¡Me parece bien!','Cuéntame más 🙂','¿Y tú qué harías?','¡Qué interesante! 😮']
 };
 function getBotReply(msg){
   const m=msg.toLowerCase();
   if(m.includes('hola')||m.includes('hey')||m.includes('buenas'))return rndFrom(BOT_RESPONSES.greet);
   if(m.includes('dedica')||m.includes('trabaj'))return rndFrom(BOT_RESPONSES.trabajo);
-  if(m.includes('canción')||m.includes('musica')||m.includes('música'))return rndFrom(BOT_RESPONSES.cancion);
+  if(m.includes('canción')||m.includes('musica')||m.includes('música')||m.includes('salsa')||m.includes('reggaeton')||m.includes('reguetón'))return rndFrom(BOT_RESPONSES.cancion);
   if(m.includes('salir')||m.includes('cita')||m.includes('día'))return rndFrom(BOT_RESPONSES.salir);
+  if(m.includes('playa')||m.includes('mar')||m.includes('piscina')||m.includes('surf'))return rndFrom(BOT_RESPONSES.playa);
+  if(m.includes('montaña')||m.includes('bosque')||m.includes('senderismo')||m.includes('acampar')||m.includes('naturaleza'))return rndFrom(BOT_RESPONSES.naturaleza);
+  if(m.includes('libr')||m.includes('leer')||m.includes('novel')||m.includes('drama')||m.includes('fantasía'))return rndFrom(BOT_RESPONSES.libros);
+  if(m.includes('videojuego')||m.includes('juego')||m.includes('gamer')||m.includes('acción')||m.includes('estrategia'))return rndFrom(BOT_RESPONSES.juegos);
+  if(m.includes('comida')||m.includes('comer')||m.includes('cocin')||m.includes('restaurante')||m.includes('mofongo'))return rndFrom(BOT_RESPONSES.comida);
   return rndFrom(BOT_RESPONSES.default);
 }
 function rndFrom(arr){return arr[Math.floor(Math.random()*arr.length)];}
@@ -1206,9 +1224,16 @@ function openChat(bot,compat){
   avx.restore();
   chatMessages=[];
   addChatMsg('sys','🎉 ¡Match encontrado con '+compat+'% de compatibilidad!');
+  // Find first shared answer to reference in opening message
+  const _mapBV={};
+  bot.votedNodes.forEach(vn=>_mapBV[vn.node]=vn.vote);
+  const _sharedVN=player.votedNodes.filter(vn=>_mapBV[vn.node]===vn.vote);
+  const _sharedMsg=_sharedVN.length>0
+    ?`¡Vi que ambos elegimos "${QTREE[_sharedVN[0].node][_sharedVN[0].vote===0?'a':'b']}"! 😏`
+    :'¡Tenemos mucho en común! 😏';
   setTimeout(()=>{
     addChatMsg('them',rndFrom(BOT_RESPONSES.greet));
-    setTimeout(()=>addChatMsg('them','Vi que elegimos lo mismo en varias preguntas 😏'),1200);
+    setTimeout(()=>addChatMsg('them',_sharedMsg),1200);
   },600);
   STATE='chat';
 }
@@ -1950,8 +1975,17 @@ function drawQuestionOverlay(){
   cx.fillRect(0,panY+3,VW*pct,8);
 
   if(isFollowUp){
-    cx.fillStyle='rgba(156,39,176,0.9)';cx.font='bold 10px monospace';cx.textAlign='center';
-    cx.fillText('↳ PREGUNTA DE SEGUIMIENTO PARA TU GRUPO',VW/2,panY+18);
+    const _threadIdx=Math.floor(currentQ/2);
+    const _rootNode=questionOrder[_threadIdx];
+    const _rootEntry=player.votedNodes.find(vn=>vn.node===_rootNode);
+    cx.fillStyle='rgba(186,104,200,0.9)';cx.font='bold 10px monospace';cx.textAlign='center';
+    if(_rootEntry){
+      const _parentQ=QTREE[_rootNode];
+      const _chosenLabel=_rootEntry.vote===0?_parentQ.a:_parentQ.b;
+      cx.fillText('↳ Ya que elegiste: '+_chosenLabel,VW/2,panY+18);
+    } else {
+      cx.fillText('↳ PREGUNTA DE TU GRUPO',VW/2,panY+18);
+    }
   }
 
   cx.fillStyle='#ffffff';cx.font='bold 16px monospace';cx.textAlign='center';
@@ -2006,7 +2040,7 @@ function drawMatchReveal(){
   if(elapsed<60)return;
 
   const best=compatList[0];if(!best)return;
-  const pw=320,ph=340,px=(VW-pw)/2,py=195;
+  const pw=320,ph=370,px=(VW-pw)/2,py=185;
 
   // Winter-themed panel
   const pg=cx.createLinearGradient(px,py,px,py+ph);
@@ -2041,13 +2075,22 @@ function drawMatchReveal(){
   cx.fillStyle='#ffd700';cx.font='bold 14px monospace';cx.textAlign='center';
   cx.fillText(`${compat}% Compatibilidad`,VW/2,py+240);
 
-  const shared=player.answers.filter((a,i)=>a===best.bot.answers[i]).length;
-  cx.fillStyle='rgba(255,255,255,0.7)';cx.font='12px monospace';
-  cx.fillText(`${shared} de ${player.answers.length} respuestas en común`,VW/2,py+263);
+  // Find shared answers using node-aware comparison
+  const _rvMap={};
+  best.bot.votedNodes.forEach(vn=>_rvMap[vn.node]=vn.vote);
+  const _shared=player.votedNodes.filter(vn=>_rvMap[vn.node]===vn.vote);
+  cx.fillStyle='rgba(100,255,150,0.85)';cx.font='bold 11px monospace';cx.textAlign='center';
+  const _shMax=Math.min(_shared.length,2);
+  for(let _si=0;_si<_shMax;_si++){
+    const _sv=_shared[_si];
+    cx.fillText('✓ '+QTREE[_sv.node][_sv.vote===0?'a':'b'],VW/2,py+263+_si*16);
+  }
+  cx.fillStyle='rgba(255,107,157,0.9)';cx.font='bold 11px monospace';
+  cx.fillText(`${_shared.length} de ${player.votedNodes.length} respuestas iguales 💕`,VW/2,py+296);
 
   const ctaP=0.6+0.4*Math.sin(elapsed*0.09);
   cx.globalAlpha=ctaP;cx.fillStyle='#ff6b9d';cx.font='bold 14px monospace';
-  cx.fillText('▶ TOCA PARA CHATEAR',VW/2,py+298);cx.globalAlpha=1;
+  cx.fillText('▶ TOCA PARA CHATEAR',VW/2,py+322);cx.globalAlpha=1;
 
   if(elapsed%7===0)spawnHearts(VW/2+(Math.random()*220-110),py+80,2);
 }
