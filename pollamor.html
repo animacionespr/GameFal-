@@ -84,6 +84,7 @@ resize();window.addEventListener('resize',resize);
 const TS=20,MW=30,MH=32;
 const WW=MW*TS,WH=MH*TS;
 const MAP_TOP=80,MAP_H=580,MAP_BOT=MAP_TOP+MAP_H;
+const HORIZON_Y=12*TS; // horizon line: below last visible flag (~row 12)
 
 // Winter town tile types
 const T_SNOW=0,T_PATH=1,T_PLAZA=2,T_DANCE=3,T_FOUNTAIN=4,
@@ -861,7 +862,7 @@ const NUM_BOTS=19,PLAYER_SPEED=1.8,BOT_SPEED=0.9;
 
 function randSpawn(){
   for(let i=0;i<200;i++){
-    const x=(4+Math.random()*22)*TS,y=(4+Math.random()*22)*TS;
+    const x=(4+Math.random()*22)*TS,y=(12+Math.random()*14)*TS;
     if(canWalk(x,y)&&canWalk(x+4,y)&&canWalk(x,y+4))return{x,y};
   }
   return{x:15*TS,y:15*TS};
@@ -907,6 +908,7 @@ function moveEntity(e,tx,ty,spd){
   if(canWalk(nx_,ny_)){e.x=nx_;e.y=ny_;}
   else if(canWalk(nx_,e.y)){e.x=nx_;}
   else if(canWalk(e.x,ny_)){e.y=ny_;}
+  if(e.y<HORIZON_Y)e.y=HORIZON_Y;
   if(Math.abs(dx)>1)e.facing=dx>0?'right':'left';
   if(++e.frameTimer>8){e.frameTimer=0;e.frame=(e.frame+1)%4;}
   return false;
@@ -1608,7 +1610,7 @@ function updateEntities(){
     const nx=dx/mag*PLAYER_SPEED,ny=dy/mag*PLAYER_SPEED;
     if(canWalk(player.x+nx,player.y))player.x+=nx;
     if(canWalk(player.x,player.y+ny))player.y+=ny;
-    player.x=clamp(player.x,TS,WW-TS);player.y=clamp(player.y,TS,WH-TS);
+    player.x=clamp(player.x,TS,WW-TS);player.y=clamp(player.y,HORIZON_Y,WH-TS);
     if(dx!==0)player.facing=dx>0?'right':'left';
     if(++player.frameTimer>8){player.frameTimer=0;player.frame=(player.frame+1)%4;}
   }
