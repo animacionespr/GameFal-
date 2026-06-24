@@ -618,12 +618,12 @@ function drawChar(ctx,ch,wx,wy,frame,facing,camXo,camYo,alpha=1){
   const row=_SPR_ROW[ch.id];
   // Drop shadow (both sprite and programmatic)
   ctx.fillStyle='rgba(0,0,0,0.28)';
-  ctx.beginPath();ctx.ellipse(0,2,10,3,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(0,2,14,4,0,0,Math.PI*2);ctx.fill();
   if(row!==undefined&&_SPR_READY){
     const col=(frame>>1)&1;
     const ax=col*_SPR_CW,ay=row*_SPR_CH;
     const [cy,ch2]=_SPR_CROP[row];
-    const DW=28,DH=56;
+    const DW=40,DH=80;
     if(facing==='left'){ctx.save();ctx.scale(-1,1);}
     ctx.drawImage(_SPR_IMG,ax,ay+cy,_SPR_CW,ch2,-DW/2,-DH,DW,DH);
     if(facing==='left')ctx.restore();
@@ -2161,7 +2161,7 @@ function drawTitle(){
     if(_tsr!==undefined&&_SPR_READY){
       const _tc=(tc.frame>>1)&1;
       if(tc.dir<0){cx.save();cx.scale(-1,1);}
-      const[_tcy,_tch]=_SPR_CROP[_tsr];cx.drawImage(_SPR_IMG,_tc*_SPR_CW,_tsr*_SPR_CH+_tcy,_SPR_CW,_tch,-14,-56,28,56);
+      const[_tcy,_tch]=_SPR_CROP[_tsr];cx.drawImage(_SPR_IMG,_tc*_SPR_CW,_tsr*_SPR_CH+_tcy,_SPR_CW,_tch,-20,-80,40,80);
       if(tc.dir<0)cx.restore();
     }else{
       cx.scale(tc.dir>0?CS:-CS,CS);
