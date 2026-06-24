@@ -531,7 +531,7 @@ function tileAt(wx,wy){
   if(r<0||r>=MH||c<0||c>=MW)return T_BORDER;
   return MAP[r][c];
 }
-function isSolid(t){return t===T_LAMP||t===T_WALL||t===T_ROOF||t===T_TREE||t===T_BORDER;}
+function isSolid(t){return t!==T_PATH&&t!==T_PLAZA&&t!==T_DANCE&&t!==T_CAFE;}
 function canWalk(wx,wy){return !isSolid(tileAt(wx,wy));}
 
 // ── Color Helpers ────────────────────────
