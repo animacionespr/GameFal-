@@ -1073,6 +1073,17 @@ const IDLE_PHRASES=[
   '¡Acampar bajo las estrellas! 🏕️','La salsa me pone a bailar 🎉',
   '¿Habrá alguien que lea libros? 📖','Yo y la naturaleza… 🌿'
 ];
+const CHAR_PHRASES={
+  0:['¡Wepa, tú sí sabes! 🏄','¿Eres del área metro? 👀','Soy del Condado yo... 🌊','El surf es vida 🏄‍♂️'],
+  1:['Urban o reguetón, siempre 🔥','¡Esto está heavy! 😤','Salud con Medalla 🍺','Las noches en Santurce... 🌃'],
+  2:['Me encanta el Viejo San Juan 🏰','¿Eres de aquí o del pueblito? 💕','Baile y amor son todo 💃','¡La plaza me encanta! 🌸'],
+  3:['Soy de las montañas 🏔️','El café de altura es único ☕','La coquí es mi favorita 🐸','Prefiero la naturaleza 🌿'],
+  4:['¡El DJ tiene que sonar! 🎧','Esta canción es un hitazo 🎵','La pista me llama 💿','¡Dembow toda la noche! 🕺'],
+  5:['En mis tiempos todo era mejor... 😌','¿Quieres un mofongo? 🍚','El coquito de la abuela... 🥥','¡Lucha libre carnal! 🤼'],
+  6:['¡La bomba es lo mío! 🥁','Mis faldas cuentan historias 💃','El ritmo está en la sangre 🎶','¡Cultura afro-boricua! 🌺'],
+  7:['¡Loíza es todo el año! 🎭','Santiago Apóstol bendícenos 🙏','Los carnavaleros somos únicos 🎭','¡Fiesta de Santiago! 🎉'],
+  8:['¡Millas y millas! 🏃‍♀️','El CrossFit es mi vida 💪','¡No te quedes sentado! 🏋️','Proteínas y determinación 🥗'],
+};
 let _speechCooldown=0;
 function updateBotSpeech(){
   if(STATE!=='playing'&&STATE!=='countdown')return;
@@ -1095,11 +1106,17 @@ function updateBotSpeech(){
     if(_speechCooldown>0){_speechCooldown--;}
     else if(Math.random()<0.018){
       const b=bots[Math.floor(Math.random()*bots.length)];
-      b.speech.text=IDLE_PHRASES[Math.floor(Math.random()*IDLE_PHRASES.length)];
+      const _cp=CHAR_PHRASES[b.charDef.id];
+      b.speech.text=(_cp&&Math.random()<0.55)?_cp[Math.floor(Math.random()*_cp.length)]:IDLE_PHRASES[Math.floor(Math.random()*IDLE_PHRASES.length)];
       b.speech.timer=160+Math.random()*80; // visible ~2.7-4 seconds
       _speechCooldown=200; // ~3.3 sec gap before next bot speaks
     }
   }
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
 }
 function drawSpeechBubble(sx,sy,text){
   cx.save();
@@ -1648,6 +1665,23 @@ function draw(){
     if(STATE==='summary')drawSummary();
     // Snow overlay on top of everything (skip in tropical BG mode)
     if(STATE!=='matchReveal'&&!_BG_ACTIVE)drawSnow();
+    // Virtual joystick overlay (mobile only — shows when touching the map area)
+    if(touchStartX!==null&&touchStartY!==null&&STATE!=='matchReveal'){
+      const jx=touchStartX,jy=touchStartY;
+      const tdx=(touchX||jx)-jx,tdy=(touchY||jy)-jy;
+      const dist=Math.sqrt(tdx*tdx+tdy*tdy);
+      const maxR=38;
+      const knobX=jx+(dist>maxR?tdx/dist*maxR:tdx);
+      const knobY=jy+(dist>maxR?tdy/dist*maxR:tdy);
+      cx.save();
+      cx.beginPath();cx.arc(jx,jy,maxR,0,Math.PI*2);
+      cx.fillStyle='rgba(255,255,255,0.10)';cx.fill();
+      cx.strokeStyle='rgba(255,255,255,0.30)';cx.lineWidth=2;cx.stroke();
+      cx.beginPath();cx.arc(knobX,knobY,15,0,Math.PI*2);
+      cx.fillStyle='rgba(255,107,157,0.55)';cx.fill();
+      cx.strokeStyle='rgba(255,107,157,0.90)';cx.lineWidth=2;cx.stroke();
+      cx.restore();
+    }
   }
   cx.restore();
 }
@@ -1823,6 +1857,36 @@ function drawMapAndEntities(){
     const bounce=Math.sin(frameN*0.12)*3;
     cx.fillStyle='#ffd700';cx.font='13px monospace';cx.textAlign='center';
     cx.fillText('▼',sx,sy-50+bounce);
+  }
+
+  // Proximity cards — show name+compat when bot is within 75px of player
+  if((STATE==='playing'||STATE==='countdown')&&player){
+    for(const b of entities){
+      if(b.isPlayer)continue;
+      const ddx=b.x-player.x,ddy=b.y-player.y;
+      const dd=Math.sqrt(ddx*ddx+ddy*ddy);
+      if(dd>75)continue;
+      const alpha=Math.min(1,(75-dd)/25);
+      const sx=b.x-mx,sy=b.y-my+MAP_TOP;
+      const cEntry=compatList.find(c=>c.bot===b);
+      const pct=cEntry?cEntry.compat:null;
+      const col=pct===null?'#aaaaaa':pct>=70?'#4caf50':pct>=45?'#ff9800':'#ef5350';
+      cx.save();cx.globalAlpha=alpha;
+      cx.font='bold 10px monospace';cx.textAlign='center';
+      const label=pct!==null?`${b.name} ${pct}%`:b.name;
+      const tw=cx.measureText(label).width+14;
+      const bx=sx-tw/2,by=sy-102;
+      cx.fillStyle='rgba(8,8,24,0.88)';
+      roundRect(cx,bx,by,tw,16,3);cx.fill();
+      cx.strokeStyle=col;cx.lineWidth=1.5;
+      roundRect(cx,bx,by,tw,16,3);cx.stroke();
+      cx.fillStyle='#ffffff';cx.fillText(label,sx,by+11);
+      if(pct!==null){
+        cx.fillStyle='rgba(255,255,255,0.12)';cx.fillRect(bx,by+17,tw,3);
+        cx.fillStyle=col;cx.fillRect(bx,by+17,tw*pct/100,3);
+      }
+      cx.restore();
+    }
   }
 
   drawParticles();
@@ -2056,7 +2120,7 @@ function drawMatchReveal(){
 
   cx.save();cx.translate(VW/2,py+128);
   const _msr=_SPR_ROW[best.bot.charDef.id];
-  if(_msr!==undefined&&_SPR_READY){const _mf=((elapsed>>3)&1)*_SPR_CW;const[_mcy,_mch]=_SPR_CROP[_msr];cx.drawImage(_SPR_IMG,_mf,_msr*_SPR_CH+_mcy,_SPR_CW,_mch,-32,-64,64,64);}
+  if(_msr!==undefined&&_SPR_READY){const _mf=((elapsed>>3)&1)*_SPR_CW;const[_mcy,_mch]=_SPR_CROP[_msr];cx.drawImage(_SPR_IMG,_mf,_msr*_SPR_CH+_mcy,_SPR_CW,_mch,-44,-88,88,88);}
   else{cx.scale(3,3);_drawCharPixels(cx,best.bot.charDef,(elapsed>>3)&1);}
   cx.restore();
 
