@@ -858,7 +858,7 @@ function _drawCap(ctx,capCol,capBack,hair,ponytail=false){
 
 // ── Entities ────────────────────────────
 let player,bots,camX,camY;
-const NUM_BOTS=14,PLAYER_SPEED=1.8,BOT_SPEED=0.9;
+const NUM_BOTS=14,PLAYER_SPEED=1.8,BOT_SPEED=0.9,ENTITY_R=10;
 
 function randSpawn(){
   for(let i=0;i<200;i++){
@@ -898,6 +898,12 @@ function initCamera(){
 }
 
 // ── Movement ────────────────────────────
+function entityBlocked(nx,ny,self){
+  const minD=ENTITY_R*2,minD2=minD*minD;
+  if(player&&player!==self){const dx=nx-player.x,dy=ny-player.y;if(dx*dx+dy*dy<minD2)return true;}
+  if(bots){for(const b of bots){if(b===self)continue;const dx=nx-b.x,dy=ny-b.y;if(dx*dx+dy*dy<minD2)return true;}}
+  return false;
+}
 function moveEntity(e,tx,ty,spd){
   if(tx===null)return false;
   const dx=tx-e.x,dy=ty-e.y;
@@ -905,9 +911,9 @@ function moveEntity(e,tx,ty,spd){
   if(dist<3){e.x=tx;e.y=ty;e.tx=null;e.ty=null;return true;}
   const nx=dx/dist,ny=dy/dist;
   const nx_=e.x+nx*spd,ny_=e.y+ny*spd;
-  if(canWalk(nx_,ny_)){e.x=nx_;e.y=ny_;}
-  else if(canWalk(nx_,e.y)){e.x=nx_;}
-  else if(canWalk(e.x,ny_)){e.y=ny_;}
+  if(canWalk(nx_,ny_)&&!entityBlocked(nx_,ny_,e)){e.x=nx_;e.y=ny_;}
+  else if(canWalk(nx_,e.y)&&!entityBlocked(nx_,e.y,e)){e.x=nx_;}
+  else if(canWalk(e.x,ny_)&&!entityBlocked(e.x,ny_,e)){e.y=ny_;}
   if(e.y<HORIZON_Y)e.y=HORIZON_Y;
   if(Math.abs(dx)>1)e.facing=dx>0?'right':'left';
   if(++e.frameTimer>8){e.frameTimer=0;e.frame=(e.frame+1)%4;}
@@ -1608,8 +1614,8 @@ function updateEntities(){
   if(dx!==0||dy!==0){
     const mag=Math.sqrt(dx*dx+dy*dy);
     const nx=dx/mag*PLAYER_SPEED,ny=dy/mag*PLAYER_SPEED;
-    if(canWalk(player.x+nx,player.y))player.x+=nx;
-    if(canWalk(player.x,player.y+ny))player.y+=ny;
+    if(canWalk(player.x+nx,player.y)&&!entityBlocked(player.x+nx,player.y,player))player.x+=nx;
+    if(canWalk(player.x,player.y+ny)&&!entityBlocked(player.x,player.y+ny,player))player.y+=ny;
     player.x=clamp(player.x,TS,WW-TS);player.y=clamp(player.y,HORIZON_Y,WH-TS);
     if(dx!==0)player.facing=dx>0?'right':'left';
     if(++player.frameTimer>8){player.frameTimer=0;player.frame=(player.frame+1)%4;}
