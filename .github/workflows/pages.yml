@@ -1,69 +1,30 @@
-name: Desplegar en GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '10 10 * * *'
-    - cron: '5 16 * * *'
-    - cron: '10 3 * * *'
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Instalar dependencias
-        run: npm ci
-
-      - name: Verificar foto oficial de la gobernadora
-        run: |
-          mkdir -p public/images
-          if [ -f public/images/gobernadora-pr.jpg ] && file public/images/gobernadora-pr.jpg | grep -qiE "JPEG|image"; then
-            echo "✓ Foto del repo válida ($(du -sh public/images/gobernadora-pr.jpg | cut -f1))"
-          else
-            echo "⚠ Foto no encontrada en repo, intentando descargar..."
-            curl -sL -A "Mozilla/5.0" \
-              "https://bioguide.congress.gov/photos/G000582.jpg" \
-              -o /tmp/gobernadora-tmp.jpg && \
-              file /tmp/gobernadora-tmp.jpg | grep -qiE "JPEG|image" && \
-              cp /tmp/gobernadora-tmp.jpg public/images/gobernadora-pr.jpg && \
-              echo "✓ Foto descargada de Congress.gov" || \
-            echo "⚠ Usando foto de respaldo del repo"
-          fi
-        continue-on-error: true
-
-      - name: Actualizar datos desde fuentes oficiales
-        run: node scripts/update-data.mjs
-        continue-on-error: true
-
-      - name: Confirmar cambios de datos si los hay
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/updates.json
-          git diff --staged --quiet || git commit -m "data: actualización automática $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
-          git push origin HEAD:main || true
-        continue-on-error: true
-
-      - name: Construir aplicación
-        run: npm run build
-
-      - name: Desplegar en gh-pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out
-          cname: ''
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
