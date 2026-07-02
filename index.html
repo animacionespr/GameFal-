@@ -51,20 +51,159 @@ const P = {
   plA:'#d8d8e8', plB:'#b0b0c0', plEye:'#2030b0', plScarf:'#e02020',
   hOn:'#ee2244', hOff:'#441122',
   tw:'#ffffff', tg:'#ffc800', to:'#ff8800',
+  // special platforms
+  bounceTop:'#40e8ff', bounceBody:'#1088a8', bounceShad:'#0a5870',
+  fragTop:'#a08060', fragBody:'#7a6048', fragShad:'#544234',
+  movTop:'#3aba4a', movBody:'#1a7a2a', movShad:'#0e5218',
+  // power-ups
+  puShield:'#40a8ff', puMagnet:'#ff50d8', puDouble:'#50ff70',
 };
+
+// ── Audio (Web Audio API, todo generado por código) ─────────
+let AC = null, master = null, noiseBuf = null, music = null;
+
+function audioInit() {
+  if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
+  try {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) { AC = null; return; }
+  master = AC.createGain();
+  master.gain.value = 0.5;
+  master.connect(AC.destination);
+  // buffer de ruido blanco reutilizable
+  noiseBuf = AC.createBuffer(1, AC.sampleRate * 1, AC.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+}
+
+function beep(f0, f1, dur, type, vol, when) {
+  if (!AC) return;
+  const t = AC.currentTime + (when || 0);
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(Math.max(f0, 1), t);
+  if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+
+function noiseSfx(dur, f0, f1, vol, q, when) {
+  if (!AC) return;
+  const t = AC.currentTime + (when || 0);
+  const src = AC.createBufferSource();
+  src.buffer = noiseBuf; src.loop = true;
+  const flt = AC.createBiquadFilter();
+  flt.type = 'bandpass'; flt.Q.value = q || 1;
+  flt.frequency.setValueAtTime(Math.max(f0, 20), t);
+  flt.frequency.exponentialRampToValueAtTime(Math.max(f1, 20), t + dur);
+  const g = AC.createGain();
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  src.connect(flt); flt.connect(g); g.connect(master);
+  src.start(t); src.stop(t + dur + 0.03);
+}
+
+// Moneda: tono corto ascendente
+function sfxCoin() {
+  beep(660, 1320, 0.09, 'square', 0.14);
+  beep(880, 1760, 0.10, 'square', 0.10, 0.06);
+}
+// Daño/fuego: ruido descendente + zumbido grave
+function sfxHit() {
+  noiseSfx(0.38, 2200, 120, 0.42, 0.8);
+  beep(280, 55, 0.35, 'sawtooth', 0.22);
+}
+// Aterrizaje: golpe suave grave
+function sfxLand() {
+  beep(150, 55, 0.09, 'sine', 0.30);
+  noiseSfx(0.06, 700, 250, 0.10, 1);
+}
+// WHOOSH: barrido de ruido
+function sfxWhoosh() {
+  noiseSfx(0.45, 250, 1600, 0.16, 0.6);
+}
+// Rebote
+function sfxBounce() {
+  beep(180, 720, 0.17, 'square', 0.18);
+}
+// Plataforma que se rompe
+function sfxBreak() {
+  noiseSfx(0.18, 1600, 350, 0.28, 1.4);
+  beep(220, 90, 0.14, 'triangle', 0.15);
+}
+// Power-up: arpegio corto
+function sfxPowerup() {
+  beep(440, 440, 0.07, 'square', 0.13);
+  beep(660, 660, 0.07, 'square', 0.13, 0.07);
+  beep(880, 880, 0.11, 'square', 0.13, 0.14);
+}
+// Muerte
+function sfxDie() {
+  noiseSfx(0.6, 1800, 80, 0.45, 0.7);
+  beep(200, 30, 0.6, 'sawtooth', 0.25);
+}
+
+// Música ambient: drone oscuro con osciladores
+function startMusic() {
+  if (!AC || music) return;
+  const t = AC.currentTime;
+  const g = AC.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(0.09, t + 2.5);
+  g.connect(master);
+  const flt = AC.createBiquadFilter();
+  flt.type = 'lowpass'; flt.frequency.value = 160; flt.Q.value = 5;
+  flt.connect(g);
+  const o1 = AC.createOscillator(); o1.type = 'sawtooth'; o1.frequency.value = 55;
+  const o2 = AC.createOscillator(); o2.type = 'sawtooth'; o2.frequency.value = 55.6;
+  const o3 = AC.createOscillator(); o3.type = 'sine';     o3.frequency.value = 110.3;
+  const g3 = AC.createGain(); g3.gain.value = 0.35;
+  o1.connect(flt); o2.connect(flt); o3.connect(g3); g3.connect(flt);
+  // LFO lento sobre el filtro para respiración oscura
+  const lfo = AC.createOscillator(); lfo.frequency.value = 0.07;
+  const lg = AC.createGain(); lg.gain.value = 55;
+  lfo.connect(lg); lg.connect(flt.frequency);
+  o1.start(); o2.start(); o3.start(); lfo.start();
+  music = { g, flt, oscs: [o1, o2, o3, lfo] };
+}
+
+function stopMusic() {
+  if (!AC || !music) return;
+  const t = AC.currentTime;
+  music.g.gain.cancelScheduledValues(t);
+  music.g.gain.setValueAtTime(music.g.gain.value, t);
+  music.g.gain.linearRampToValueAtTime(0.0001, t + 1);
+  const m = music;
+  m.oscs.forEach(o => { try { o.stop(t + 1.1); } catch (e) {} });
+  music = null;
+}
 
 // ── State ────────────────────────────────────────────────────
 let STATE = 'menu'; // menu | playing | gameover | askperm
-let score = 0, best = +( localStorage.getItem('gf_best') || 0 );
+let score = 0, bonus = 0, best = +( localStorage.getItem('gf_best') || 0 );
 let lives = 3, coins = 0, deaths = 0;
 let tilt = 0;        // -1..1 horizontal tilt input
 let cam  = 0;        // world-Y at screen top
 let depth = 0;       // max world-Y reached
 
-let player, platforms, coinItems, parts, floats;
+let player, platforms, coinItems, parts, floats, pups, enemies;
 let nextPlatY = 0, frameN = 0;
 let whooshTimer = 0;  // cooldown for WHOOSH text
 let comboCount = 0, comboCooldown = 0;
+let shakeT = 0;                       // screen shake
+let shieldT = 0, magnetT = 0, doubleT = 0;  // power-up timers (frames)
+
+// ── Level intensity (0..1) para efectos visuales ─────────────
+function inten() { return clamp((score - 100) / 500, 0, 1); }
+
+function lerpCol(a, b, t) {
+  const r = Math.round(a[0] + (b[0] - a[0]) * t);
+  const g = Math.round(a[1] + (b[1] - a[1]) * t);
+  const bl = Math.round(a[2] + (b[2] - a[2]) * t);
+  return `rgb(${r},${g},${bl})`;
+}
 
 // ── Platform generation ──────────────────────────────────────
 function firePct() {
@@ -75,6 +214,14 @@ function firePct() {
   return 0.38;
 }
 
+function pickType() {
+  if (score >= 50 && Math.random() < firePct()) return 'fire';
+  if (score >= 30  && Math.random() < 0.11) return 'bounce';
+  if (score >= 80  && Math.random() < 0.12) return 'fragile';
+  if (score >= 150 && Math.random() < 0.13) return 'moving';
+  return 'normal';
+}
+
 function genPlatforms(fromY, toY) {
   const pw = VW - WALL * 2;
   let y = fromY;
@@ -83,9 +230,17 @@ function genPlatforms(fromY, toY) {
     for (let i = 0; i < n; i++) {
       const w  = 70 + Math.random() * 110;
       const x  = WALL + Math.random() * (pw - w);
-      const fire = Math.random() < firePct();
-      const doCoins = !fire && Math.random() < 0.5;
-      platforms.push({ x, y, w, h: PLAT_H, fire, fa: Math.random() * 6.28 });
+      const type = pickType();
+      const p = { x, y, w, h: PLAT_H, type, fire: type === 'fire',
+                  fa: Math.random() * 6.28, breakT: -1, gone: false };
+      if (type === 'moving') {
+        p.baseX = x;
+        p.range = Math.min(55, x - WALL, VW - WALL - w - x);
+        p.phase = Math.random() * 6.28;
+        p.mspd  = 0.015 + Math.random() * 0.02;
+      }
+      platforms.push(p);
+      const doCoins = type !== 'fire' && type !== 'fragile' && Math.random() < 0.5;
       if (doCoins) {
         const nc = rnd(1, 4);
         for (let c = 0; c < nc; c++) {
@@ -98,6 +253,28 @@ function genPlatforms(fromY, toY) {
         }
       }
     }
+    // Power-ups flotantes ocasionales
+    if (score >= 20 && Math.random() < 0.055) {
+      const types = ['shield', 'magnet', 'double'];
+      pups.push({
+        x: WALL + 40 + Math.random() * (pw - 80),
+        y: y + 45 + Math.random() * 30,
+        type: types[rnd(0, 2)],
+        a: Math.random() * 6.28,
+        done: false,
+      });
+    }
+    // Enemigo bola de fuego ocasional
+    if (score >= 60 && Math.random() < 0.10) {
+      enemies.push({
+        x0: VW / 2 + (Math.random() - 0.5) * 60,
+        y: y + 50 + Math.random() * 40,
+        r: (VW - WALL * 2) / 2 - 45,
+        ph: Math.random() * 6.28,
+        spd: 0.016 + Math.random() * 0.018,
+        x: VW / 2, fa: Math.random() * 6.28, dead: false,
+      });
+    }
     y += 100 + Math.random() * 70;
   }
   nextPlatY = y;
@@ -107,19 +284,23 @@ function rnd(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
 
 // ── Init ─────────────────────────────────────────────────────
 function initGame() {
-  score = 0; lives = 3; coins = 0; depth = 0; frameN = 0;
+  score = 0; bonus = 0; lives = 3; coins = 0; depth = 0; frameN = 0;
   whooshTimer = 0; comboCount = 0; comboCooldown = 0;
+  shakeT = 0; shieldT = 0; magnetT = 0; doubleT = 0;
   cam = 0;
-  player = { x:VW/2, y:80, vx:0, vy:0, ground:false, inv:0, dead:false, dt:0, af:0, at:0 };
-  platforms = []; coinItems = []; parts = []; floats = [];
+  player = { x:VW/2, y:80, vx:0, vy:0, ground:false, inv:0, dead:false,
+             dt:0, af:0, at:0, sq:0, onPlat:null };
+  platforms = []; coinItems = []; parts = []; floats = []; pups = []; enemies = [];
   nextPlatY = 150;
-  platforms.push({ x:VW/2-70, y:160, w:140, h:PLAT_H, fire:false, fa:0 });
+  platforms.push({ x:VW/2-70, y:160, w:140, h:PLAT_H, type:'normal', fire:false,
+                   fa:0, breakT:-1, gone:false });
   genPlatforms(260, VH * 3);
 }
 
 // ── Update ───────────────────────────────────────────────────
 function update() {
   frameN++;
+  if (shakeT > 0) shakeT--;
   if (player.dead) { if (--player.dt <= 0) doRespawn(); return; }
 
   // Horizontal
@@ -138,20 +319,70 @@ function update() {
   if (player.x < WALL + PW/2) { player.x = WALL + PW/2; player.vx = Math.abs(player.vx) * 0.4; }
   if (player.x > VW - WALL - PW/2) { player.x = VW - WALL - PW/2; player.vx = -Math.abs(player.vx) * 0.4; }
 
+  // Plataformas móviles: mover y arrastrar al jugador si está encima
+  for (const p of platforms) {
+    if (p.type !== 'moving') continue;
+    p.phase += p.mspd;
+    const nx = p.baseX + Math.sin(p.phase) * p.range;
+    const dx = nx - p.x;
+    p.x = nx;
+    if (player.ground && player.onPlat === p) player.x += dx;
+  }
+
+  // Plataformas frágiles: cuenta atrás para romperse
+  for (const p of platforms) {
+    if (p.type !== 'fragile' || p.breakT < 0) continue;
+    if (--p.breakT <= 0) {
+      p.gone = true;
+      spawnParts(p.x + p.w / 2, p.y + 6, P.fragTop, 10, 3);
+      spawnParts(p.x + p.w / 2, p.y + 6, P.fragBody, 6, 2);
+      sfxBreak();
+      if (player.onPlat === p) player.onPlat = null;
+    }
+  }
+  platforms = platforms.filter(p => !p.gone);
+
   // Platform collision (only while falling)
+  const wasGround = player.ground;
   player.ground = false;
+  if (!wasGround) player.onPlat = null;
   if (player.vy >= 0) {
     for (const p of platforms) {
       const foot = player.y + PH/2;
       const prev = foot - player.vy;
       if (player.x + PW/2 > p.x && player.x - PW/2 < p.x + p.w &&
           prev <= p.y && foot >= p.y) {
-        if (p.fire) {
-          if (player.inv <= 0) { hitFire(); player.vy = -10; }
+        if (p.type === 'fire') {
+          if (shieldT > 0) {
+            player.vy = -10;
+            addFloat(player.x, player.y - 20, '¡ESCUDO!', P.puShield, -1.5, 40);
+            spawnParts(player.x, player.y + PH/2, P.puShield, 8, 3);
+            sfxBounce();
+          } else if (player.inv <= 0) {
+            takeDamage();
+            player.vy = -10;
+          }
+        } else if (p.type === 'bounce') {
+          const impact = player.vy;
+          player.y = p.y - PH/2;
+          player.vy = -15.5;
+          player.sq = 10;
+          spawnParts(player.x, p.y, P.bounceTop, 8, 4);
+          addFloat(player.x, p.y - 24, '¡BOING!', P.bounceTop, -2, 45);
+          sfxBounce();
+          if (impact > 4) shakeSmall();
         } else {
+          const impact = player.vy;
           player.y = p.y - PH/2;
           player.vy = 0;
           player.ground = true;
+          player.onPlat = p;
+          if (p.type === 'fragile' && p.breakT < 0) p.breakT = 30; // ~0.5s a 60fps
+          if (!wasGround && impact > 4.5) {
+            sfxLand();
+            player.sq = 9;
+            spawnParts(player.x, p.y, 'rgba(200,180,140,0.8)', 5, 2);
+          }
         }
         break;
       }
@@ -159,6 +390,7 @@ function update() {
   }
 
   if (player.inv > 0) player.inv--;
+  if (player.sq > 0) player.sq--;
 
   // Anim frame
   if (++player.at > 12) { player.at = 0; player.af ^= 1; }
@@ -167,6 +399,7 @@ function update() {
   if (player.vy > 10 && whooshTimer === 0 && !player.ground) {
     whooshTimer = 80;
     addFloat(player.x + 30, player.y - 10, 'WHOOSH!', '#88ccff', -1.2, 55);
+    sfxWhoosh();
   }
   if (whooshTimer > 0) whooshTimer--;
 
@@ -174,12 +407,18 @@ function update() {
   if (comboCooldown > 0) comboCooldown--;
   else comboCount = 0;
 
+  // Power-up timers
+  if (shieldT > 0) shieldT--;
+  if (magnetT > 0) magnetT--;
+  if (doubleT > 0) doubleT--;
+
   // Camera: player at ~30% from top
   cam += (player.y - VH * 0.30 - cam) * 0.11;
 
-  // Depth / score
+  // Depth / score (base por profundidad + bonus acumulado)
   const nd = Math.max(depth, player.y - 200);
-  if (nd > depth) { depth = nd; score = Math.floor(depth / 8); }
+  if (nd > depth) depth = nd;
+  score = Math.floor(depth / 8) + bonus;
 
   // Generate ahead
   if (nextPlatY < player.y + VH * 2) genPlatforms(nextPlatY, nextPlatY + VH * 2);
@@ -188,18 +427,76 @@ function update() {
   const prune = cam - VH;
   platforms = platforms.filter(p => p.y > prune);
   coinItems  = coinItems.filter(c => c.y > prune);
+  pups       = pups.filter(u => u.y > prune && !u.done);
+  enemies    = enemies.filter(e => e.y > prune && !e.dead);
 
-  // Coins
+  // Coins (con imán)
   for (const c of coinItems) {
     if (c.done) continue;
     c.a += 0.07;
+    if (magnetT > 0) {
+      const dx = player.x - c.x, dy = player.y - c.y;
+      if (dx * dx + dy * dy < 140 * 140) {
+        c.x += dx * 0.11;
+        c.y += dy * 0.11;
+      }
+    }
     if (Math.abs(player.x - c.x) < PW/2 + CR && Math.abs(player.y - c.y) < PH/2 + CR) {
-      c.done = true; coins++; score += 5;
+      c.done = true; coins++;
+      const pts = doubleT > 0 ? 10 : 5;
+      bonus += pts; score += pts;
       comboCount++; comboCooldown = 100;
-      const label = comboCount >= 3 ? `x${comboCount}!` : '+5';
-      addFloat(c.x, c.y, label, comboCount >= 3 ? P.to : P.tg, -1.8, 55);
+      const label = comboCount >= 3 ? `x${comboCount}!` : `+${pts}`;
+      addFloat(c.x, c.y, label, comboCount >= 3 ? P.to : (doubleT > 0 ? P.puDouble : P.tg), -1.8, 55);
       if (comboCount === 3) addFloat(VW/2, cam + 130, 'TRIPLE COIN!', 'rgba(255,180,0,0.55)', -0.6, 80);
       spawnParts(c.x, c.y, P.coinA, 6, 3);
+      sfxCoin();
+    }
+  }
+
+  // Power-ups: flotación + recogida
+  for (const u of pups) {
+    if (u.done) continue;
+    u.a += 0.06;
+    if (Math.abs(player.x - u.x) < PW/2 + 14 && Math.abs(player.y - u.y) < PH/2 + 14) {
+      u.done = true;
+      sfxPowerup();
+      if (u.type === 'shield') {
+        shieldT = 600; // 10s
+        addFloat(u.x, u.y - 16, '¡ESCUDO 10s!', P.puShield, -1.6, 60);
+        spawnParts(u.x, u.y, P.puShield, 10, 4);
+      } else if (u.type === 'magnet') {
+        magnetT = 480; // 8s
+        addFloat(u.x, u.y - 16, '¡IMÁN 8s!', P.puMagnet, -1.6, 60);
+        spawnParts(u.x, u.y, P.puMagnet, 10, 4);
+      } else {
+        doubleT = 600; // 10s
+        addFloat(u.x, u.y - 16, '¡PUNTOS x2!', P.puDouble, -1.6, 60);
+        spawnParts(u.x, u.y, P.puDouble, 10, 4);
+      }
+    }
+  }
+
+  // Enemigos: bolas de fuego flotantes
+  for (const e of enemies) {
+    if (e.dead) continue;
+    e.ph += e.spd;
+    e.fa += 0.2;
+    e.x = e.x0 + Math.sin(e.ph) * e.r;
+    const dx = player.x - e.x, dy = player.y - e.y;
+    if (dx * dx + dy * dy < (PW/2 + 12) * (PW/2 + 12)) {
+      if (shieldT > 0) {
+        e.dead = true;
+        const ep = doubleT > 0 ? 30 : 15;
+        bonus += ep; score += ep;
+        addFloat(e.x, e.y - 16, doubleT > 0 ? '+30' : '+15', P.puShield, -2, 50);
+        spawnParts(e.x, e.y, P.fA, 12, 5);
+        sfxBreak();
+      } else if (player.inv <= 0) {
+        takeDamage();
+        player.vy = -9;
+        player.vx = dx > 0 ? 6 : -6;
+      }
     }
   }
 
@@ -213,25 +510,34 @@ function update() {
     if (f.life <= 0) floats.splice(i, 1);
   }
 
+  // Música: sube la intensidad del filtro con el nivel
+  if (music) music.flt.frequency.value = 160 + inten() * 300;
+
   // Best score
   if (score > best) { best = score; localStorage.setItem('gf_best', best); }
 }
 
-function hitFire() {
+function shakeSmall() { if (shakeT < 5) shakeT = 5; }
+
+function takeDamage() {
   lives--;
   player.inv = 150;
+  shakeT = 16;
   spawnParts(player.x, player.y, P.fA, 16, 5);
   addFloat(player.x, player.y - 20, 'AUCH!', '#ff4400', -2, 50);
+  sfxHit();
   if (lives <= 0) playerDie();
 }
 
 function playerDie() {
   player.dead = true; player.dt = 90; deaths++;
+  shakeT = 22;
   spawnParts(player.x, player.y, P.plA, 20, 7);
+  sfxDie();
 }
 
 function doRespawn() {
-  if (lives <= 0) { STATE = 'gameover'; return; }
+  if (lives <= 0) { STATE = 'gameover'; stopMusic(); return; }
   player.dead = false;
   player.x = VW / 2; player.y = cam + VH * 0.18;
   player.vx = 0; player.vy = 0; player.inv = 200;
@@ -251,6 +557,15 @@ function addFloat(x, y, txt, col, vy, life) {
 
 function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
+// hash determinista para el parallax
+function hash(n) {
+  n = Math.imul(n ^ 61, 0x27d4eb2d);
+  n = n ^ (n >>> 15);
+  n = Math.imul(n, 0x2c1b3c6d);
+  n = n ^ (n >>> 12);
+  return (n >>> 0) / 4294967296;
+}
+
 // ── Draw ─────────────────────────────────────────────────────
 function draw() {
   cx.save();
@@ -263,23 +578,77 @@ function draw() {
 }
 
 function drawGame() {
-  // BG
-  cx.fillStyle = P.bg;
+  const t = inten();
+  // BG: se oscurece y enrojece con el nivel
+  cx.fillStyle = lerpCol([30, 8, 8], [52, 3, 3], t);
   cx.fillRect(0, 0, VW, VH);
+
+  // Screen shake: aplicar al mundo
+  cx.save();
+  if (shakeT > 0) {
+    const m = shakeT * 0.55;
+    cx.translate((Math.random() - 0.5) * m, (Math.random() - 0.5) * m);
+  }
+
   // Cave vertical lines
-  cx.strokeStyle = 'rgba(80,20,20,0.18)';
+  cx.strokeStyle = `rgba(${80 + t * 60},20,20,${0.18 + t * 0.10})`;
   cx.lineWidth = 1;
   for (let x = WALL + 8; x < VW - WALL; x += 17) {
     const s = Math.sin(x * 0.15 + cam * 0.012) * 5;
     cx.beginPath(); cx.moveTo(x + s, 0); cx.lineTo(x - s, VH); cx.stroke();
   }
+  drawParallax();
   drawWalls();
   drawPlatformsD();
   drawCoinsD();
+  drawPupsD();
+  drawEnemiesD();
   drawPartsD();
   drawFloatsD();
   drawPlayerD();
+  cx.restore(); // fin shake
+
+  drawLevelFX(t);
   drawHUD();
+}
+
+// ── Parallax: 2 capas de estalactitas/estalagmitas ───────────
+function drawParallax() {
+  drawSpikeLayer(0.35, 'rgba(44,10,10,0.95)', 120, 17, 46);   // capa lejana
+  drawSpikeLayer(0.62, 'rgba(72,17,17,0.92)', 165, 91, 78);   // capa cercana
+}
+
+function drawSpikeLayer(spd, col, gap, seed, maxLen) {
+  cx.fillStyle = col;
+  const off = cam * spd;
+  const i0 = Math.floor(off / gap) - 1;
+  const iN = i0 + Math.ceil(VH / gap) + 3;
+  for (let i = i0; i < iN; i++) {
+    const y  = i * gap - off + hash(i * 3 + seed) * gap * 0.55;
+    const L  = maxLen * (0.45 + hash(i * 5 + seed + 1) * 0.65);
+    const w  = 10 + hash(i * 7 + seed + 2) * 14;
+    const fromLeft = hash(i * 11 + seed + 3) < 0.5;
+    // pico escalonado (estilo pixel) que sale de la pared
+    const steps = 4;
+    for (let s = 0; s < steps; s++) {
+      const ww = w * (1 - s / steps);
+      const ll = L / steps;
+      const xx = fromLeft ? WALL + s * ll : VW - WALL - (s + 1) * ll;
+      cx.fillRect(xx, y - ww, ll + 0.6, ww * 2);
+    }
+  }
+}
+
+// ── Efectos de nivel: viñeta roja creciente + pulso ──────────
+function drawLevelFX(t) {
+  if (t <= 0.01) return;
+  let a = t * 0.30;
+  if (score >= 600) a += 0.06 + 0.05 * Math.sin(frameN * 0.06); // pulso HURRICANE
+  const grad = cx.createRadialGradient(VW/2, VH/2, VH * 0.25, VW/2, VH/2, VH * 0.72);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, `rgba(90,0,0,${a})`);
+  cx.fillStyle = grad;
+  cx.fillRect(0, 0, VW, VH);
 }
 
 function drawWalls() {
@@ -300,7 +669,7 @@ function drawPlatformsD() {
   for (const p of platforms) {
     const sy = p.y - cam;
     if (sy > VH + 40 || sy < -60) continue;
-    if (p.fire) {
+    if (p.type === 'fire') {
       cx.fillStyle = P.fpBody; cx.fillRect(p.x, sy+4, p.w, p.h-4);
       cx.fillStyle = P.fpTop;  cx.fillRect(p.x, sy,   p.w, 4);
       p.fa += 0.13;
@@ -309,6 +678,43 @@ function drawPlatformsD() {
         cx.fillStyle = P.fB; cx.fillRect(fx+1, sy - fh*0.5, 3, fh*0.5);
         cx.fillStyle = P.fA; cx.fillRect(fx,   sy - fh*0.8, 4, fh*0.4);
         cx.fillStyle = P.fC; cx.fillRect(fx+1, sy - fh,     2, fh*0.35);
+      }
+    } else if (p.type === 'bounce') {
+      const pulse = 1 + Math.sin(frameN * 0.15 + p.fa) * 0.5;
+      cx.fillStyle = P.bounceShad; cx.fillRect(p.x+3, sy+3, p.w, p.h);
+      cx.fillStyle = P.bounceBody; cx.fillRect(p.x,   sy+4, p.w, p.h-4);
+      cx.fillStyle = P.bounceTop;  cx.fillRect(p.x,   sy - pulse, p.w, 4 + pulse);
+      // flechas hacia arriba
+      cx.fillStyle = '#b0f8ff';
+      for (let dx = 10; dx < p.w - 8; dx += 22) {
+        cx.fillRect(p.x+dx+3, sy+6,  3, 3);
+        cx.fillRect(p.x+dx,   sy+9,  9, 3);
+      }
+    } else if (p.type === 'fragile') {
+      const breaking = p.breakT >= 0;
+      const jx = breaking ? (Math.random() - 0.5) * 3 : 0;
+      const jy = breaking ? (Math.random() - 0.5) * 2 : 0;
+      cx.globalAlpha = breaking ? 0.55 + 0.45 * (p.breakT / 30) : 1;
+      cx.fillStyle = P.fragShad; cx.fillRect(p.x+3+jx, sy+3+jy, p.w, p.h);
+      cx.fillStyle = P.fragBody; cx.fillRect(p.x+jx,   sy+4+jy, p.w, p.h-4);
+      cx.fillStyle = P.fragTop;  cx.fillRect(p.x+jx,   sy+jy,   p.w, 4);
+      // grietas
+      cx.fillStyle = '#4a3828';
+      for (let dx = 8; dx < p.w - 6; dx += 20) {
+        cx.fillRect(p.x+dx+jx,   sy+4+jy, 2, 7);
+        cx.fillRect(p.x+dx+2+jx, sy+9+jy, 2, 5);
+      }
+      cx.globalAlpha = 1;
+    } else if (p.type === 'moving') {
+      cx.fillStyle = P.movShad; cx.fillRect(p.x+3, sy+3, p.w, p.h);
+      cx.fillStyle = P.movBody; cx.fillRect(p.x,   sy+4, p.w, p.h-4);
+      cx.fillStyle = P.movTop;  cx.fillRect(p.x,   sy,   p.w, 4);
+      // marcas de dirección ↔
+      cx.fillStyle = '#8ae89a';
+      const dir = Math.cos(p.phase) >= 0 ? 1 : -1;
+      for (let dx = 8; dx < p.w - 10; dx += 24) {
+        cx.fillRect(p.x+dx,           sy+8, 10, 2);
+        cx.fillRect(p.x+dx+(dir>0?8:0), sy+6, 2, 6);
       }
     } else {
       cx.fillStyle = P.platShad; cx.fillRect(p.x+3, sy+3, p.w, p.h);
@@ -331,6 +737,64 @@ function drawCoinsD() {
     cx.fillStyle = P.coinA; cx.fillRect(c.x-CR, sy-CR,   CR*2, CR*2);
     cx.fillStyle = P.coinSh; cx.fillRect(c.x-CR+2, sy-CR+2, 4, 4);
     cx.fillStyle = P.coinB;  cx.fillRect(c.x-2,    sy-CR+4, 4, CR*2-8);
+  }
+}
+
+// ── Power-ups flotantes ───────────────────────────────────────
+function drawPupsD() {
+  for (const u of pups) {
+    if (u.done) continue;
+    const sy = u.y - cam + Math.sin(u.a) * 5;
+    if (sy > VH + 24 || sy < -24) continue;
+    const col = u.type === 'shield' ? P.puShield : u.type === 'magnet' ? P.puMagnet : P.puDouble;
+    const glow = 0.5 + 0.5 * Math.sin(u.a * 2);
+    // aura
+    cx.globalAlpha = 0.18 + glow * 0.14;
+    cx.fillStyle = col;
+    cx.fillRect(u.x - 15, sy - 15, 30, 30);
+    cx.globalAlpha = 1;
+    // caja
+    cx.fillStyle = '#100808'; cx.fillRect(u.x - 11, sy - 11, 22, 22);
+    cx.fillStyle = col;       cx.fillRect(u.x - 11, sy - 11, 22, 3);
+    cx.fillRect(u.x - 11, sy + 8, 22, 3);
+    cx.fillRect(u.x - 11, sy - 11, 3, 22);
+    cx.fillRect(u.x + 8,  sy - 11, 3, 22);
+    // icono
+    cx.fillStyle = col;
+    cx.textAlign = 'center';
+    cx.font = 'bold 13px monospace';
+    const icon = u.type === 'shield' ? '♦' : u.type === 'magnet' ? '★' : '×2';
+    cx.fillText(icon, u.x, sy + 5);
+  }
+}
+
+// ── Enemigos: bolas de fuego ─────────────────────────────────
+function drawEnemiesD() {
+  for (const e of enemies) {
+    if (e.dead) continue;
+    const sy = e.y - cam;
+    if (sy > VH + 30 || sy < -30) continue;
+    const dir = Math.cos(e.ph) >= 0 ? 1 : -1;
+    const fl = Math.sin(e.fa) * 2;
+    // cola de fuego (opuesta a la dirección)
+    cx.fillStyle = P.fC;
+    cx.fillRect(e.x - dir * 16 - 4, sy - 3 + fl, 8, 6);
+    cx.fillStyle = P.fA;
+    cx.fillRect(e.x - dir * 11 - 4, sy - 5 - fl, 9, 10);
+    // núcleo
+    cx.fillStyle = P.fA; cx.fillRect(e.x - 9, sy - 9, 18, 18);
+    cx.fillStyle = P.fB; cx.fillRect(e.x - 6, sy - 6, 12, 12);
+    cx.fillStyle = '#fff8c0'; cx.fillRect(e.x - 3, sy - 3, 6, 6);
+    // ojos malvados
+    cx.fillStyle = '#301000';
+    cx.fillRect(e.x - 5 + dir * 2, sy - 4, 3, 4);
+    cx.fillRect(e.x + 2 + dir * 2, sy - 4, 3, 4);
+    // chispas
+    if (frameN % 4 === 0) {
+      parts.push({ x: e.x - dir * 14, y: e.y + (Math.random()-0.5)*8,
+        vx: -dir * (1+Math.random()), vy: -0.5 + Math.random(),
+        col: Math.random() < 0.5 ? P.fB : P.fC, size: 3, life: 14, ml: 14, a: 1 });
+    }
   }
 }
 
@@ -361,9 +825,41 @@ function drawPlayerD() {
   if (player.inv > 0 && Math.floor(player.inv / 4) % 2 === 0) return;
   const px = player.x, py = player.y - cam;
   const hw = PW/2, hh = PH/2;
+
+  // Squash & stretch
+  let sxq = 1, syq = 1;
+  if (player.ground) {
+    const k = player.sq / 9;
+    sxq = 1 + 0.28 * k;   // se aplana
+    syq = 1 - 0.26 * k;
+  } else {
+    const st = clamp(player.vy / MAX_VY, 0, 1);
+    syq = 1 + 0.24 * st;  // se estira al caer rápido
+    sxq = 1 - 0.16 * st;
+  }
+
   // Shadow
   cx.fillStyle = 'rgba(0,0,0,0.3)';
-  cx.beginPath(); cx.ellipse(px, py+hh+3, hw*0.8, 4, 0, 0, Math.PI*2); cx.fill();
+  cx.beginPath(); cx.ellipse(px, py+hh+3, hw*0.8*sxq, 4, 0, 0, Math.PI*2); cx.fill();
+
+  cx.save();
+  cx.translate(px, py + hh);       // pivote en los pies
+  cx.scale(sxq, syq);
+  cx.translate(-px, -(py + hh));
+
+  // Aura del escudo (parpadeante azul)
+  if (shieldT > 0) {
+    const fast = shieldT < 120 ? 0.5 : 0.22;
+    const a = 0.35 + 0.3 * Math.sin(frameN * fast);
+    cx.globalAlpha = Math.max(0.1, a);
+    cx.fillStyle = P.puShield;
+    cx.fillRect(px-hw-4, py-hh-4, PW+8, 3);
+    cx.fillRect(px-hw-4, py+hh+1, PW+8, 3);
+    cx.fillRect(px-hw-4, py-hh-4, 3, PH+8);
+    cx.fillRect(px+hw+1, py-hh-4, 3, PH+8);
+    cx.globalAlpha = 1;
+  }
+
   // Body
   cx.fillStyle = P.plA;
   cx.fillRect(px-hw+2, py-hh+4, PW-4, PH-8);
@@ -377,6 +873,7 @@ function drawPlayerD() {
   cx.fillStyle = '#6677ff'; cx.fillRect(px-6, ey, 2, 2); cx.fillRect(px+4, ey, 2, 2);
   // Scarf
   cx.fillStyle = P.plScarf; cx.fillRect(px-hw+2, py+2, PW-4, 5); cx.fillRect(px-hw+2, py+7, 7, 7);
+  cx.restore();
 }
 
 function drawHUD() {
@@ -396,9 +893,25 @@ function drawHUD() {
   cx.fillStyle=P.tw; cx.font='14px monospace'; cx.fillText(coins, 28, 37);
   // Hearts
   for (let i=0;i<3;i++) drawHeart(WALL+4+i*30, 52, i < lives);
+  // Power-ups activos con barra de tiempo
+  let py2 = 88;
+  py2 = drawPupHUD(shieldT, 600, P.puShield, '♦', py2);
+  py2 = drawPupHUD(magnetT, 480, P.puMagnet, '★', py2);
+  drawPupHUD(doubleT, 600, P.puDouble, '×2', py2);
   // Pause bars
   cx.fillStyle='rgba(0,0,0,0.45)'; cx.fillRect(VW-48,8,38,38);
   cx.fillStyle=P.tw; cx.fillRect(VW-42,16,8,22); cx.fillRect(VW-30,16,8,22);
+}
+
+function drawPupHUD(t, max, col, icon, y) {
+  if (t <= 0) return y;
+  cx.fillStyle = 'rgba(0,0,0,0.5)'; cx.fillRect(WALL+2, y, 74, 18);
+  cx.fillStyle = col;
+  cx.font = 'bold 12px monospace'; cx.textAlign = 'left';
+  cx.fillText(icon, WALL+6, y+13);
+  cx.fillStyle = 'rgba(255,255,255,0.25)'; cx.fillRect(WALL+24, y+6, 48, 6);
+  cx.fillStyle = col; cx.fillRect(WALL+24, y+6, 48 * (t / max), 6);
+  return y + 22;
 }
 
 function drawHeart(x,y,on) {
@@ -436,18 +949,23 @@ function drawMenu() {
   // Demo platforms
   cx.fillStyle=P.platTop;  cx.fillRect(55,430,120,4);
   cx.fillStyle=P.platBody; cx.fillRect(55,434,120,14);
-  cx.fillStyle=P.platTop;  cx.fillRect(215,470,100,4);
-  cx.fillStyle=P.platBody; cx.fillRect(215,474,100,14);
+  cx.fillStyle=P.bounceTop;  cx.fillRect(215,470,100,4);
+  cx.fillStyle=P.bounceBody; cx.fillRect(215,474,100,14);
   // Demo coin
   cx.fillStyle=P.coinA; cx.fillRect(156,408,18,18);
   cx.fillStyle=P.coinSh; cx.fillRect(158,410,4,4);
   // Instructions
-  cx.fillStyle=P.tw; cx.font='bold 18px monospace'; cx.fillText('INCLINA EL CELULAR',VW/2,558);
+  cx.fillStyle=P.tw; cx.font='bold 18px monospace'; cx.fillText('INCLINA EL CELULAR',VW/2,548);
   cx.fillStyle='rgba(255,255,255,0.72)'; cx.font='15px monospace';
-  cx.fillText('para mover al personaje',VW/2,582);
-  cx.fillText('Evita el fuego · Colecta monedas',VW/2,606);
+  cx.fillText('para mover al personaje',VW/2,572);
+  cx.fillText('Evita el fuego · Colecta monedas',VW/2,596);
+  // Power-up legend
+  cx.font='13px monospace';
+  cx.fillStyle=P.puShield; cx.fillText('♦ escudo', VW/2-105, 622);
+  cx.fillStyle=P.puMagnet; cx.fillText('★ imán',   VW/2,     622);
+  cx.fillStyle=P.puDouble; cx.fillText('×2 puntos',VW/2+105, 622);
   // Tilt diagram
-  drawTiltDiagram(VW/2, 665);
+  drawTiltDiagram(VW/2, 672);
   // Tap prompt
   const pulse = 0.62 + 0.38*Math.sin(mf*0.06);
   cx.globalAlpha=pulse; cx.fillStyle=P.tg; cx.font='bold 22px monospace';
@@ -513,6 +1031,7 @@ function setupInput() {
       typeof DeviceOrientationEvent.requestPermission === 'function') {
     STATE = 'askperm';
     const grant = () => {
+      audioInit();
       DeviceOrientationEvent.requestPermission()
         .then(r => { if(r==='granted') window.addEventListener('deviceorientation', onOrient); STATE='menu'; })
         .catch(() => { STATE='menu'; });
@@ -532,7 +1051,8 @@ function setupInput() {
   };
   window.addEventListener('keydown', e => {
     keys[e.key]=true; syncTilt();
-    if((e.key===' '||e.key==='Enter')&&STATE==='menu')     { deaths=0; initGame(); STATE='playing'; }
+    audioInit();
+    if((e.key===' '||e.key==='Enter')&&STATE==='menu')     { deaths=0; initGame(); STATE='playing'; startMusic(); }
     if((e.key===' '||e.key==='Enter')&&STATE==='gameover') { deaths=0; STATE='menu'; }
   });
   window.addEventListener('keyup', e => { keys[e.key]=false; syncTilt(); });
@@ -550,7 +1070,8 @@ function setupInput() {
 }
 
 function handleTap() {
-  if(STATE==='menu')     { deaths=0; initGame(); STATE='playing'; }
+  audioInit();
+  if(STATE==='menu')     { deaths=0; initGame(); STATE='playing'; startMusic(); }
   if(STATE==='gameover') { deaths=0; STATE='menu'; }
 }
 
