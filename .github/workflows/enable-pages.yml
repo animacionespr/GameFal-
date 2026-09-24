@@ -1,0 +1,30 @@
+name: Activar GitHub Pages
+on:
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read
+
+jobs:
+  activar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Activar GitHub Pages via API
+        run: |
+          gh api repos/animacionespr/GameFal- \
+            -X POST \
+            --header "Accept: application/vnd.github+json" \
+            /pages \
+            -f build_type=legacy \
+            -f "source[branch]=gh-pages" \
+            -f "source[path]=/" || \
+          gh api repos/animacionespr/GameFal-/pages \
+            -X PUT \
+            --header "Accept: application/vnd.github+json" \
+            -f build_type=legacy \
+            -f "source[branch]=gh-pages" \
+            -f "source[path]=/"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
